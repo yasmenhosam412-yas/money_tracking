@@ -2,6 +2,7 @@ import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:imrpo/features/incomes_tab/data/models/income_model.dart';
 import 'package:imrpo/features/incomes_tab/domain/usecases/add_income_usecase.dart';
+import 'package:imrpo/features/incomes_tab/domain/usecases/delete_all_incomes_usecase.dart';
 import 'package:imrpo/features/incomes_tab/domain/usecases/delete_income_usecase.dart';
 import 'package:imrpo/features/incomes_tab/domain/usecases/get_all_incomes_usecase.dart';
 import 'package:imrpo/features/incomes_tab/domain/usecases/update_income_usecase.dart';
@@ -13,12 +14,14 @@ class IncomesTabBloc extends Bloc<IncomesTabEvent, IncomesTabState> {
   final AddIncomeUsecase addIncomeUsecase;
   final UpdateIncomeUsecase updateIncomeUsecase;
   final DeleteIncomeUsecase deleteIncomeUsecase;
+  final DeleteAllIncomesUsecase deleteAllIncomesUsecase;
   final GetAllIncomesUsecase getAllIncomesUsecase;
 
   IncomesTabBloc({
     required this.addIncomeUsecase,
     required this.updateIncomeUsecase,
     required this.deleteIncomeUsecase,
+    required this.deleteAllIncomesUsecase,
     required this.getAllIncomesUsecase,
   }) : super(const IncomesTabState()) {
     on<LoadIncomesEvent>(_onLoad);
@@ -26,6 +29,7 @@ class IncomesTabBloc extends Bloc<IncomesTabEvent, IncomesTabState> {
     on<AddIncomeEvent>(_onAdd);
     on<UpdateIncomeEvent>(_onUpdate);
     on<DeleteIncomeEvent>(_onDelete);
+    on<ClearAllIncomesEvent>(_onClearAll);
   }
 
   void _onReset(ResetIncomesTabEvent event, Emitter<IncomesTabState> emit) {
@@ -166,5 +170,41 @@ class IncomesTabBloc extends Bloc<IncomesTabEvent, IncomesTabState> {
     );
 
     add(const LoadIncomesEvent(force: true));
+  }
+
+  Future<void> _onClearAll(
+    ClearAllIncomesEvent event,
+    Emitter<IncomesTabState> emit,
+  ) async {
+    emit(
+      state.copyWith(
+        status: IncomesTabStatus.loadingClearAll,
+        clearDeletingIncomeId: true,
+      ),
+    );
+
+    final result = await deleteAllIncomesUsecase();
+    if (emit.isDone) return;
+
+    result.fold(
+      (failure) {
+        emit(
+          state.copyWith(
+            status: IncomesTabStatus.errorClearAll,
+            message: failure.error,
+          ),
+        );
+      },
+      (_) {
+        emit(
+          state.copyWith(
+            status: IncomesTabStatus.loaded,
+            incomes: const [],
+            clearDeletingIncomeId: true,
+            message: '',
+          ),
+        );
+      },
+    );
   }
 }

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:imrpo/core/services/currency_converter.dart';
 import 'package:imrpo/core/services/currency_preferences.dart';
 import 'package:imrpo/core/services/service_locator.dart';
+import 'package:imrpo/core/session/user_session.dart';
 import 'package:imrpo/core/utils/app_colors.dart';
 
 /// Compact dropdown for app-wide display currency (lists & summaries).
@@ -66,7 +67,9 @@ class DisplayCurrencySelector extends StatelessWidget {
                 );
               }).toList(),
               onChanged: (code) {
-                if (code != null) prefs.displayCode = code;
+                if (code == null || code == prefs.displayCode) return;
+                prefs.displayCode = code;
+                UserSession.refreshForDisplayCurrency(context);
               },
             ),
           ),

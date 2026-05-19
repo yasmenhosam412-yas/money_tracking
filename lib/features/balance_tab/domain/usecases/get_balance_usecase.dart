@@ -11,10 +11,12 @@ class GetBalanceUsecase {
   Future<Either<Failure, BalanceSummary>> call({
     required DateTime reference,
     bool filterByDay = false,
+    bool includeAllDates = false,
   }) {
     return balanceRepository.getBalance(
       reference: reference,
       filterByDay: filterByDay,
+      includeAllDates: includeAllDates,
     );
   }
 }

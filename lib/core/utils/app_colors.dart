@@ -1,46 +1,53 @@
 import 'dart:ui';
 
-/// Central color palette for the app.
+/// Palette inspired by [assets/wallet.png] — warm coral, peach, sage, and gold.
 class AppColors {
   AppColors._();
 
-  // Brand
-  static const primary = Color(0xFF1D4ED8);
-  static const primaryLight = Color(0xFF3B82F6);
-  static const secondary = Color(0xFF0EA5E9);
+  /// Dark charcoal used for outlines and primary text (wallet stitching / lines).
+  static const stroke = Color(0xFF3A322E);
 
-  // Surfaces
-  static const background = Color(0xFFFFFFFF);
-  static const scaffold = Color(0xFFF8FAFC);
-  static const surface = Color(0xFFF1F5F9);
+  // Brand — wallet body & strap
+  static const primary = Color(0xFFF28C74);
+  static const primaryLight = Color(0xFFF9A890);
+  static const secondary = Color(0xFFF6A060);
+
+  // Surfaces — warm off-white canvas
+  static const background = Color(0xFFFFFDFB);
+  static const scaffold = Color(0xFFF7F3EF);
+  static const surface = Color(0xFFF0EBE6);
   static const card = Color(0xFFFFFFFF);
-  static const border = Color(0xFFE2E8F0);
+  static const border = Color(0xFFE8DED6);
 
-  // Text
-  static const textPrimary = Color(0xFF0F172A);
-  static const textSecondary = Color(0xFF64748B);
-  static const textMuted = Color(0xFF94A3B8);
+  // Text — charcoal family
+  static const textPrimary = stroke;
+  static const textSecondary = Color(0xFF6B625C);
+  static const textMuted = Color(0xFF9A9089);
 
-  // Tab / semantic
-  static const income = Color(0xFF10B981);
-  static const incomeDark = Color(0xFF059669);
-  static const incomeLight = Color(0xFFD1FAE5);
+  // Tab / semantic — bills (mint), spend (coral), balance (wallet), plans (coins)
+  static const income = Color(0xFF7EB87A);
+  static const incomeDark = Color(0xFF5A9B56);
+  static const incomeLight = Color(0xFFE8F3E6);
+  static const incomeBill = Color(0xFFA8D1A0);
 
-  static const expense = Color(0xFFEF4444);
-  static const expenseDark = Color(0xFFDC2626);
-  static const expenseLight = Color(0xFFFEE2E2);
+  static const expense = Color(0xFFE07A6A);
+  static const expenseDark = Color(0xFFC96858);
+  static const expenseLight = Color(0xFFFFECE8);
 
-  static const balance = Color(0xFF8B5CF6);
-  static const balanceDark = Color(0xFF7C3AED);
-  static const balanceLight = Color(0xFFEDE9FE);
+  static const balance = primary;
+  static const balanceDark = Color(0xFFE07862);
+  static const balanceLight = Color(0xFFFFF0EC);
 
-  static const plans = Color(0xFF6366F1);
-  static const plansDark = Color(0xFF4F46E5);
-  static const plansLight = Color(0xFFE0E7FF);
+  static const plans = Color(0xFFF7C14D);
+  static const plansDark = Color(0xFFE5A83A);
+  static const plansLight = Color(0xFFFFF6DC);
 
-  static const success = Color(0xFF22C55E);
-  static const warning = Color(0xFFF59E0B);
-  static const error = Color(0xFFEF4444);
+  static const success = income;
+  static const warning = plans;
+  static const error = expense;
+
+  /// Text/icons on coral or peach fills.
+  static const onWarm = Color(0xFFFFFFFF);
 
   // Legacy aliases
   static const primaryColor = primary;

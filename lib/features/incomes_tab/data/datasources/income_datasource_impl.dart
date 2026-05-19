@@ -1,3 +1,4 @@
+import 'package:imrpo/core/helpers/supabase_auth_helper.dart';
 import 'package:imrpo/core/helpers/supabase_delete_helper.dart';
 import 'package:imrpo/features/incomes_tab/data/datasources/income_datasource.dart';
 import 'package:imrpo/features/incomes_tab/data/models/income_model.dart';
@@ -20,16 +21,13 @@ class IncomeDatasourceImpl extends IncomeDatasource {
       'amount': amount,
       'date': date.toIso8601String(),
       'category': category,
-      'user_id': supabaseClient.auth.currentUser!.id,
+      'user_id': SupabaseAuthHelper.requireUserId(),
     });
   }
 
   @override
   Future<void> deleteIncome(String incomeId) async {
-    final userId = supabaseClient.auth.currentUser?.id;
-    if (userId == null) {
-      throw Exception('Not authenticated');
-    }
+    final userId = SupabaseAuthHelper.requireUserId();
 
     final deleted = await supabaseClient
         .from('incomes')
@@ -42,11 +40,20 @@ class IncomeDatasourceImpl extends IncomeDatasource {
   }
 
   @override
-  Future<List<IncomeModel>> getIncomes() {
-    return supabaseClient.from('incomes').select().eq("user_id", supabaseClient.auth.currentUser?.id ?? "").then((response) {
-      final data = response;
-      return data.map((item) => IncomeModel.fromMap(item)).toList();
-    });
+  Future<void> deleteAllIncomes() async {
+    final userId = SupabaseAuthHelper.requireUserId();
+
+    await supabaseClient.from('incomes').delete().eq('user_id', userId);
+  }
+
+  @override
+  Future<List<IncomeModel>> getIncomes() async {
+    final userId = SupabaseAuthHelper.requireUserId();
+    final response = await supabaseClient
+        .from('incomes')
+        .select()
+        .eq('user_id', userId);
+    return response.map((item) => IncomeModel.fromMap(item)).toList();
   }
 
   @override

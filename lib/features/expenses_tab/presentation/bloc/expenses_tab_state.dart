@@ -4,11 +4,13 @@ enum ExpensesTabStatus {
   initial,
   loadingAdd,
   loadingDelete,
+  loadingClearAll,
   loadingUpdate,
   loadingAll,
   loaded,
   errorAdd,
   errorDelete,
+  errorClearAll,
   errorUpdate,
   errorAll,
 }

@@ -1,20 +1,32 @@
 import 'package:flutter/material.dart';
 import 'package:imrpo/core/utils/app_colors.dart';
 
+/// Flat, outlined decorations matching the wallet illustration style.
 class AppDecorations {
   AppDecorations._();
 
-  static BoxDecoration card({Color? borderColor}) => BoxDecoration(
+  static const double cardRadius = 20;
+  static const double buttonRadius = 16;
+  static const double outlineWidth = 1.5;
+
+  static List<BoxShadow> flatShadow({Color? color, Offset offset = const Offset(0, 3)}) =>
+      [
+        BoxShadow(
+          color: (color ?? AppColors.stroke).withValues(alpha: 0.14),
+          offset: offset,
+          blurRadius: 0,
+        ),
+      ];
+
+  static BoxDecoration card({Color? borderColor, double radius = cardRadius}) =>
+      BoxDecoration(
         color: AppColors.card,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: borderColor ?? AppColors.border),
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.textPrimary.withValues(alpha: 0.05),
-            blurRadius: 12,
-            offset: const Offset(0, 4),
-          ),
-        ],
+        borderRadius: BorderRadius.circular(radius),
+        border: Border.all(
+          color: borderColor ?? AppColors.stroke.withValues(alpha: 0.12),
+          width: outlineWidth,
+        ),
+        boxShadow: flatShadow(),
       );
 
   static BoxDecoration gradientHeader({
@@ -28,16 +40,19 @@ class AppDecorations {
           end: Alignment.bottomRight,
         ),
         borderRadius: const BorderRadius.only(
-          bottomLeft: Radius.circular(24),
-          bottomRight: Radius.circular(24),
+          bottomLeft: Radius.circular(28),
+          bottomRight: Radius.circular(28),
         ),
-        boxShadow: [
-          BoxShadow(
-            color: start.withValues(alpha: 0.3),
-            blurRadius: 20,
-            offset: const Offset(0, 8),
+        border: Border(
+          bottom: BorderSide(
+            color: AppColors.stroke.withValues(alpha: 0.08),
+            width: outlineWidth,
           ),
-        ],
+        ),
+        boxShadow: flatShadow(
+          color: start,
+          offset: const Offset(0, 4),
+        ),
       );
 
   static BoxDecoration summaryCard(List<Color> colors) => BoxDecoration(
@@ -46,13 +61,28 @@ class AppDecorations {
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: colors.first.withValues(alpha: 0.32),
-            blurRadius: 16,
-            offset: const Offset(0, 6),
-          ),
-        ],
+        borderRadius: BorderRadius.circular(cardRadius),
+        border: Border.all(
+          color: AppColors.stroke.withValues(alpha: 0.1),
+          width: outlineWidth,
+        ),
+        boxShadow: flatShadow(
+          color: colors.first,
+          offset: const Offset(0, 4),
+        ),
+      );
+
+  static BoxDecoration outlined({
+    Color fill = AppColors.card,
+    Color? border,
+    double radius = buttonRadius,
+  }) =>
+      BoxDecoration(
+        color: fill,
+        borderRadius: BorderRadius.circular(radius),
+        border: Border.all(
+          color: border ?? AppColors.stroke.withValues(alpha: 0.14),
+          width: outlineWidth,
+        ),
       );
 }

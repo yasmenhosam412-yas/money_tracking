@@ -86,6 +86,22 @@ class UpdatePlanSavedEvent extends PlansTabEvent {
   List<Object> get props => [id, savedAmount];
 }
 
+/// Adds [amountToAdd] (base currency) to a plan's current saved amount.
+class AddAmountToPlanEvent extends PlansTabEvent {
+  final String id;
+  final double amountToAdd;
+  final String expenseTitle;
+
+  const AddAmountToPlanEvent({
+    required this.id,
+    required this.amountToAdd,
+    required this.expenseTitle,
+  });
+
+  @override
+  List<Object> get props => [id, amountToAdd, expenseTitle];
+}
+
 class DeletePlanEvent extends PlansTabEvent {
   final String id;
 

@@ -6,5 +6,6 @@ abstract class BalanceRepository {
   Future<Either<Failure, BalanceSummary>> getBalance({
     required DateTime reference,
     bool filterByDay = false,
+    bool includeAllDates = false,
   });
 }

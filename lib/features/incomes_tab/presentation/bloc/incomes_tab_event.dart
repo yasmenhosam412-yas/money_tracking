@@ -64,3 +64,7 @@ class DeleteIncomeEvent extends IncomesTabEvent {
   @override
   List<Object> get props => [id];
 }
+
+class ClearAllIncomesEvent extends IncomesTabEvent {
+  const ClearAllIncomesEvent();
+}

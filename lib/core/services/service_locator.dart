@@ -1,7 +1,11 @@
 import 'package:get_it/get_it.dart';
 import 'package:imrpo/core/services/currency_preferences.dart';
 import 'package:imrpo/core/services/home_date_filter.dart';
+import 'package:imrpo/core/services/invoice_ocr_service.dart';
 import 'package:imrpo/core/services/locale_preferences.dart';
+import 'package:imrpo/core/services/sms_bulk_import_service.dart';
+import 'package:imrpo/core/services/sms_import_service.dart';
+import 'package:imrpo/core/services/sms_imported_registry.dart';
 import 'package:imrpo/features/auth/data/datasources/auth_datasource.dart';
 import 'package:imrpo/features/auth/data/datasources/auth_datasource_impl.dart';
 import 'package:imrpo/features/auth/data/repositories/auth_repository_impl.dart';
@@ -22,6 +26,7 @@ import 'package:imrpo/features/expenses_tab/data/datasources/expenses_datasource
 import 'package:imrpo/features/expenses_tab/data/repositories/expense_repositroy_impl.dart';
 import 'package:imrpo/features/expenses_tab/domain/repositories/expense_repository.dart';
 import 'package:imrpo/features/expenses_tab/domain/usecases/add_expense_usecase.dart';
+import 'package:imrpo/features/expenses_tab/domain/usecases/delete_all_expenses_usecase.dart';
 import 'package:imrpo/features/expenses_tab/domain/usecases/delete_expense_usecase.dart';
 import 'package:imrpo/features/expenses_tab/domain/usecases/get_all_expenses_usecase.dart';
 import 'package:imrpo/features/expenses_tab/domain/usecases/update_expense_usecase.dart';
@@ -31,6 +36,7 @@ import 'package:imrpo/features/incomes_tab/data/datasources/income_datasource_im
 import 'package:imrpo/features/incomes_tab/data/repositories/income_repository_impl.dart';
 import 'package:imrpo/features/incomes_tab/domain/repositories/income_repository.dart';
 import 'package:imrpo/features/incomes_tab/domain/usecases/add_income_usecase.dart';
+import 'package:imrpo/features/incomes_tab/domain/usecases/delete_all_incomes_usecase.dart';
 import 'package:imrpo/features/incomes_tab/domain/usecases/delete_income_usecase.dart';
 import 'package:imrpo/features/incomes_tab/domain/usecases/get_all_incomes_usecase.dart';
 import 'package:imrpo/features/incomes_tab/domain/usecases/update_income_usecase.dart';
@@ -65,6 +71,19 @@ void setupServiceLocator() {
   getIt.registerLazySingleton<LocalePreferences>(() => LocalePreferences());
 
   getIt.registerLazySingleton<HomeDateFilter>(() => HomeDateFilter());
+
+  getIt.registerLazySingleton<InvoiceOcrService>(() => InvoiceOcrService());
+  getIt.registerLazySingleton<SmsImportService>(() => SmsImportService());
+
+  getIt.registerLazySingleton<SmsImportedRegistry>(() => SmsImportedRegistry());
+
+  getIt.registerLazySingleton<SmsBulkImportService>(
+    () => SmsBulkImportService(
+      addExpenseUsecase: getIt<AddExpenseUsecase>(),
+      addIncomeUsecase: getIt<AddIncomeUsecase>(),
+      importedRegistry: getIt<SmsImportedRegistry>(),
+    ),
+  );
 
   /// Datasource
   getIt.registerLazySingleton<AuthDatasource>(
@@ -129,6 +148,9 @@ void setupServiceLocator() {
   getIt.registerLazySingleton(
     () => DeleteIncomeUsecase(incomeRepository: getIt<IncomeRepository>()),
   );
+  getIt.registerLazySingleton(
+    () => DeleteAllIncomesUsecase(incomeRepository: getIt<IncomeRepository>()),
+  );
 
   getIt.registerLazySingleton(
     () => UpdateIncomeUsecase(incomeRepository: getIt<IncomeRepository>()),
@@ -142,6 +164,7 @@ void setupServiceLocator() {
       addIncomeUsecase: getIt<AddIncomeUsecase>(),
       updateIncomeUsecase: getIt<UpdateIncomeUsecase>(),
       deleteIncomeUsecase: getIt<DeleteIncomeUsecase>(),
+      deleteAllIncomesUsecase: getIt<DeleteAllIncomesUsecase>(),
       getAllIncomesUsecase: getIt<GetAllIncomesUsecase>(),
     ),
   );
@@ -162,6 +185,9 @@ void setupServiceLocator() {
   getIt.registerLazySingleton(
     () => DeleteExpenseUsecase(expenseRepository: getIt<ExpenseRepository>()),
   );
+  getIt.registerLazySingleton(
+    () => DeleteAllExpensesUsecase(expenseRepository: getIt<ExpenseRepository>()),
+  );
 
   getIt.registerLazySingleton(
     () => UpdateExpenseUsecase(expenseRepository: getIt<ExpenseRepository>()),
@@ -176,6 +202,7 @@ void setupServiceLocator() {
       addExpenseUsecase: getIt<AddExpenseUsecase>(),
       updateExpenseUsecase: getIt<UpdateExpenseUsecase>(),
       deleteExpenseUsecase: getIt<DeleteExpenseUsecase>(),
+      deleteAllExpensesUsecase: getIt<DeleteAllExpensesUsecase>(),
       getAllExpensesUsecase: getIt<GetAllExpensesUsecase>(),
     ),
   );
@@ -233,6 +260,7 @@ void setupServiceLocator() {
       updatePlanUsecase: getIt<UpdatePlanUsecase>(),
       updatePlanSavedUsecase: getIt<UpdatePlanSavedUsecase>(),
       deletePlanUsecase: getIt<DeletePlanUsecase>(),
+      addExpenseUsecase: getIt<AddExpenseUsecase>(),
     ),
   );
 

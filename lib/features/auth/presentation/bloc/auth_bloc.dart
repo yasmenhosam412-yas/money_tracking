@@ -53,7 +53,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
           errorMessage: failure.error,
         ),
       ),
-      (_) => emit(state.copyWith(status: AuthStatus.success)),
+      (_) => emit(state.copyWith(status: AuthStatus.successLogin)),
     );
   }
 
@@ -71,7 +71,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
           errorMessage: failure.error,
         ),
       ),
-      (_) => emit(state.copyWith(status: AuthStatus.success)),
+      (_) => emit(state.copyWith(status: AuthStatus.successSignup)),
     );
   }
 
@@ -89,7 +89,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
           errorMessage: failure.error,
         ),
       ),
-      (_) => emit(state.copyWith(status: AuthStatus.success)),
+      (_) => emit(state.copyWith(status: AuthStatus.successForgetPassword)),
     );
   }
 
@@ -104,7 +104,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
           errorMessage: failure.error,
         ),
       ),
-      (_) => emit(state.copyWith(status: AuthStatus.success)),
+      (_) => emit(state.copyWith(status: AuthStatus.successVerifySetNewPass)),
      );
   }
 

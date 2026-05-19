@@ -1,3 +1,4 @@
+import 'package:imrpo/core/helpers/supabase_auth_helper.dart';
 import 'package:imrpo/core/helpers/supabase_delete_helper.dart';
 import 'package:imrpo/features/plans_tab/data/datasources/plans_datasource.dart';
 import 'package:imrpo/features/plans_tab/data/models/plan_model.dart';
@@ -22,16 +23,13 @@ class PlansDatasourceImpl implements PlansDatasource {
       'target_amount': targetAmount,
       'saved_amount': savedAmount,
       'deadline': deadline?.toIso8601String(),
-      'user_id': supabaseClient.auth.currentUser!.id,
+      'user_id': SupabaseAuthHelper.requireUserId(),
     });
   }
 
   @override
   Future<void> deletePlan(String planId) async {
-    final userId = supabaseClient.auth.currentUser?.id;
-    if (userId == null) {
-      throw Exception('Not authenticated');
-    }
+    final userId = SupabaseAuthHelper.requireUserId();
 
     final deleted = await supabaseClient
         .from('plans')
@@ -45,10 +43,11 @@ class PlansDatasourceImpl implements PlansDatasource {
 
   @override
   Future<List<PlanModel>> getPlans() async {
+    final userId = SupabaseAuthHelper.requireUserId();
     final response = await supabaseClient
         .from('plans')
         .select()
-        .eq('user_id', supabaseClient.auth.currentUser!.id);
+        .eq('user_id', userId);
 
     return response.map((item) => PlanModel.fromMap(item)).toList();
   }

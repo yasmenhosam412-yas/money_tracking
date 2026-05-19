@@ -1,3 +1,4 @@
+import 'package:imrpo/core/helpers/supabase_auth_helper.dart';
 import 'package:imrpo/features/home/data/datasources/home_datasource.dart';
 import 'package:imrpo/features/home/data/models/user_profile_model.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -9,15 +10,13 @@ class HomeDatasourceImpl implements HomeDatasource {
 
   @override
   Future<UserProfileModel> getCurrentUserProfile() async {
-    final user = supabaseClient.auth.currentUser;
-    if (user == null) {
-      throw const AuthException('Not signed in');
-    }
+    final userId = SupabaseAuthHelper.requireUserId();
+    final user = supabaseClient.auth.currentUser!;
 
     final row = await supabaseClient
         .from('profiles')
         .select()
-        .eq('id', user.id)
+        .eq('id', userId)
         .maybeSingle();
 
     if (row != null) {
@@ -26,7 +25,7 @@ class HomeDatasourceImpl implements HomeDatasource {
 
     final metadataName = user.userMetadata?['username'];
     return UserProfileModel(
-      id: user.id,
+      id: userId,
       username: metadataName is String ? metadataName : '',
       email: user.email ?? '',
     );
@@ -34,15 +33,12 @@ class HomeDatasourceImpl implements HomeDatasource {
 
   @override
   Future<void> updateUsername(String username) async {
-    final user = supabaseClient.auth.currentUser;
-    if (user == null) {
-      throw const AuthException('Not signed in');
-    }
+    final userId = SupabaseAuthHelper.requireUserId();
 
     await supabaseClient
         .from('profiles')
         .update({'username': username})
-        .eq('id', user.id);
+        .eq('id', userId);
 
     await supabaseClient.auth.updateUser(
       UserAttributes(data: {'username': username}),

@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:imrpo/features/expenses_tab/data/models/expense_model.dart';
-import 'package:intl/intl.dart';
 import 'package:imrpo/core/l10n/l10n_entity_strings.dart';
 import 'package:imrpo/core/services/home_date_filter.dart';
 import 'package:imrpo/core/services/service_locator.dart';
+import 'package:imrpo/core/theme/app_decorations.dart';
 import 'package:imrpo/core/utils/app_colors.dart';
 import 'package:imrpo/core/widgets/tab_refresh_overlay.dart';
 import 'package:imrpo/core/utils/money_format.dart';
@@ -40,6 +40,7 @@ class _ExpensesTabState extends State<ExpensesTab>
     return Scaffold(
       backgroundColor: AppColors.scaffold,
       floatingActionButton: FloatingActionButton.extended(
+        heroTag: 'fab-expenses',
         onPressed: _openAddSheet,
         backgroundColor: _expenseColor,
         elevation: 2,
@@ -53,16 +54,31 @@ class _ExpensesTabState extends State<ExpensesTab>
         ),
       ),
       body: BlocConsumer<ExpensesTabBloc, ExpensesTabState>(
+        listenWhen: (previous, current) =>
+            current.status == ExpensesTabStatus.errorDelete ||
+            current.status == ExpensesTabStatus.errorAll ||
+            current.status == ExpensesTabStatus.errorClearAll ||
+            (previous.status == ExpensesTabStatus.loadingClearAll &&
+                current.status == ExpensesTabStatus.loaded),
         listener: (BuildContext context, ExpensesTabState state) {
           if (state.status == ExpensesTabStatus.errorDelete ||
-              state.status == ExpensesTabStatus.errorAll) {
+              state.status == ExpensesTabStatus.errorAll ||
+              state.status == ExpensesTabStatus.errorClearAll) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 content: Text(localizeApiError(l10n, state.error)),
-                backgroundColor: Colors.red,
+                backgroundColor: AppColors.error,
               ),
             );
+            return;
           }
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(l10n.clearAllExpensesSuccess),
+              backgroundColor: AppColors.success,
+              behavior: SnackBarBehavior.floating,
+            ),
+          );
         },
         builder: (context, state) {
           if (state.expenses.isEmpty &&
@@ -114,6 +130,8 @@ class _ExpensesTabState extends State<ExpensesTab>
 
           final isRefreshing = state.expenses.isNotEmpty &&
               state.status == ExpensesTabStatus.loadingAll;
+          final isClearingAll =
+              state.status == ExpensesTabStatus.loadingClearAll;
 
           return ListenableBuilder(
             listenable: getIt<HomeDateFilter>(),
@@ -127,7 +145,9 @@ class _ExpensesTabState extends State<ExpensesTab>
                 (sum, expense) => sum + expense.amount,
               );
 
-              return TabRefreshOverlay(
+              return Stack(
+            children: [
+              TabRefreshOverlay(
             isRefreshing: isRefreshing,
             indicatorColor: _expenseColor,
             child: RefreshIndicator(
@@ -142,7 +162,10 @@ class _ExpensesTabState extends State<ExpensesTab>
                   SliverToBoxAdapter(
                     child: Padding(
                       padding: const EdgeInsets.fromLTRB(20, 20, 20, 8),
-                      child: _SummaryCard(total: periodTotal),
+                      child: _SummaryCard(
+                        total: periodTotal,
+                        periodLabel: dateFilter.summaryPeriodLabel(context),
+                      ),
                     ),
                   ),
 
@@ -151,16 +174,33 @@ class _ExpensesTabState extends State<ExpensesTab>
                     child: Padding(
                       padding: const EdgeInsets.fromLTRB(20, 16, 20, 8),
                       child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Text(
-                            l10n.recentExpenses,
-                            style: const TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                              color: AppColors.textColor,
+                          Expanded(
+                            child: Text(
+                              l10n.recentExpenses,
+                              style: const TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                                color: AppColors.textColor,
+                              ),
                             ),
                           ),
+                          if (sorted.isNotEmpty) ...[
+                            TextButton(
+                              onPressed: isClearingAll
+                                  ? null
+                                  : () => _confirmClearAll(sorted.length),
+                              style: TextButton.styleFrom(
+                                foregroundColor: AppColors.expense,
+                                visualDensity: VisualDensity.compact,
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 8,
+                                ),
+                              ),
+                              child: Text(l10n.clearAllExpenses),
+                            ),
+                            const SizedBox(width: 4),
+                          ],
                           Text(
                             l10n.listEntryCount(filtered.length),
                             style: TextStyle(
@@ -204,12 +244,48 @@ class _ExpensesTabState extends State<ExpensesTab>
                 ],
               ),
             ),
+          ),
+              if (isClearingAll)
+                const Positioned.fill(
+                  child: ColoredBox(
+                    color: Color(0x33000000),
+                    child: Center(
+                      child: CircularProgressIndicator(color: _expenseColor),
+                    ),
+                  ),
+                ),
+            ],
           );
             },
           );
         },
       ),
     );
+  }
+
+  Future<void> _confirmClearAll(int count) async {
+    final l10n = AppLocalizations.of(context)!;
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: Text(l10n.clearAllExpensesConfirmTitle),
+        content: Text(l10n.clearAllExpensesConfirmMessage(count)),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(false),
+            child: Text(l10n.cancel),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(dialogContext).pop(true),
+            style: FilledButton.styleFrom(backgroundColor: _expenseColor),
+            child: Text(l10n.clearAllExpenses),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed != true || !mounted) return;
+    context.read<ExpensesTabBloc>().add(const ClearAllExpensesEvent());
   }
 
   void _openAddSheet() => _showExpenseSheet(const AddExpenseSheet());
@@ -261,33 +337,24 @@ class _ExpensesTabState extends State<ExpensesTab>
 
 class _SummaryCard extends StatelessWidget {
   final double total;
+  final String periodLabel;
 
-  const _SummaryCard({required this.total});
-
-  static const _expenseColor = AppColors.expense;
+  const _SummaryCard({
+    required this.total,
+    required this.periodLabel,
+  });
 
   @override
   Widget build(BuildContext context) {
-    final month = _currentMonthLabel(context);
     final l10n = AppLocalizations.of(context)!;
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          colors: [AppColors.expenseDark, AppColors.expense],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: _expenseColor.withValues(alpha: 0.35),
-            blurRadius: 16,
-            offset: const Offset(0, 6),
-          ),
-        ],
-      ),
+      decoration: AppDecorations.summaryCard([
+        AppColors.expenseDark,
+        AppColors.expense,
+        AppColors.primary,
+      ]),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -316,7 +383,7 @@ class _SummaryCard extends StatelessWidget {
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Text(
-                  month,
+                  periodLabel,
                   style: const TextStyle(
                     color: Colors.white,
                     fontSize: 13,
@@ -347,11 +414,6 @@ class _SummaryCard extends StatelessWidget {
         ],
       ),
     );
-  }
-
-  String _currentMonthLabel(BuildContext context) {
-    final locale = Localizations.localeOf(context).toString();
-    return DateFormat.MMMM(locale).format(DateTime.now());
   }
 }
 

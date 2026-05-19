@@ -3,6 +3,7 @@ import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:imrpo/features/expenses_tab/data/models/expense_model.dart';
 import 'package:imrpo/features/expenses_tab/domain/usecases/add_expense_usecase.dart';
+import 'package:imrpo/features/expenses_tab/domain/usecases/delete_all_expenses_usecase.dart';
 import 'package:imrpo/features/expenses_tab/domain/usecases/delete_expense_usecase.dart';
 import 'package:imrpo/features/expenses_tab/domain/usecases/get_all_expenses_usecase.dart';
 import 'package:imrpo/features/expenses_tab/domain/usecases/update_expense_usecase.dart';
@@ -13,11 +14,13 @@ class ExpensesTabBloc extends Bloc<ExpensesTabEvent, ExpensesTabState> {
   final AddExpenseUsecase addExpenseUsecase;
   final UpdateExpenseUsecase updateExpenseUsecase;
   final DeleteExpenseUsecase deleteExpenseUsecase;
+  final DeleteAllExpensesUsecase deleteAllExpensesUsecase;
   final GetAllExpensesUsecase getAllExpensesUsecase;
   ExpensesTabBloc({
     required this.addExpenseUsecase,
     required this.updateExpenseUsecase,
     required this.deleteExpenseUsecase,
+    required this.deleteAllExpensesUsecase,
     required this.getAllExpensesUsecase,
   }) : super(const ExpensesTabState()) {
     on<LoadExpensesEvent>(_onLoad);
@@ -25,6 +28,7 @@ class ExpensesTabBloc extends Bloc<ExpensesTabEvent, ExpensesTabState> {
     on<AddExpenseEvent>(_onAdd);
     on<UpdateExpenseEvent>(_onUpdate);
     on<DeleteExpenseEvent>(_onDelete);
+    on<ClearAllExpensesEvent>(_onClearAll);
   }
 
   void _onReset(ResetExpensesTabEvent event, Emitter<ExpensesTabState> emit) {
@@ -148,5 +152,41 @@ class ExpensesTabBloc extends Bloc<ExpensesTabEvent, ExpensesTabState> {
     );
 
     add(const LoadExpensesEvent(force: true));
+  }
+
+  Future<void> _onClearAll(
+    ClearAllExpensesEvent event,
+    Emitter<ExpensesTabState> emit,
+  ) async {
+    emit(
+      state.copyWith(
+        status: ExpensesTabStatus.loadingClearAll,
+        deletingExpenseId: '',
+      ),
+    );
+
+    final result = await deleteAllExpensesUsecase();
+    if (emit.isDone) return;
+
+    result.fold(
+      (failure) {
+        emit(
+          state.copyWith(
+            status: ExpensesTabStatus.errorClearAll,
+            error: failure.error,
+          ),
+        );
+      },
+      (_) {
+        emit(
+          state.copyWith(
+            status: ExpensesTabStatus.loaded,
+            expenses: const [],
+            deletingExpenseId: '',
+            error: '',
+          ),
+        );
+      },
+    );
   }
 }

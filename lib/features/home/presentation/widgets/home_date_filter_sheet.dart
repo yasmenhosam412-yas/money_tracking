@@ -65,6 +65,11 @@ Future<void> showHomeDateFilterSheet(BuildContext context) async {
                 SegmentedButton<HomeDateFilterMode>(
                   segments: [
                     ButtonSegment(
+                      value: HomeDateFilterMode.all,
+                      label: Text(l10n.homeFilterAllMonths),
+                      icon: const Icon(Icons.date_range_outlined, size: 18),
+                    ),
+                    ButtonSegment(
                       value: HomeDateFilterMode.month,
                       label: Text(l10n.homeFilterByMonth),
                       icon: const Icon(Icons.calendar_month_outlined, size: 18),
@@ -80,33 +85,61 @@ Future<void> showHomeDateFilterSheet(BuildContext context) async {
                     setSheetState(() => mode = value.first);
                   },
                 ),
-                const SizedBox(height: 16),
-                OutlinedButton.icon(
-                  onPressed: pickDate,
-                  icon: const Icon(Icons.edit_calendar_outlined),
-                  label: Text(
-                    mode == HomeDateFilterMode.month
-                        ? l10n.homeFilterPickMonth
-                        : l10n.homeFilterPickDay,
-                  ),
-                  style: OutlinedButton.styleFrom(
-                    foregroundColor: AppColors.primary,
-                    padding: const EdgeInsets.symmetric(vertical: 14),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(14),
+                if (mode != HomeDateFilterMode.all) ...[
+                  const SizedBox(height: 16),
+                  OutlinedButton.icon(
+                    onPressed: pickDate,
+                    icon: const Icon(Icons.edit_calendar_outlined),
+                    label: Text(
+                      mode == HomeDateFilterMode.month
+                          ? l10n.homeFilterPickMonth
+                          : l10n.homeFilterPickDay,
+                    ),
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: AppColors.primary,
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(14),
+                      ),
                     ),
                   ),
-                ),
+                ],
                 const SizedBox(height: 10),
-                TextButton.icon(
-                  onPressed: () {
-                    setSheetState(() {
-                      mode = HomeDateFilterMode.day;
-                      selected = DateTime.now();
-                    });
-                  },
-                  icon: const Icon(Icons.restore_rounded),
-                  label: Text(l10n.homeFilterToday),
+                Wrap(
+                  alignment: WrapAlignment.center,
+                  spacing: 8,
+                  runSpacing: 4,
+                  children: [
+                    TextButton.icon(
+                      onPressed: () {
+                        setSheetState(() {
+                          mode = HomeDateFilterMode.all;
+                        });
+                      },
+                      icon: const Icon(Icons.date_range_outlined, size: 18),
+                      label: Text(l10n.homeFilterAllMonths),
+                    ),
+                    TextButton.icon(
+                      onPressed: () {
+                        setSheetState(() {
+                          mode = HomeDateFilterMode.month;
+                          selected = DateTime.now();
+                        });
+                      },
+                      icon: const Icon(Icons.calendar_month_outlined, size: 18),
+                      label: Text(l10n.homeFilterThisMonth),
+                    ),
+                    TextButton.icon(
+                      onPressed: () {
+                        setSheetState(() {
+                          mode = HomeDateFilterMode.day;
+                          selected = DateTime.now();
+                        });
+                      },
+                      icon: const Icon(Icons.restore_rounded, size: 18),
+                      label: Text(l10n.homeFilterToday),
+                    ),
+                  ],
                 ),
                 const SizedBox(height: 8),
                 Row(

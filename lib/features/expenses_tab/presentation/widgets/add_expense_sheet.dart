@@ -14,8 +14,17 @@ import 'package:imrpo/l10n/app_localizations.dart';
 
 class AddExpenseSheet extends StatefulWidget {
   final ExpenseModel? expense;
+  final String? initialTitle;
+  final double? initialAmount;
+  final DateTime? initialDate;
 
-  const AddExpenseSheet({super.key, this.expense});
+  const AddExpenseSheet({
+    super.key,
+    this.expense,
+    this.initialTitle,
+    this.initialAmount,
+    this.initialDate,
+  });
 
   @override
   State<AddExpenseSheet> createState() => _AddExpenseSheetState();
@@ -47,10 +56,12 @@ class _AddExpenseSheetState extends State<AddExpenseSheet> {
   bool get _isOtherCategory => _category == _otherCategory;
 
   bool _didPop = false;
+  bool _awaitingSubmitResult = false;
 
   void _closeSheetOnSuccess() {
-    if (_didPop) return;
+    if (_didPop || !mounted) return;
     _didPop = true;
+    _awaitingSubmitResult = false;
     FocusManager.instance.primaryFocus?.unfocus();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
@@ -59,8 +70,17 @@ class _AddExpenseSheetState extends State<AddExpenseSheet> {
   }
 
   bool _isSubmitting(ExpensesTabState state) =>
-      state.status == ExpensesTabStatus.loadingAdd ||
-      state.status == ExpensesTabStatus.loadingUpdate;
+      _awaitingSubmitResult &&
+      (state.status == ExpensesTabStatus.loadingAdd ||
+          state.status == ExpensesTabStatus.loadingUpdate ||
+          state.status == ExpensesTabStatus.loadingAll);
+
+  bool _shouldReactToState(ExpensesTabState state) {
+    if (!_awaitingSubmitResult) return false;
+    return state.status == ExpensesTabStatus.loaded ||
+        state.status == ExpensesTabStatus.errorAdd ||
+        state.status == ExpensesTabStatus.errorUpdate;
+  }
 
   @override
   void initState() {
@@ -76,6 +96,16 @@ class _AddExpenseSheetState extends State<AddExpenseSheet> {
       } else {
         _category = _otherCategory;
         _otherCategoryController.text = expense.category;
+      }
+    } else {
+      if (widget.initialTitle != null) {
+        _titleController.text = widget.initialTitle!;
+      }
+      if (widget.initialAmount != null) {
+        _amountController.text = _formatRawAmount(widget.initialAmount!);
+      }
+      if (widget.initialDate != null) {
+        _date = widget.initialDate!;
       }
     }
   }
@@ -94,41 +124,50 @@ class _AddExpenseSheetState extends State<AddExpenseSheet> {
     final l10n = AppLocalizations.of(context)!;
 
     return BlocListener<ExpensesTabBloc, ExpensesTabState>(
-      listenWhen: (previous, current) {
-        final finishedSubmit =
-            (previous.status == ExpensesTabStatus.loadingAdd ||
-                previous.status == ExpensesTabStatus.loadingUpdate) &&
-            current.status == ExpensesTabStatus.loaded;
-        final failedSubmit =
-            current.status == ExpensesTabStatus.errorAdd ||
-            current.status == ExpensesTabStatus.errorUpdate;
-        return finishedSubmit || failedSubmit;
-      },
+      listenWhen: (_, current) => _shouldReactToState(current),
       listener: (context, state) {
         if (state.status == ExpensesTabStatus.errorAdd ||
             state.status == ExpensesTabStatus.errorUpdate) {
+          _awaitingSubmitResult = false;
           _showError(localizeApiError(l10n, state.error));
           return;
         }
-        _closeSheetOnSuccess();
+        if (state.status == ExpensesTabStatus.loaded) {
+          _closeSheetOnSuccess();
+        }
       },
       child: BlocBuilder<ExpensesTabBloc, ExpensesTabState>(
         buildWhen: (previous, current) =>
-            _isSubmitting(previous) != _isSubmitting(current),
+            _isSubmitting(previous) != _isSubmitting(current) ||
+            _shouldReactToState(previous) != _shouldReactToState(current),
         builder: (context, state) {
+          final isSubmitting = _isSubmitting(state);
+
           return PopScope(
-            canPop: !_isSubmitting(state),
+            canPop: !isSubmitting && !_didPop,
             child: ConstrainedBox(
               constraints: BoxConstraints(maxHeight: maxHeight),
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.all(24),
-                keyboardDismissBehavior:
-                    ScrollViewKeyboardDismissBehavior.onDrag,
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Center(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  if (isSubmitting)
+                    const LinearProgressIndicator(
+                      minHeight: 3,
+                      color: _expenseColor,
+                      backgroundColor: Color(0xFFE8E8E8),
+                    ),
+                  Flexible(
+                    child: AbsorbPointer(
+                      absorbing: isSubmitting,
+                      child: SingleChildScrollView(
+                        padding: const EdgeInsets.all(24),
+                        keyboardDismissBehavior:
+                            ScrollViewKeyboardDismissBehavior.onDrag,
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Center(
                       child: Container(
                         width: 40,
                         height: 4,
@@ -245,47 +284,47 @@ class _AddExpenseSheetState extends State<AddExpenseSheet> {
                       ),
                     ),
                     const SizedBox(height: 28),
-                    BlocBuilder<ExpensesTabBloc, ExpensesTabState>(
-                      builder: (context, state) {
-                        final isSubmitting = _isSubmitting(state);
-
-                        return SizedBox(
-                          width: double.infinity,
-                          height: 54,
-                          child: ElevatedButton(
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: _expenseColor,
-                              elevation: 0,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(16),
-                              ),
-                            ),
-                            onPressed: isSubmitting ? null : _submit,
-                            child: isSubmitting
-                                ? const SizedBox(
-                                    width: 24,
-                                    height: 24,
-                                    child: CircularProgressIndicator(
-                                      strokeWidth: 2.5,
-                                      color: Colors.white,
-                                    ),
-                                  )
-                                : Text(
-                                    _isEditing
-                                        ? l10n.updateExpense
-                                        : l10n.saveExpense,
-                                    style: const TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.w600,
-                                      color: Colors.white,
-                                    ),
-                                  ),
+                    SizedBox(
+                      width: double.infinity,
+                      height: 54,
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: _expenseColor,
+                          disabledBackgroundColor:
+                              _expenseColor.withValues(alpha: 0.65),
+                          elevation: 0,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
                           ),
-                        );
-                      },
+                        ),
+                        onPressed: isSubmitting ? null : _submit,
+                        child: isSubmitting
+                            ? const SizedBox(
+                                width: 24,
+                                height: 24,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2.5,
+                                  color: Colors.white,
+                                ),
+                              )
+                            : Text(
+                                _isEditing
+                                    ? l10n.updateExpense
+                                    : l10n.saveExpense,
+                                style: const TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w600,
+                                  color: Colors.white,
+                                ),
+                              ),
+                      ),
                     ),
-                  ],
-                ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
           );
@@ -342,6 +381,8 @@ class _AddExpenseSheetState extends State<AddExpenseSheet> {
     final baseAmount = CurrencyConverter.toBase(amount, _currencyCode);
     final bloc = context.read<ExpensesTabBloc>();
 
+    setState(() => _awaitingSubmitResult = true);
+
     if (_isEditing) {
       bloc.add(
         UpdateExpenseEvent(
@@ -366,9 +407,13 @@ class _AddExpenseSheetState extends State<AddExpenseSheet> {
 
   String _formatDisplayAmount(double baseAmount) {
     final display = CurrencyConverter.fromBase(baseAmount, _currencyCode);
-    return display == display.roundToDouble()
-        ? display.toInt().toString()
-        : display.toStringAsFixed(2);
+    return _formatRawAmount(display);
+  }
+
+  String _formatRawAmount(double amount) {
+    return amount == amount.roundToDouble()
+        ? amount.toInt().toString()
+        : amount.toStringAsFixed(2);
   }
 
   String? _resolvedCategory() {

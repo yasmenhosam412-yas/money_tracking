@@ -5,7 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 class CurrencyPreferences extends ChangeNotifier {
   static const _storageKey = 'display_currency_code';
 
-  String _displayCode = CurrencyConverter.baseCode;
+  String _displayCode = CurrencyConverter.defaultDisplayCode;
 
   String get displayCode => _displayCode;
 

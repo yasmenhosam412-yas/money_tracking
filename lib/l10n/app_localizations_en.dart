@@ -38,10 +38,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get homeDateFilterTitle => 'Filter by date';
 
   @override
+  String get homeFilterAllMonths => 'All months';
+
+  @override
   String get homeFilterByMonth => 'Month';
 
   @override
   String get homeFilterByDay => 'Day';
+
+  @override
+  String get homeFilterThisMonth => 'This month';
 
   @override
   String get homeFilterPickMonth => 'Pick month';
@@ -80,8 +86,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deleteAccountConfirmTitle => 'Delete account?';
 
   @override
-  String get deleteAccountConfirmMessage =>
-      'This will permanently remove your profile, incomes, expenses, and plans. This cannot be undone.';
+  String get deleteAccountConfirmMessage => 'This will permanently remove your profile, incomes, expenses, and plans. This cannot be undone.';
 
   @override
   String get cancel => 'Cancel';
@@ -99,8 +104,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get logoutConfirmTitle => 'Log out?';
 
   @override
-  String get logoutConfirmMessage =>
-      'You will need to sign in again to use the app.';
+  String get logoutConfirmMessage => 'You will need to sign in again to use the app.';
 
   @override
   String get loginWelcomeTitle => 'Welcome Back 👋';
@@ -178,11 +182,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get forgotPasswordTitle => 'Forgot Password?';
 
   @override
-  String get forgotPasswordDescription =>
-      'Enter your email address and we\'ll send you a password reset link.';
+  String get forgotPasswordDescription => 'Enter your email address and we\'ll send you a password reset link.';
 
   @override
-  String get sendResetLink => 'Send Reset Link';
+  String get sendResetLink => 'Send Reset OTP';
 
   @override
   String get backToLogin => 'Back to Login';
@@ -194,8 +197,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get setNewPasswordTitle => 'Set New Password 🔒';
 
   @override
-  String get setNewPasswordSubtitle =>
-      'Enter the OTP code and create your new password.';
+  String get setNewPasswordSubtitle => 'Enter the OTP code and create your new password.';
 
   @override
   String get labelOtpCode => 'OTP Code';
@@ -227,12 +229,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get errorDeleteFailed => 'Could not delete. Please try again.';
 
   @override
-  String get errorDeleteAccountFailed =>
-      'Could not delete your account. Please try again.';
+  String get errorDeleteAccountFailed => 'Could not delete your account. Please try again.';
 
   @override
-  String get errorDeleteAccountRpcRequired =>
-      'Account deletion is not set up on the server. Run supabase/delete_account.sql in your Supabase project.';
+  String get errorDeleteAccountRpcRequired => 'Account deletion is not set up on the server. Run supabase/delete_account.sql in your Supabase project.';
 
   @override
   String get addIncome => 'Add Income';
@@ -262,15 +262,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get noIncomesTitle => 'No incomes yet';
 
   @override
-  String get noIncomesSubtitle =>
-      'Tap the button below to record your first income';
+  String get noIncomesSubtitle => 'Tap the button below to record your first income';
 
   @override
   String get noExpensesTitle => 'No expenses yet';
 
   @override
-  String get noExpensesSubtitle =>
-      'Tap the button below to record your first expense';
+  String get noExpensesSubtitle => 'Tap the button below to record your first expense';
 
   @override
   String get titleField => 'Title';
@@ -439,6 +437,11 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String balanceSavedPercent(int percent) {
+    return '$percent% saved';
+  }
+
+  @override
   String get balanceStatIncome => 'Income';
 
   @override
@@ -446,6 +449,42 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get balanceRecentActivity => 'Recent Activity';
+
+  @override
+  String get balanceAddToPlan => 'Add to goal';
+
+  @override
+  String get balanceAddToPlanTitle => 'Add to savings goal';
+
+  @override
+  String balanceAddToPlanHint(Object amount) {
+    return 'Available from balance: $amount';
+  }
+
+  @override
+  String get balanceSelectPlan => 'Choose a goal';
+
+  @override
+  String get balanceAmountToAllocate => 'Amount to add';
+
+  @override
+  String balancePlanRemaining(Object amount) {
+    return '$amount left to reach target';
+  }
+
+  @override
+  String get balanceAddToPlanSuccess => 'Amount added to your savings goal';
+
+  @override
+  String balancePlanAllocationExpenseTitle(String planTitle) {
+    return 'Savings goal: $planTitle';
+  }
+
+  @override
+  String get balanceNoPlansForAllocation => 'Create a savings goal in the Plans tab first.';
+
+  @override
+  String get balanceAmountExceedsSurplus => 'Amount exceeds your available balance';
 
   @override
   String itemsCount(int count) {
@@ -456,6 +495,34 @@ class AppLocalizationsEn extends AppLocalizations {
   String listEntryCount(int count) {
     return '$count entries';
   }
+
+  @override
+  String get clearAllExpenses => 'Clear all';
+
+  @override
+  String get clearAllIncomes => 'Clear all';
+
+  @override
+  String get clearAllExpensesConfirmTitle => 'Delete all expenses?';
+
+  @override
+  String get clearAllIncomesConfirmTitle => 'Delete all incomes?';
+
+  @override
+  String clearAllExpensesConfirmMessage(int count) {
+    return 'This will permanently delete all $count expenses. This cannot be undone.';
+  }
+
+  @override
+  String clearAllIncomesConfirmMessage(int count) {
+    return 'This will permanently delete all $count incomes. This cannot be undone.';
+  }
+
+  @override
+  String get clearAllExpensesSuccess => 'All expenses deleted';
+
+  @override
+  String get clearAllIncomesSuccess => 'All incomes deleted';
 
   @override
   String get balanceIncomeVsExpenses => 'Income vs Expenses';
@@ -519,8 +586,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get plansEmptyTitle => 'Start your first goal';
 
   @override
-  String get plansEmptySubtitle =>
-      'Set a target, track what you save, and watch your progress grow.';
+  String get plansEmptySubtitle => 'Set a target, track what you save, and watch your progress grow.';
 
   @override
   String get plansCreateGoalButton => 'Create goal';
@@ -561,5 +627,143 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String storedAsBase(Object amount) {
     return 'Stored as $amount base';
+  }
+
+  @override
+  String get smartImportTitle => 'Smart import';
+
+  @override
+  String get smartImportShort => 'Scan / SMS';
+
+  @override
+  String get smartImportInvoiceTab => 'Invoice OCR';
+
+  @override
+  String get smartImportSmsTab => 'SMS';
+
+  @override
+  String get smartImportInvoiceHint => 'Take a photo of a receipt or invoice. We\'ll read the amount and date automatically.';
+
+  @override
+  String get smartImportDefaultBillTitle => 'Bill';
+
+  @override
+  String get smartImportScanCamera => 'Camera';
+
+  @override
+  String get smartImportScanGallery => 'Gallery';
+
+  @override
+  String get smartImportOcrProcessing => 'Reading invoice…';
+
+  @override
+  String get smartImportOcrNoData => 'Could not find amount or details on this image.';
+
+  @override
+  String get smartImportOcrFailed => 'Failed to read the invoice. Try a clearer photo.';
+
+  @override
+  String get smartImportCameraDenied => 'Camera permission is required to scan invoices.';
+
+  @override
+  String get smartImportExtractedData => 'Extracted data';
+
+  @override
+  String get smartImportDateField => 'Date';
+
+  @override
+  String get smartImportTypeField => 'Type';
+
+  @override
+  String get smartImportAddToApp => 'Add to app';
+
+  @override
+  String get smartImportSmsNotSupported => 'SMS import is available on Android only.';
+
+  @override
+  String get smartImportSmsEmpty => 'No financial SMS messages found. Grant SMS permission if prompted.';
+
+  @override
+  String get smartImportSmsFailed => 'Could not read SMS messages.';
+
+  @override
+  String get smartImportReloadSms => 'Reload';
+
+  @override
+  String get smartImportSmsAlreadyAdded => 'Already added';
+
+  @override
+  String get smartImportSmsAddAgain => 'Add again';
+
+  @override
+  String get smartImportSmsClearAllAdded => 'Clear all added';
+
+  @override
+  String get smartImportSmsClearAllAddedConfirmTitle => 'Clear imported history?';
+
+  @override
+  String get smartImportSmsClearAllAddedConfirmMessage => 'All SMS will show as not added. You can import them again. Your existing expenses and incomes are not deleted.';
+
+  @override
+  String get smartImportSmsClearAllAddedDone => 'Imported history cleared';
+
+  @override
+  String smartImportSmsSkippedDuplicate(int count) {
+    return '$count message(s) were already in the app.';
+  }
+
+  @override
+  String get smartImportSmsLoadMore => 'Load more messages';
+
+  @override
+  String get smartImportSmsLoadingMore => 'Loading more…';
+
+  @override
+  String get smartImportUnknownSender => 'Unknown sender';
+
+  @override
+  String get smartImportSmsTitleExpense => 'Bank expense';
+
+  @override
+  String get smartImportSmsTitleIncome => 'Bank income';
+
+  @override
+  String get smartImportTapToImport => 'Tap to import';
+
+  @override
+  String smartImportAddAllExpenses(int count) {
+    return 'Add all expenses ($count)';
+  }
+
+  @override
+  String smartImportAddAllIncomes(int count) {
+    return 'Add all incomes ($count)';
+  }
+
+  @override
+  String smartImportAddSelected(int count) {
+    return 'Add selected ($count)';
+  }
+
+  @override
+  String get smartImportSelectAll => 'Select all';
+
+  @override
+  String get smartImportClearSelection => 'Clear';
+
+  @override
+  String get smartImportBulkImporting => 'Importing messages…';
+
+  @override
+  String get smartImportBulkNothingToAdd => 'No messages with a valid amount to import.';
+
+  @override
+  String smartImportBulkResult(int incomes, int expenses) {
+    return 'Added $incomes incomes and $expenses expenses.';
+  }
+
+  @override
+  String smartImportBulkPartialFail(int failed) {
+    return '$failed message(s) could not be imported.';
   }
 }

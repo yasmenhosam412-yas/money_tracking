@@ -34,6 +34,16 @@ class IncomeRepositoryImpl extends IncomeRepository {
   }
 
   @override
+  Future<Either<Failure, void>> deleteAllIncomes() async {
+    try {
+      await incomeDatasource.deleteAllIncomes();
+      return const Right(null);
+    } catch (e) {
+      return Left(ErrorHelper.handle(e.toString()));
+    }
+  }
+
+  @override
   Future<Either<Failure, List<IncomeModel>>> getIncomes() async {
     try {
       final incomes = await incomeDatasource.getIncomes();

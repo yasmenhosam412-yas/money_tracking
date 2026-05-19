@@ -38,10 +38,16 @@ class AppLocalizationsAr extends AppLocalizations {
   String get homeDateFilterTitle => 'تصفية حسب التاريخ';
 
   @override
+  String get homeFilterAllMonths => 'كل الشهور';
+
+  @override
   String get homeFilterByMonth => 'شهر';
 
   @override
   String get homeFilterByDay => 'يوم';
+
+  @override
+  String get homeFilterThisMonth => 'هذا الشهر';
 
   @override
   String get homeFilterPickMonth => 'اختر الشهر';
@@ -80,8 +86,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get deleteAccountConfirmTitle => 'حذف الحساب؟';
 
   @override
-  String get deleteAccountConfirmMessage =>
-      'سيتم حذف ملفك الشخصي والدخل والمصروفات والخطط نهائيًا. لا يمكن التراجع عن هذا الإجراء.';
+  String get deleteAccountConfirmMessage => 'سيتم حذف ملفك الشخصي والدخل والمصروفات والخطط نهائيًا. لا يمكن التراجع عن هذا الإجراء.';
 
   @override
   String get cancel => 'إلغاء';
@@ -99,8 +104,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get logoutConfirmTitle => 'تسجيل الخروج؟';
 
   @override
-  String get logoutConfirmMessage =>
-      'ستحتاج إلى تسجيل الدخول مرة أخرى لاستخدام التطبيق.';
+  String get logoutConfirmMessage => 'ستحتاج إلى تسجيل الدخول مرة أخرى لاستخدام التطبيق.';
 
   @override
   String get loginWelcomeTitle => 'مرحبًا بعودتك 👋';
@@ -178,11 +182,10 @@ class AppLocalizationsAr extends AppLocalizations {
   String get forgotPasswordTitle => 'نسيت كلمة المرور؟';
 
   @override
-  String get forgotPasswordDescription =>
-      'أدخل بريدك الإلكتروني وسنرسل لك رابط إعادة تعيين كلمة المرور.';
+  String get forgotPasswordDescription => 'أدخل بريدك الإلكتروني وسنرسل لك رابط إعادة تعيين كلمة المرور.';
 
   @override
-  String get sendResetLink => 'إرسال رابط الاستعادة';
+  String get sendResetLink => 'إرسال كود';
 
   @override
   String get backToLogin => 'العودة لتسجيل الدخول';
@@ -194,8 +197,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get setNewPasswordTitle => 'تعيين كلمة مرور جديدة 🔒';
 
   @override
-  String get setNewPasswordSubtitle =>
-      'أدخل رمز التحقق وأنشئ كلمة المرور الجديدة.';
+  String get setNewPasswordSubtitle => 'أدخل رمز التحقق وأنشئ كلمة المرور الجديدة.';
 
   @override
   String get labelOtpCode => 'رمز التحقق';
@@ -227,12 +229,10 @@ class AppLocalizationsAr extends AppLocalizations {
   String get errorDeleteFailed => 'تعذر الحذف. يرجى المحاولة مرة أخرى.';
 
   @override
-  String get errorDeleteAccountFailed =>
-      'تعذر حذف حسابك. يرجى المحاولة مرة أخرى.';
+  String get errorDeleteAccountFailed => 'تعذر حذف حسابك. يرجى المحاولة مرة أخرى.';
 
   @override
-  String get errorDeleteAccountRpcRequired =>
-      'حذف الحساب غير مُعد على الخادم. نفّذ supabase/delete_account.sql في مشروع Supabase.';
+  String get errorDeleteAccountRpcRequired => 'حذف الحساب غير مُعد على الخادم. نفّذ supabase/delete_account.sql في مشروع Supabase.';
 
   @override
   String get addIncome => 'إضافة دخل';
@@ -325,8 +325,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get errorEnterCategoryName => 'يرجى إدخال اسم التصنيف';
 
   @override
-  String get errorSavedExceedsTarget =>
-      'المبلغ المحفوظ لا يمكن أن يتجاوز الهدف';
+  String get errorSavedExceedsTarget => 'المبلغ المحفوظ لا يمكن أن يتجاوز الهدف';
 
   @override
   String get expenseCatFood => 'طعام';
@@ -438,6 +437,11 @@ class AppLocalizationsAr extends AppLocalizations {
   }
 
   @override
+  String balanceSavedPercent(int percent) {
+    return 'تم توفير $percent%';
+  }
+
+  @override
   String get balanceStatIncome => 'الدخل';
 
   @override
@@ -445,6 +449,42 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get balanceRecentActivity => 'النشاط الأخير';
+
+  @override
+  String get balanceAddToPlan => 'إضافة لهدف';
+
+  @override
+  String get balanceAddToPlanTitle => 'إضافة لهدف ادخار';
+
+  @override
+  String balanceAddToPlanHint(Object amount) {
+    return 'المتاح من الرصيد: $amount';
+  }
+
+  @override
+  String get balanceSelectPlan => 'اختر هدفاً';
+
+  @override
+  String get balanceAmountToAllocate => 'المبلغ للإضافة';
+
+  @override
+  String balancePlanRemaining(Object amount) {
+    return 'متبقي $amount لإكمال الهدف';
+  }
+
+  @override
+  String get balanceAddToPlanSuccess => 'تمت إضافة المبلغ لهدف الادخار';
+
+  @override
+  String balancePlanAllocationExpenseTitle(String planTitle) {
+    return 'هدف ادخار: $planTitle';
+  }
+
+  @override
+  String get balanceNoPlansForAllocation => 'أنشئ هدف ادخار من تبويب الخطط أولاً.';
+
+  @override
+  String get balanceAmountExceedsSurplus => 'المبلغ أكبر من الرصيد المتاح';
 
   @override
   String itemsCount(int count) {
@@ -455,6 +495,34 @@ class AppLocalizationsAr extends AppLocalizations {
   String listEntryCount(int count) {
     return '$count سجلًا';
   }
+
+  @override
+  String get clearAllExpenses => 'مسح الكل';
+
+  @override
+  String get clearAllIncomes => 'مسح الكل';
+
+  @override
+  String get clearAllExpensesConfirmTitle => 'حذف كل المصروفات؟';
+
+  @override
+  String get clearAllIncomesConfirmTitle => 'حذف كل الإيرادات؟';
+
+  @override
+  String clearAllExpensesConfirmMessage(int count) {
+    return 'سيتم حذف جميع المصروفات ($count) نهائيًا. لا يمكن التراجع.';
+  }
+
+  @override
+  String clearAllIncomesConfirmMessage(int count) {
+    return 'سيتم حذف جميع الإيرادات ($count) نهائيًا. لا يمكن التراجع.';
+  }
+
+  @override
+  String get clearAllExpensesSuccess => 'تم حذف كل المصروفات';
+
+  @override
+  String get clearAllIncomesSuccess => 'تم حذف كل الإيرادات';
 
   @override
   String get balanceIncomeVsExpenses => 'الدخل مقابل المصروفات';
@@ -518,8 +586,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get plansEmptyTitle => 'ابدأ هدفك الأول';
 
   @override
-  String get plansEmptySubtitle =>
-      'حدد هدفًا، تتبع ما توفره، وشاهد تقدمك ينمو.';
+  String get plansEmptySubtitle => 'حدد هدفًا، تتبع ما توفره، وشاهد تقدمك ينمو.';
 
   @override
   String get plansCreateGoalButton => 'إنشاء هدف';
@@ -560,5 +627,143 @@ class AppLocalizationsAr extends AppLocalizations {
   @override
   String storedAsBase(Object amount) {
     return 'يُحفظ كـ $amount (عملة الحساب)';
+  }
+
+  @override
+  String get smartImportTitle => 'استيراد ذكي';
+
+  @override
+  String get smartImportShort => 'فاتورة / SMS';
+
+  @override
+  String get smartImportInvoiceTab => 'OCR فواتير';
+
+  @override
+  String get smartImportSmsTab => 'رسائل SMS';
+
+  @override
+  String get smartImportInvoiceHint => 'التقط صورة للفاتورة أو الإيصال. سنقرأ المبلغ والتاريخ تلقائياً.';
+
+  @override
+  String get smartImportDefaultBillTitle => 'فاتورة';
+
+  @override
+  String get smartImportScanCamera => 'الكاميرا';
+
+  @override
+  String get smartImportScanGallery => 'المعرض';
+
+  @override
+  String get smartImportOcrProcessing => 'جاري قراءة الفاتورة…';
+
+  @override
+  String get smartImportOcrNoData => 'لم نتمكن من العثور على مبلغ أو تفاصيل في الصورة.';
+
+  @override
+  String get smartImportOcrFailed => 'فشلت قراءة الفاتورة. جرّب صورة أوضح.';
+
+  @override
+  String get smartImportCameraDenied => 'يلزم إذن الكاميرا لمسح الفواتير.';
+
+  @override
+  String get smartImportExtractedData => 'البيانات المستخرجة';
+
+  @override
+  String get smartImportDateField => 'التاريخ';
+
+  @override
+  String get smartImportTypeField => 'النوع';
+
+  @override
+  String get smartImportAddToApp => 'إضافة للتطبيق';
+
+  @override
+  String get smartImportSmsNotSupported => 'قراءة SMS متاحة على أندرويد فقط.';
+
+  @override
+  String get smartImportSmsEmpty => 'لم يتم العثور على رسائل مالية. امنح إذن SMS إن طُلب.';
+
+  @override
+  String get smartImportSmsFailed => 'تعذرت قراءة رسائل SMS.';
+
+  @override
+  String get smartImportReloadSms => 'إعادة التحميل';
+
+  @override
+  String get smartImportSmsAlreadyAdded => 'مضاف مسبقاً';
+
+  @override
+  String get smartImportSmsAddAgain => 'إضافة مرة أخرى';
+
+  @override
+  String get smartImportSmsClearAllAdded => 'مسح كل المضاف';
+
+  @override
+  String get smartImportSmsClearAllAddedConfirmTitle => 'مسح سجل الاستيراد؟';
+
+  @override
+  String get smartImportSmsClearAllAddedConfirmMessage => 'ستظهر كل الرسائل كغير مضافة ويمكنك استيرادها مجدداً. لن تُحذف مصروفاتك أو دخلك الحالي من التطبيق.';
+
+  @override
+  String get smartImportSmsClearAllAddedDone => 'تم مسح سجل الاستيراد';
+
+  @override
+  String smartImportSmsSkippedDuplicate(int count) {
+    return '$count رسالة موجودة بالفعل في التطبيق.';
+  }
+
+  @override
+  String get smartImportSmsLoadMore => 'تحميل المزيد من الرسائل';
+
+  @override
+  String get smartImportSmsLoadingMore => 'جاري التحميل…';
+
+  @override
+  String get smartImportUnknownSender => 'مرسل غير معروف';
+
+  @override
+  String get smartImportSmsTitleExpense => 'مصروف بنكي';
+
+  @override
+  String get smartImportSmsTitleIncome => 'دخل بنكي';
+
+  @override
+  String get smartImportTapToImport => 'اضغط للاستيراد';
+
+  @override
+  String smartImportAddAllExpenses(int count) {
+    return 'إضافة كل المصروفات ($count)';
+  }
+
+  @override
+  String smartImportAddAllIncomes(int count) {
+    return 'إضافة كل الدخل ($count)';
+  }
+
+  @override
+  String smartImportAddSelected(int count) {
+    return 'إضافة المحدد ($count)';
+  }
+
+  @override
+  String get smartImportSelectAll => 'تحديد الكل';
+
+  @override
+  String get smartImportClearSelection => 'إلغاء التحديد';
+
+  @override
+  String get smartImportBulkImporting => 'جاري استيراد الرسائل…';
+
+  @override
+  String get smartImportBulkNothingToAdd => 'لا توجد رسائل بمبلغ صالح للاستيراد.';
+
+  @override
+  String smartImportBulkResult(int incomes, int expenses) {
+    return 'تمت إضافة $incomes دخل و$expenses مصروف.';
+  }
+
+  @override
+  String smartImportBulkPartialFail(int failed) {
+    return 'تعذر استيراد $failed رسالة.';
   }
 }

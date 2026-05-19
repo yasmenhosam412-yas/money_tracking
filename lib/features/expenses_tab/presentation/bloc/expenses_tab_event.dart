@@ -64,3 +64,7 @@ class DeleteExpenseEvent extends ExpensesTabEvent {
   @override
   List<Object> get props => [id];
 }
+
+class ClearAllExpensesEvent extends ExpensesTabEvent {
+  const ClearAllExpensesEvent();
+}

@@ -34,6 +34,16 @@ class ExpenseRepositroyImpl extends ExpenseRepository {
   }
 
   @override
+  Future<Either<Failure, void>> deleteAllExpenses() async {
+    try {
+      await expensesDatasource.deleteAllExpenses();
+      return const Right(null);
+    } catch (e) {
+      return Left(ErrorHelper.handle(e));
+    }
+  }
+
+  @override
   Future<Either<Failure, List<ExpenseModel>>> getExpenses() async {
     try {
       final expenses = await expensesDatasource.getExpenses();

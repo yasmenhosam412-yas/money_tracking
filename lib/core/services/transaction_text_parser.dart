@@ -1,0 +1,1300 @@
+import 'package:imrpo/core/models/parsed_financial_entry.dart';
+import 'package:imrpo/core/services/currency_converter.dart';
+
+/// Extracts amount, title, date, and type from OCR or SMS text (Arabic + English).
+class TransactionTextParser {
+  /// Stricter expense signals — actual money leaving your account/wallet.
+  static const _transactionExpenseSignals = [
+    'debited from',
+    'debited with',
+    'has been debited',
+    'been debited with',
+    'was debited',
+    'debited with egp',
+    'debited with le',
+    'withdrawn from',
+    'withdrawn with',
+    'charged to',
+    'charged on',
+    'paid to',
+    'payment of',
+    'purchase at',
+    'spent at',
+    'spent on',
+    'bill payment',
+    'تم خصم',
+    'تم سحب',
+    'تم دفع',
+    'تم سداد',
+    'خصم مبلغ',
+    'سحب مبلغ',
+    'دفع مبلغ',
+    'خصم من',
+    'سحب من',
+    'سداد فاتورة',
+    'سداد فاتورتك',
+    'تحويل صادر',
+    'تحويل من',
+    'trx on your card',
+    'you have a trx on your card',
+    'you have a trx',
+  ];
+
+  /// Stricter income signals — money arriving in your account/wallet (not card).
+  static const _transactionIncomeSignals = [
+    'credited to your account',
+    'credited to your saving',
+    'credited to your current',
+    'has been credited to your account',
+    'has been credited to your saving',
+    'was credited to your account',
+    'been credited with',
+    'credited with egp',
+    'deposited to your account',
+    'deposited into your account',
+    'received in your account',
+    'transfer from',
+    'transfer in',
+    'salary',
+    'salary/bonus',
+    'payroll',
+    'bonus credit',
+    'إضافة راتب',
+    'اضافة راتب',
+    'إضافة حافز',
+    'اضافة حافز',
+    'راتب/حافز',
+    'راتب / حافز',
+    'تم إضافة راتب',
+    'تم اضافة راتب',
+    'تم إيداع',
+    'تم ايداع',
+    'إيداع مبلغ',
+    'ايداع مبلغ',
+    'تحويل وارد',
+    'استلام مبلغ',
+    'تم استلام',
+    'تم استلام مبلغ',
+    'استلامك',
+    'وصلك',
+    'وصل مبلغ',
+    'تم تحويل مبلغ',
+    'تحويل مبلغ',
+    'حوالة واردة',
+    'تم قبول مبلغ',
+    'you have received',
+    'received in your wallet',
+    'received an amount',
+    'credited to your vodafone',
+    'vodafone cash wallet',
+    'vf-cash',
+    'has been credited to your card account',
+    'credited to your card account',
+    'thank you for sending your payment',
+  ];
+
+  /// Broader keywords for OCR / fallback type detection.
+  static const _expenseKeywords = [
+    'debit',
+    'debited',
+    'withdraw',
+    'withdrawal',
+    'charge',
+    'charged',
+    'paid',
+    'purchase',
+    'spent',
+    'تم خصم',
+    'تم سحب',
+    'خصم',
+    'سحب',
+  ];
+
+  static const _incomeKeywords = [
+    'deposit',
+    'deposited',
+    'received',
+    'salary',
+    'payroll',
+    'bonus',
+    'راتب',
+    'حافز',
+    'مرتب',
+    'إضافة راتب',
+    'راتب/حافز',
+    'تم إيداع',
+    'تم ايداع',
+    'تم استلام',
+    'استلام',
+    'إيداع',
+    'ايداع',
+    'تحويل وارد',
+  ];
+
+  static const _exclusionPhrases = [
+    'otp',
+    'one-time password',
+    'one time password',
+    'verification code',
+    'verify your',
+    'do not share',
+    "don't share",
+    'رمز التحقق',
+    'رمز التفعيل',
+    'كود التفعيل',
+    'كلمة السر',
+    'كلمة المرور',
+    'لا تشارك',
+    'promo',
+    'promotion',
+    'special offer',
+    'limited time',
+    'عرض خاص',
+    'لفترة محدودة',
+    'subscribe',
+    'unsubscribe',
+    'win ',
+    'winner',
+    'فزت',
+    'اربح',
+    'احصل على',
+    'pre-approved',
+    'pre approved',
+    'موافقة مبدئية',
+    'apply now',
+    'قدم الآن',
+    'download the app',
+    'حمل التطبيق',
+    'visit our branch',
+    'زور فرع',
+    'activate your card',
+    'تفعيل البطاقة',
+    'statement is ready',
+    'statement was issued',
+    'statement is issued',
+    'card statement',
+    'minimum payment',
+    'minimum payment of',
+    'total amount of',
+    'your card #',
+    'شكرا لإرسال دفعتك',
+    'شكراً لإرسال دفعتك',
+    'كشف الحساب',
+    'كشف حساب',
+    'كشف البطاقة',
+    'بيان البطاقة',
+    'تم إصدار كشف',
+    'إصدار كشف',
+    'survey',
+    'استبيان',
+    'insurance',
+    'تأمين',
+    'loan offer',
+    'عرض تمويل',
+  ];
+
+  static const _balanceOnlyPhrases = [
+    'available balance',
+    'current balance',
+    'account balance is',
+    'رصيدكم',
+    'رصيدك الحالي',
+    'رصيدك الحالى',
+    'رصيد حسابك',
+    'رصيد حسابك فى',
+    'رصيد حسابك في',
+    'رصيدك هو',
+    'الرصيد المتاح',
+    'رصيد الحساب',
+    'الرصيد الحالي',
+    'الرصيد الحالى',
+  ];
+
+  static final _vfBalanceNotification = RegExp(
+    r'رصيد\s*حسابك\s*(?:فى|في)?\s*(?:فودافون\s*)?كاش\s*الحال[يى]\s*[0-9]',
+    caseSensitive: false,
+  );
+
+  static final _cardStatementNotification = RegExp(
+    r'(?:card\s*#?\s*x+\d+|statement\s+was\s+issued|statement\s+is\s+issued|minimum\s+payment)',
+    caseSensitive: false,
+  );
+
+  /// "EGP 1000.00 has been credited to your card account"
+  static final _cardBillPaymentAmount = RegExp(
+    r'egp\s*([0-9]{1,6}(?:[.,][0-9]{1,2})?)\s+has\s+been\s+credited\s+to\s+your\s+card',
+    caseSensitive: false,
+  );
+
+  static final _mobileWalletSender = RegExp(
+    r'vodafone|vf[\s-]?cash|vf-cash|vfcash|فودافون|محفظ|^vf$',
+    caseSensitive: false,
+  );
+
+  static final _amountWithCurrency = RegExp(
+    r'(?:EGP|LE|ج\.?\s*م|جم\b|جنيه|جنية|SAR|USD|EUR|GBP|\$|€|£)\s*([0-9]{1,6}(?:[,\s][0-9]{3})*(?:[.,][0-9]{1,2})?)',
+    caseSensitive: false,
+  );
+
+  static final _amountBeforeCurrency = RegExp(
+    r'([0-9]{1,6}(?:[,\s][0-9]{3})*(?:[.,][0-9]{1,2})?)\s*(?:EGP|LE|ج\.?\s*م|جم\b|جنيه|جنية|SAR|USD|EUR|GBP)',
+    caseSensitive: false,
+  );
+
+  static final _amountAttachedEgp = RegExp(
+    r'([0-9]{1,6}(?:[.,][0-9]{1,2})?)\s*(?:ج\.?م|جم\b)(?!\w)',
+    caseSensitive: false,
+  );
+
+  static final _amountLabeled = RegExp(
+    r'(?:مبلغ|amount|value|قيمة|بقيمة|مقدار)\s*:?\s*([0-9]{1,9}(?:[.,][0-9]{1,2})?)',
+    caseSensitive: false,
+  );
+
+  /// "8000جم" / "8000.00جنيه" right after the number
+  static final _amountAttachedCurrency = RegExp(
+    r'([0-9]{1,9}(?:[.,][0-9]{1,2})?)\s*(?:جنيه|جنية|ج\.?\s*م|جم\b|egp|le)(?!\w)',
+    caseSensitive: false,
+  );
+
+  static final _vfReceivedAmount = RegExp(
+    r'تم\s*استلام\s*مبلغ\s*([0-9]{1,6}(?:[.,][0-9]{1,2})?)',
+    caseSensitive: false,
+  );
+
+  /// "تم سحب 5900.00 جنية" / "تم استلام 6000 جنيه" (without مبلغ)
+  static final _vfDirectTxnAmount = RegExp(
+    r'تم\s*(?:استلام|خصم|سحب|دفع|سداد)\s*([0-9]{1,6}(?:[.,][0-9]{1,2})?)\s*(?:جنيه|جنية|ج\.?\s*م|جم\b|egp|le)',
+    caseSensitive: false,
+  );
+
+  static final _vfDebitedAmount = RegExp(
+    r'تم\s*(?:خصم|سحب|دفع|سداد)\s*مبلغ\s*([0-9]{1,6}(?:[.,][0-9]{1,2})?)',
+    caseSensitive: false,
+  );
+
+  static final _vfTransferInAmount = RegExp(
+    r'تم\s*تحويل\s*مبلغ\s*:?\s*([0-9]{1,9}(?:[.,][0-9]{1,2})?)',
+    caseSensitive: false,
+  );
+
+  static final _vfAcceptedAmount = RegExp(
+    r'تم\s*قبول\s*مبلغ\s*:?\s*([0-9]{1,9}(?:[.,][0-9]{1,2})?)',
+    caseSensitive: false,
+  );
+
+  static final _incomingRemittanceAmount = RegExp(
+    r'حوالة\s*واردة\s*بمبلغ\s*:?\s*([0-9]{1,9}(?:[.,][0-9]{1,2})?)',
+    caseSensitive: false,
+  );
+
+  static final _walletCreditedAmount = RegExp(
+    r'(?:egp|le)\s*([0-9]{1,9}(?:[.,][0-9]{1,2})?).{0,120}(?:vodafone\s*cash|vf-cash|your\s+(?:vodafone\s*)?wallet|محفظتك)',
+    caseSensitive: false,
+  );
+
+  static final _englishReceivedAmount = RegExp(
+    r'(?:you\s+have\s+)?received\s+(?:an\s+)?amount\s+of\s*(?:egp|le)?\s*([0-9]{1,9}(?:[.,][0-9]{1,2})?)',
+    caseSensitive: false,
+  );
+
+  static final _txnAmountPhrase = RegExp(
+    r'(?:استلام|خصم|سحب|دفع|إيداع|ايداع)\s*مبلغ\s*([0-9]{1,6}(?:[.,][0-9]{1,2})?)',
+    caseSensitive: false,
+  );
+
+  /// "EGP 55.00 has been debited" / "debited with EGP 55"
+  static final _bankDebitedAmount = RegExp(
+    r'(?:debited|withdrawn|charged|paid)\s+(?:with|for|amount\s+of)?\s*(?:egp|le)?\s*([0-9]{1,6}(?:[.,][0-9]{1,2})?)',
+    caseSensitive: false,
+  );
+
+  static final _bankCreditedAmount = RegExp(
+    r'(?:egp|le)\s*([0-9]{1,6}(?:[.,][0-9]{1,2})?)\s+has\s+been\s+credited',
+    caseSensitive: false,
+  );
+
+  /// "تم إيداع EGP 7900 إلى حساب رقم #0014"
+  static final _bankArabicDepositAmount = RegExp(
+    r'تم\s*(?:إيداع|ايداع)\s*(?:egp|le)?\s*([0-9]{1,9}(?:[.,][0-9]{1,2})?)',
+    caseSensitive: false,
+  );
+
+  /// "تم خصم EGP 500 من حساب"
+  static final _bankArabicDebitAmount = RegExp(
+    r'تم\s*(?:خصم|سحب)\s*(?:egp|le)?\s*([0-9]{1,9}(?:[.,][0-9]{1,2})?)',
+    caseSensitive: false,
+  );
+
+  static final _bankAccountRef = RegExp(
+    r'(?:حساب\s*رقم|account\s*(?:no\.?|#)?)\s*#?([0-9A-Za-z]+)',
+    caseSensitive: false,
+  );
+
+  /// "يوم 06/04/2026 13:24"
+  static final _bankOperationDateTime = RegExp(
+    r'(?:يوم|on)\s*(\d{1,2})[/.-](\d{1,2})[/.-](\d{2,4})\s+(\d{1,2}):(\d{2})',
+    caseSensitive: false,
+  );
+
+  /// "إضافة راتب/حافز بمبلغ 12500" / "اضافة راتب بمبلغ 5000"
+  static final _salaryBonusAmount = RegExp(
+    r'(?:إضافة|اضافة|تم\s*إضافة|تم\s*اضافة)\s*(?:راتب|مرتب)(?:\s*/\s*حافز)?\s*(?:بمبلغ\s*)?([0-9]{1,9}(?:[.,][0-9]{1,2})?)',
+    caseSensitive: false,
+  );
+
+  static final _salaryBonusEgpAmount = RegExp(
+    r'(?:egp|le|جنيه|جنية)\s*([0-9]{1,9}(?:[.,][0-9]{1,2})?).{0,140}(?:راتب|حافز|مرتب|salary|payroll|bonus)',
+    caseSensitive: false,
+  );
+
+  /// "from Talabat for EGP 204.16" (may include "on 19-May at …" before for EGP)
+  static final _cardPurchaseAmount = RegExp(
+    r'from\s+(.+?)\s+for\s+egp\s*([0-9]{1,6}(?:[.,][0-9]{1,2})?)',
+    caseSensitive: false,
+  );
+
+  static final _cardPurchaseDateTime = RegExp(
+    r'on\s+(\d{1,2})-([A-Za-z]{3})\s+at\s+(\d{1,2}):(\d{2})',
+    caseSensitive: false,
+  );
+
+  static final _registeredSenderName = RegExp(
+    r'المسجل\s*ب(?:إ|ا|أ)?\s*سم\s+(.+?)(?:\s+على|\s+في\s+رقم|\s+رصيد|\s+تاريخ\s*العملية|\s*\.(?:\s|$)|\n|$)',
+    caseSensitive: false,
+  );
+
+  static final _vfOperationDateTime = RegExp(
+    r'تاريخ\s*العملية\s*:?\s*(\d{1,2}):(\d{2})\s+(\d{1,2})-(\d{1,2})-(\d{2,4})',
+    caseSensitive: false,
+  );
+
+  static final _plainAmount = RegExp(
+    r'\b([0-9]{1,6}(?:,[0-9]{3})*(?:[.,][0-9]{1,2})?)\b',
+  );
+
+  static bool isMobileWalletSender(String address) {
+    final trimmed = address.trim();
+    if (trimmed.isEmpty) return false;
+    return _mobileWalletSender.hasMatch(trimmed);
+  }
+
+  /// Bank hotlines (19123) and phone numbers — not valid transaction titles.
+  static bool isPhoneOrHotline(String value) {
+    final cleaned = value.replaceAll(RegExp(r'[\s\-+().]'), '');
+    if (cleaned.isEmpty || !RegExp(r'^\d+$').hasMatch(cleaned)) {
+      return false;
+    }
+    if (cleaned.length >= 10 && cleaned.startsWith('01')) return true;
+    if (cleaned.length >= 4 && cleaned.length <= 6) return true;
+    return cleaned.length >= 11;
+  }
+
+  /// Best title for lists/forms — never a call-center short code.
+  static String? resolveSmsTitle({
+    String? parsedTitle,
+    required String body,
+    String? sender,
+  }) {
+    final title = _sanitizeMerchantTitle(parsedTitle);
+    if (title != null && _isValidSmsTitle(title)) {
+      return title;
+    }
+
+    final fromBody = resolveTitleFromBody(body);
+    if (fromBody != null && _isValidSmsTitle(fromBody)) return fromBody;
+
+    final fromSender = sender?.trim();
+    if (fromSender != null &&
+        fromSender.isNotEmpty &&
+        !isPhoneOrHotline(fromSender)) {
+      return fromSender;
+    }
+
+    return null;
+  }
+
+  static String? resolveTitleFromBody(String body) {
+    if (_isCardBillPayment(body.toLowerCase())) {
+      return _extractCardBillPaymentTitle(body);
+    }
+    return _extractCardMerchant(body) ??
+        _extractSenderName(body) ??
+        _extractBankAccountTitle(body) ??
+        _extractSalaryTitle(body) ??
+        _extractWalletTitle(body);
+  }
+
+  static bool _isBankAccountTransaction(String lower) {
+    return lower.contains('حساب رقم') ||
+        lower.contains('إلى حساب') ||
+        lower.contains('الى حساب') ||
+        lower.contains('to your account') ||
+        lower.contains('credited to your account') ||
+        lower.contains('debited from your account');
+  }
+
+  static String? _extractBankAccountTitle(String text) {
+    final lower = text.toLowerCase();
+    if (_isVodafoneCashMessage(lower)) return null;
+    final isArabicBankLine = _isBankAccountTransaction(lower) ||
+        ((lower.contains('تم إيداع') ||
+                lower.contains('تم ايداع') ||
+                lower.contains('تم خصم') ||
+                lower.contains('تم سحب')) &&
+            lower.contains('egp') &&
+            lower.contains('حساب'));
+    if (!isArabicBankLine) return null;
+    final account = _bankAccountRef.firstMatch(text);
+    if (account != null) {
+      return 'Account #${account.group(1)}';
+    }
+    if (lower.contains('تم إيداع') || lower.contains('تم ايداع')) {
+      return 'Bank deposit';
+    }
+    if (lower.contains('تم خصم') || lower.contains('تم سحب')) {
+      return 'Bank withdrawal';
+    }
+    return null;
+  }
+
+  static String? _extractSalaryTitle(String text) {
+    if (!_isSalaryBonusCredit(text.toLowerCase())) return null;
+    final lower = text.toLowerCase();
+    final hasSalary = lower.contains('راتب') ||
+        lower.contains('مرتب') ||
+        lower.contains('salary') ||
+        lower.contains('payroll');
+    final hasBonus =
+        lower.contains('حافز') || lower.contains('bonus') || lower.contains('incentive');
+    if (lower.contains('راتب/حافز') ||
+        lower.contains('راتب / حافز') ||
+        (hasSalary && hasBonus)) {
+      return 'Salary / Bonus';
+    }
+    if (hasSalary) return 'Salary';
+    if (hasBonus) return 'Bonus';
+    return 'Salary / Bonus';
+  }
+
+  static bool _isSalaryBonusCredit(String lower) {
+    if (lower.contains('راتب/حافز') || lower.contains('راتب / حافز')) {
+      return true;
+    }
+    if (lower.contains('إضافة راتب') ||
+        lower.contains('اضافة راتب') ||
+        lower.contains('إضافة حافز') ||
+        lower.contains('اضافة حافز')) {
+      return true;
+    }
+    if (lower.contains('salary/bonus') || lower.contains('salary / bonus')) {
+      return true;
+    }
+    if (lower.contains('payroll') &&
+        (lower.contains('credited') ||
+            lower.contains('credit') ||
+            lower.contains('إضافة') ||
+            lower.contains('اضافة') ||
+            lower.contains('إيداع'))) {
+      return true;
+    }
+    return false;
+  }
+
+  static bool _isVodafoneCashMessage(String lower) {
+    return lower.contains('فودافون') ||
+        lower.contains('vodafone') ||
+        lower.contains('vf-cash') ||
+        lower.contains('vf.eg') ||
+        lower.contains('vfcash') ||
+        lower.contains('محفظتك') ||
+        lower.contains('محفظة');
+  }
+
+  static bool _isWalletIncomingTransfer(String lower) {
+    if (!lower.contains('تحويل') || !lower.contains('مبلغ')) return false;
+    return lower.contains('لمحفظتك') ||
+        lower.contains('ل محفظتك') ||
+        lower.contains('الى محفظ') ||
+        lower.contains('إلى محفظ');
+  }
+
+  static bool _isVodafoneWalletCredit(String lower) {
+    if (!lower.contains('credited')) return false;
+    if (lower.contains('card account') ||
+        lower.contains('card no') ||
+        lower.contains('your card')) {
+      return false;
+    }
+    return _isVodafoneCashMessage(lower);
+  }
+
+  static bool _isEnglishWalletReceive(String lower) {
+    if (!lower.contains('received')) return false;
+    return _isVodafoneCashMessage(lower) ||
+        lower.contains('wallet') ||
+        lower.contains('amount of');
+  }
+
+  static String? _extractWalletTitle(String text) {
+    if (!_isVodafoneCashMessage(text.toLowerCase())) return null;
+    return 'Vodafone Cash';
+  }
+
+  static String? _extractCardBillPaymentTitle(String text) {
+    return 'Card payment';
+  }
+
+  static final _datePatterns = [
+    RegExp(r'(\d{1,2})[/.-](\d{1,2})[/.-](\d{2,4})'),
+    RegExp(r'(\d{4})[/.-](\d{1,2})[/.-](\d{1,2})'),
+  ];
+
+  /// True when the SMS is a real income or expense transaction.
+  static bool looksFinancial(String text, {String? sender}) {
+    return parseSms(text, sender: sender) != null;
+  }
+
+  /// Normalize common Arabic spelling variants in Vodafone/bank SMS.
+  static String _normalizeSmsText(String text) {
+    var t = text.replaceAll('\r', '').trim();
+    const replacements = <String, String>{
+      'إستلام': 'استلام',
+      'أستلام': 'استلام',
+      'إيداع': 'ايداع',
+      'أيداع': 'ايداع',
+      'إضافة': 'اضافة',
+    };
+    for (final entry in replacements.entries) {
+      t = t.replaceAll(entry.key, entry.value);
+    }
+    return t;
+  }
+
+  /// Parse bank/wallet SMS into an entry, or null if not a transaction.
+  static ParsedFinancialEntry? parseSms(
+    String text, {
+    String defaultCurrencyCode = CurrencyConverter.baseCode,
+    DateTime? smsReceivedAt,
+    String? sender,
+  }) {
+    final normalized = _normalizeSmsText(text);
+    if (normalized.isEmpty) return null;
+    if (_shouldExcludeSms(normalized, sender: sender)) return null;
+
+    final reference = smsReceivedAt ?? DateTime.now();
+    final lower = normalized.toLowerCase();
+    var type = _detectTransactionType(lower);
+    type ??= _inferTypeFromWalletSender(sender, lower);
+    if (type == null) return null;
+
+    final amount = _extractAmount(normalized);
+    if (amount == null || amount <= 0) return null;
+
+    return ParsedFinancialEntry(
+      title: resolveSmsTitle(
+        parsedTitle: resolveTitleFromBody(normalized),
+        body: normalized,
+        sender: sender,
+      ),
+      amount: amount,
+      currencyCode: _extractCurrency(normalized) ?? defaultCurrencyCode,
+      date: _extractDate(normalized, reference: reference) ?? reference,
+      type: type,
+      rawText: normalized,
+    );
+  }
+
+  /// OCR / invoice parsing (broader than SMS).
+  static ParsedFinancialEntry parse(
+    String text, {
+    String defaultCurrencyCode = CurrencyConverter.baseCode,
+  }) {
+    final normalized = text.replaceAll('\r', '').trim();
+    final lower = normalized.toLowerCase();
+
+    final type = _detectType(lower);
+    final amount = _extractAmount(normalized);
+    final currencyCode =
+        _extractCurrency(normalized) ?? defaultCurrencyCode;
+    final date = _extractDate(normalized, reference: DateTime.now()) ??
+        DateTime.now();
+    final title = _extractSenderName(normalized) ?? _extractTitle(normalized);
+
+    return ParsedFinancialEntry(
+      title: title,
+      amount: amount,
+      currencyCode: currencyCode,
+      date: date,
+      type: type,
+      rawText: normalized,
+    );
+  }
+
+  static bool _shouldExcludeSms(String text, {String? sender}) {
+    final lower = text.toLowerCase();
+    if (_exclusionPhrases.any(lower.contains)) return true;
+    if (_isStatementNotification(text)) return true;
+
+    final isTransaction = _isCardPurchase(lower) ||
+        _detectTransactionType(lower) != null ||
+        _inferTypeFromWalletSender(sender, lower) != null;
+
+    // Marketing / app footers — only when this is not a transaction SMS.
+    if (!isTransaction) {
+      if (_isBalanceNotification(lower)) return true;
+      if (lower.contains('تابع كل مصروفاتك') ||
+          lower.contains('أبلكيشن أنا فودافون') ||
+          lower.contains('اشترك') ||
+          lower.contains('كلم *9*')) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  static bool _isStatementNotification(String text) {
+    final lower = text.toLowerCase();
+    if (_cardStatementNotification.hasMatch(lower)) return true;
+    if (lower.contains('statement') &&
+        (lower.contains('issued') || lower.contains('ready'))) {
+      return true;
+    }
+    return false;
+  }
+
+  /// Card bill paid: "Thank you for sending your payment … credited to your card"
+  static bool _isCardBillPayment(String lower) {
+    return lower.contains('thank you for sending your payment') ||
+        (lower.contains('sending your payment') &&
+            lower.contains('credited to your card'));
+  }
+
+  static bool _isBalanceNotification(String lower) {
+    if (_detectTransactionType(lower) != null) return false;
+    if (_vfBalanceNotification.hasMatch(lower)) return true;
+    if (_balanceOnlyPhrases.any(lower.contains)) return true;
+    if (lower.contains('رقم العملية') &&
+        (lower.contains('رصيد') || lower.contains('الحال'))) {
+      return true;
+    }
+    return false;
+  }
+
+  static bool _isVodafoneCashIncome(String lower) {
+    if (_isBankAccountTransaction(lower)) return false;
+    if (lower.contains('تم سحب') ||
+        lower.contains('تم خصم') ||
+        lower.contains('سحب مبلغ') ||
+        lower.contains('خصم مبلغ')) {
+      return false;
+    }
+    return lower.contains('تم استلام') ||
+        lower.contains('استلام مبلغ') ||
+        lower.contains('استلامك') ||
+        lower.contains('وصلك') ||
+        lower.contains('تم ايداع') ||
+        lower.contains('تم إيداع') ||
+        lower.contains('إيداع مبلغ') ||
+        lower.contains('ايداع مبلغ') ||
+        lower.contains('حوالة واردة') ||
+        lower.contains('تم قبول مبلغ') ||
+        _isWalletIncomingTransfer(lower);
+  }
+
+  static bool _isVodafoneCashExpense(String lower) {
+    return lower.contains('تم سحب') ||
+        lower.contains('تم خصم') ||
+        lower.contains('تم دفع') ||
+        lower.contains('تم سداد') ||
+        lower.contains('سحب مبلغ') ||
+        lower.contains('خصم مبلغ');
+  }
+
+  static FinancialEntryType? _inferTypeFromWalletSender(
+    String? sender,
+    String lower,
+  ) {
+    if (sender != null &&
+        sender.trim().isNotEmpty &&
+        isMobileWalletSender(sender)) {
+      if (_isVodafoneCashIncome(lower)) return FinancialEntryType.income;
+      if (_isVodafoneCashExpense(lower)) return FinancialEntryType.expense;
+    }
+    if (_isVodafoneCashMessage(lower)) {
+      if (_isVodafoneCashIncome(lower)) return FinancialEntryType.income;
+      if (_isVodafoneCashExpense(lower)) return FinancialEntryType.expense;
+    }
+    return null;
+  }
+
+  static FinancialEntryType? _detectTransactionType(String lower) {
+    if (_isCardPurchase(lower)) return FinancialEntryType.expense;
+    if (_isCardBillPayment(lower)) return FinancialEntryType.income;
+    if (_isSalaryBonusCredit(lower)) return FinancialEntryType.income;
+    if (_isVodafoneCashIncome(lower)) return FinancialEntryType.income;
+    if (_isVodafoneCashExpense(lower)) return FinancialEntryType.expense;
+    if (_isVodafoneWalletCredit(lower)) return FinancialEntryType.income;
+    if (_isWalletIncomingTransfer(lower)) return FinancialEntryType.income;
+    if (_isEnglishWalletReceive(lower)) return FinancialEntryType.income;
+    if (lower.contains('حوالة واردة') || lower.contains('تم قبول مبلغ')) {
+      return FinancialEntryType.income;
+    }
+
+    var expenseScore = 0;
+    var incomeScore = 0;
+
+    for (final signal in _transactionExpenseSignals) {
+      if (_matchesExpenseSignal(lower, signal)) expenseScore++;
+    }
+    for (final signal in _transactionIncomeSignals) {
+      if (_matchesIncomeSignal(lower, signal)) incomeScore++;
+    }
+
+    if (expenseScore == 0 && incomeScore == 0) return null;
+    if (expenseScore > 0 && incomeScore == 0) {
+      return FinancialEntryType.expense;
+    }
+    if (incomeScore > 0 && expenseScore == 0) {
+      return FinancialEntryType.income;
+    }
+
+    // Both matched — use explicit Arabic/English anchors.
+    const incomeAnchors = [
+      'تم استلام',
+      'تم تحويل مبلغ',
+      'حوالة واردة',
+      'تم قبول مبلغ',
+      'تم إيداع',
+      'تم ايداع',
+      'تحويل وارد',
+      'إضافة راتب',
+      'اضافة راتب',
+      'راتب/حافز',
+      'credited to your account',
+      'has been credited to your account',
+    ];
+    const expenseAnchors = [
+      'تم خصم',
+      'تم سحب',
+      'تم دفع',
+      'تم سداد',
+      'debited from',
+      'has been debited',
+      'withdrawn from',
+      'trx on your card',
+      'you have a trx',
+    ];
+
+    final hasIncomeAnchor = incomeAnchors.any(lower.contains);
+    final hasExpenseAnchor = expenseAnchors.any(lower.contains);
+
+    if (hasIncomeAnchor && !hasExpenseAnchor) {
+      return FinancialEntryType.income;
+    }
+    if (hasExpenseAnchor && !hasIncomeAnchor) {
+      return FinancialEntryType.expense;
+    }
+
+    if (incomeScore > expenseScore) return FinancialEntryType.income;
+    if (expenseScore > incomeScore) return FinancialEntryType.expense;
+    if (_isVodafoneCashIncome(lower)) return FinancialEntryType.income;
+    if (_isVodafoneCashExpense(lower)) return FinancialEntryType.expense;
+
+    return null;
+  }
+
+  static bool _matchesIncomeSignal(String lower, String signal) {
+    if (!lower.contains(signal)) return false;
+    return true;
+  }
+
+  static bool _matchesExpenseSignal(String lower, String signal) {
+    if (!lower.contains(signal)) return false;
+    if (signal == 'payment of' && lower.contains('minimum payment')) {
+      return false;
+    }
+    return true;
+  }
+
+  static String? _extractCurrency(String text) {
+    const patterns = <String, List<String>>{
+      'EGP': [r'EGP', r'\bLE\b', r'ج\.?\s*م', r'جم\b', r'جنيه', r'جنية'],
+      'SAR': [r'SAR', r'ر\.س', r'ريال\s*سعود'],
+      'AED': [r'AED', r'د\.إ', r'درهم'],
+      'USD': [r'USD', r'US\$', r'\$'],
+      'EUR': [r'EUR', r'€'],
+      'GBP': [r'GBP', r'£'],
+      'TRY': [r'TRY', r'₺', r'ليرة'],
+      'INR': [r'INR', r'₹', r'روبية'],
+    };
+
+    for (final entry in patterns.entries) {
+      for (final pattern in entry.value) {
+        if (RegExp(pattern, caseSensitive: false).hasMatch(text)) {
+          return entry.key;
+        }
+      }
+    }
+    return null;
+  }
+
+  static FinancialEntryType _detectType(String lower) {
+    final expenseScore =
+        _expenseKeywords.where((k) => lower.contains(k)).length;
+    final incomeScore = _incomeKeywords.where((k) => lower.contains(k)).length;
+    if (incomeScore > expenseScore) return FinancialEntryType.income;
+    return FinancialEntryType.expense;
+  }
+
+  static bool _isCardPurchase(String lower) {
+    return lower.contains('trx on your card') ||
+        lower.contains('you have a trx');
+  }
+
+  static String? _extractCardMerchant(String text) {
+    final match = _cardPurchaseAmount.firstMatch(text);
+    return _sanitizeMerchantTitle(match?.group(1));
+  }
+
+  static String? _sanitizeMerchantTitle(String? raw) {
+    if (raw == null) return null;
+    var name = raw.trim();
+    if (name.isEmpty) return null;
+
+    name = name.replaceAll(
+      RegExp(r'\s+on\s+\d{1,2}-[A-Za-z]{3}.*$', caseSensitive: false),
+      '',
+    );
+    name = name.replaceAll(
+      RegExp(r'\s+at\s+\d{1,2}:\d{2}.*$', caseSensitive: false),
+      '',
+    );
+    name = name.replaceAll(RegExp(r'\s+for\s+egp.*$', caseSensitive: false), '');
+    name = name.replaceAll(RegExp(r'\s+\d{1,2}[-/].*$'), '');
+    final isAccountOrRef = RegExp(
+      r'^(account|bank\s+deposit|bank\s+withdrawal|#)',
+      caseSensitive: false,
+    ).hasMatch(name);
+    if (!isAccountOrRef) {
+      name = name.replaceAll(RegExp(r'\s+\d+([.,]\d+)?\s*$'), '');
+    }
+    name = name.trim();
+
+    if (name.isEmpty) return null;
+    return name;
+  }
+
+  static bool _isValidSmsTitle(String title) {
+    if (title.length < 2 || title.length > 50) return false;
+    if (isPhoneOrHotline(title)) return false;
+
+    final lower = title.toLowerCase();
+    const blocked = [
+      'you have a trx',
+      'trx on your',
+      'card no',
+      'available balance',
+      'please call',
+      'for more info',
+      'xxxx',
+      'gmt',
+    ];
+    if (blocked.any(lower.contains)) return false;
+    if (RegExp(r'\d{1,2}-[a-z]{3}', caseSensitive: false).hasMatch(title)) {
+      return false;
+    }
+    if (RegExp(r'^\d+([.,]\d+)?$').hasMatch(title.replaceAll(' ', ''))) {
+      return false;
+    }
+    return true;
+  }
+
+  static double? _extractAmount(String text) {
+    final lower = text.toLowerCase();
+
+    if (_isCardPurchase(lower)) {
+      final cardPurchase = _cardPurchaseAmount.firstMatch(text);
+      if (cardPurchase != null) {
+        final value = _parseNumber(cardPurchase.group(2)!);
+        if (value > 0 && value <= 1_000_000) return value;
+      }
+      return null;
+    }
+
+    final cardPurchase = _cardPurchaseAmount.firstMatch(text);
+    if (cardPurchase != null) {
+      final value = _parseNumber(cardPurchase.group(2)!);
+      if (value > 0 && value <= 1_000_000) return value;
+    }
+
+    final cardBill = _cardBillPaymentAmount.firstMatch(text);
+    if (cardBill != null) {
+      final value = _parseNumber(cardBill.group(1)!);
+      if (value > 0 && value <= 1_000_000) return value;
+    }
+
+    for (final pattern in [
+      _bankArabicDepositAmount,
+      _bankArabicDebitAmount,
+      _salaryBonusAmount,
+      _salaryBonusEgpAmount,
+      _walletCreditedAmount,
+      _englishReceivedAmount,
+      _incomingRemittanceAmount,
+      _vfTransferInAmount,
+      _vfAcceptedAmount,
+      _vfDirectTxnAmount,
+      _vfReceivedAmount,
+      _vfDebitedAmount,
+      _txnAmountPhrase,
+      _amountAttachedCurrency,
+      _bankDebitedAmount,
+      _bankCreditedAmount,
+      _amountLabeled,
+    ]) {
+      final match = pattern.firstMatch(text);
+      if (match == null) continue;
+      final value = _parseNumber(match.group(1)!);
+      if (value > 0 && value <= 1_000_000) return value;
+    }
+
+    final candidates = <double>[];
+
+    void addFromMatches(Iterable<RegExpMatch> matches) {
+      for (final match in matches) {
+        if (_isBalanceContext(text, match.start)) continue;
+        if (_isPhoneNumberContext(text, match.start)) continue;
+        if (_isDateFragmentContext(text, match.start)) continue;
+        final value = _parseNumber(match.group(1)!);
+        if (value > 0 && value <= 1_000_000) {
+          candidates.add(value);
+        }
+      }
+    }
+
+    addFromMatches(_amountWithCurrency.allMatches(text));
+    addFromMatches(_amountBeforeCurrency.allMatches(text));
+    addFromMatches(_amountAttachedEgp.allMatches(text));
+
+    if (candidates.isEmpty && _hasCurrencyAmount(text)) {
+      addFromMatches(_plainAmount.allMatches(text));
+    }
+
+    if (candidates.isEmpty) return null;
+
+    candidates.sort();
+    return candidates.last;
+  }
+
+  static bool _hasCurrencyAmount(String text) {
+    return _amountWithCurrency.hasMatch(text) ||
+        _amountBeforeCurrency.hasMatch(text) ||
+        _amountAttachedEgp.hasMatch(text) ||
+        _amountLabeled.hasMatch(text);
+  }
+
+  static bool _isDateFragmentContext(String text, int matchStart) {
+    final start = matchStart > 12 ? matchStart - 12 : 0;
+    final end = matchStart + 12 < text.length ? matchStart + 12 : text.length;
+    final snippet = text.substring(start, end);
+    if (RegExp(r'\d{1,2}-[A-Za-z]{3}').hasMatch(snippet)) return true;
+    if (RegExp(r'on\s+\d{1,2}\b', caseSensitive: false).hasMatch(snippet)) {
+      return true;
+    }
+    return false;
+  }
+
+  static bool _isPhoneNumberContext(String text, int matchStart) {
+    final start = matchStart > 80 ? matchStart - 80 : 0;
+    final end = matchStart + 30 < text.length ? matchStart + 30 : text.length;
+    final snippet = text.substring(start, end).toLowerCase();
+    const nearPhone = [
+      'call ',
+      'please call',
+      'please call ',
+      'for more info',
+      'for more information',
+      'اتصل ب',
+      'اتصل ',
+      'للمزيد',
+      'رقم ',
+      'من رقم',
+      'على رقم',
+      'حساب رقم',
+      'phone',
+    ];
+    return nearPhone.any(snippet.contains);
+  }
+
+  static bool _isBalanceContext(String text, int matchStart) {
+    final start = matchStart > 70 ? matchStart - 70 : 0;
+    final end = matchStart + 40 < text.length ? matchStart + 40 : text.length;
+    final snippet = text.substring(start, end).toLowerCase();
+    const nearBalance = [
+      'available balance is',
+      'available balance',
+      'your available balance',
+      'current balance is',
+      'رصيدك الحالي',
+      'رصيد حسابك الحالي',
+      'الرصيد المتاح',
+      'رصيد الحساب',
+      'المتاح',
+      'متاح ',
+    ];
+    return nearBalance.any(snippet.contains);
+  }
+
+  static String? _extractSenderName(String text) {
+    final match = _registeredSenderName.firstMatch(text);
+    if (match == null) return null;
+    var name = match.group(1)?.trim();
+    if (name == null || name.isEmpty) return null;
+    // Stop before balance / date if the regex captured too much.
+    name = name.split(RegExp(r'\s+رصيد|\s+تاريخ')).first.trim();
+    if (name.isEmpty || !_isValidSmsTitle(name)) return null;
+    return name;
+  }
+
+  static double _parseNumber(String raw) {
+    final trimmed = raw.trim();
+    if (RegExp(r'^\d{1,6},\d{2}$').hasMatch(trimmed)) {
+      return double.tryParse(trimmed.replaceFirst(',', '.')) ?? 0;
+    }
+    final cleaned = trimmed.replaceAll(RegExp(r'[\s,]'), '');
+    return double.tryParse(cleaned) ?? 0;
+  }
+
+  static const _monthNames = <String, int>{
+    'jan': 1,
+    'feb': 2,
+    'mar': 3,
+    'apr': 4,
+    'may': 5,
+    'jun': 6,
+    'jul': 7,
+    'aug': 8,
+    'sep': 9,
+    'oct': 10,
+    'nov': 11,
+    'dec': 12,
+  };
+
+  static DateTime? _extractDate(String text, {required DateTime reference}) {
+    final cardDt = _cardPurchaseDateTime.firstMatch(text);
+    if (cardDt != null) {
+      try {
+        final day = int.parse(cardDt.group(1)!);
+        final month = _monthNames[cardDt.group(2)!.toLowerCase()];
+        final hour = int.parse(cardDt.group(3)!);
+        final minute = int.parse(cardDt.group(4)!);
+        if (month != null) {
+          return _resolveTransactionDateTime(
+            day: day,
+            month: month,
+            hour: hour,
+            minute: minute,
+            reference: reference,
+          );
+        }
+      } catch (_) {
+        // fall through
+      }
+    }
+
+    final bankDt = _bankOperationDateTime.firstMatch(text);
+    if (bankDt != null) {
+      try {
+        final day = int.parse(bankDt.group(1)!);
+        final month = int.parse(bankDt.group(2)!);
+        final year = int.parse(bankDt.group(3)!);
+        final hour = int.parse(bankDt.group(4)!);
+        final minute = int.parse(bankDt.group(5)!);
+        final fullYear = year < 100 ? 2000 + year : year;
+        return DateTime(fullYear, month, day, hour, minute);
+      } catch (_) {
+        // fall through
+      }
+    }
+
+    final vf = _vfOperationDateTime.firstMatch(text);
+    if (vf != null) {
+      final parsed = _parseVfOperationDate(vf, reference);
+      if (parsed != null) return parsed;
+    }
+
+    for (final pattern in _datePatterns) {
+      final match = pattern.firstMatch(text);
+      if (match == null) continue;
+
+      try {
+        if (match.groupCount == 3) {
+          final a = int.parse(match.group(1)!);
+          final b = int.parse(match.group(2)!);
+          final c = int.parse(match.group(3)!);
+          final parsed = _parseDateTriplet(a, b, c, reference);
+          if (parsed != null) return parsed;
+        }
+      } catch (_) {
+        continue;
+      }
+    }
+    return null;
+  }
+
+  static DateTime? _parseVfOperationDate(RegExpMatch vf, DateTime reference) {
+    try {
+      final hour = int.parse(vf.group(1)!);
+      final minute = int.parse(vf.group(2)!);
+      final a = int.parse(vf.group(3)!);
+      final b = int.parse(vf.group(4)!);
+      final c = int.parse(vf.group(5)!);
+      return _parseDateTriplet(a, b, c, reference, hour: hour, minute: minute);
+    } catch (_) {
+      return null;
+    }
+  }
+
+  static DateTime? _parseDateTriplet(
+    int a,
+    int b,
+    int c,
+    DateTime reference, {
+    int hour = 0,
+    int minute = 0,
+  }) {
+    if (a > 99) {
+      return DateTime(a, b, c.clamp(1, 31), hour, minute);
+    }
+
+    final candidates = <DateTime>[];
+
+    if (c >= 100) {
+      candidates.add(DateTime(c, b, a.clamp(1, 31), hour, minute));
+    } else {
+      if (a >= 1 && a <= 31 && b >= 1 && b <= 12) {
+        candidates.add(
+          _resolveTransactionDateTime(
+            day: a,
+            month: b,
+            year: _resolveCenturyYear(c, reference),
+            hour: hour,
+            minute: minute,
+            reference: reference,
+          ),
+        );
+      }
+      if (a >= 20 && a <= 99 && b >= 1 && b <= 12 && c >= 1 && c <= 31) {
+        candidates.add(
+          DateTime(
+            _resolveCenturyYear(a, reference),
+            b,
+            c.clamp(1, 31),
+            hour,
+            minute,
+          ),
+        );
+      }
+    }
+
+    return _pickClosestDate(candidates, reference);
+  }
+
+  static int _resolveCenturyYear(int twoDigitYear, DateTime reference) {
+    final y2000 = 2000 + twoDigitYear;
+    final y1900 = 1900 + twoDigitYear;
+    final d2000 = (y2000 - reference.year).abs();
+    final d1900 = (y1900 - reference.year).abs();
+    var year = d2000 <= d1900 ? y2000 : y1900;
+    if (year > reference.year + 1) year -= 100;
+    if (year < reference.year - 10) year += 100;
+    return year;
+  }
+
+  static DateTime _resolveTransactionDateTime({
+    required int day,
+    required int month,
+    int? year,
+    int hour = 0,
+    int minute = 0,
+    required DateTime reference,
+  }) {
+    year ??= reference.year;
+    var dt = DateTime(year, month, day.clamp(1, 28), hour, minute);
+    if (dt.isAfter(reference.add(const Duration(days: 3)))) {
+      dt = DateTime(year - 1, month, day.clamp(1, 28), hour, minute);
+    }
+    if (dt.isBefore(reference.subtract(const Duration(days: 400)))) {
+      dt = DateTime(year + 1, month, day.clamp(1, 28), hour, minute);
+    }
+    return dt;
+  }
+
+  static DateTime? _pickClosestDate(
+    List<DateTime> candidates,
+    DateTime reference,
+  ) {
+    if (candidates.isEmpty) return null;
+
+    DateTime? best;
+    int? bestDiffDays;
+
+    for (final candidate in candidates) {
+      final diffDays = candidate.difference(reference).inDays.abs();
+      if (diffDays > 800) continue;
+      if (bestDiffDays == null || diffDays < bestDiffDays) {
+        best = candidate;
+        bestDiffDays = diffDays;
+      }
+    }
+
+    return best ?? candidates.first;
+  }
+
+  static String? _extractTitle(String text) {
+    final lines = text
+        .split('\n')
+        .map((l) => l.trim())
+        .where((l) => l.isNotEmpty)
+        .toList();
+
+    for (final line in lines) {
+      if (_looksLikeTitleLine(line)) return _cleanTitle(line);
+    }
+
+    if (lines.isNotEmpty) return _cleanTitle(lines.first);
+    return null;
+  }
+
+  static bool _looksLikeTitleLine(String line) {
+    final lower = line.toLowerCase();
+    if (lower.contains('رصيدك') ||
+        lower.contains('تاريخ العملية') ||
+        lower.contains('رقم العملية') ||
+        lower.contains('http')) {
+      return false;
+    }
+    if (_amountWithCurrency.hasMatch(line)) return false;
+    if (_plainAmount.hasMatch(line) && line.length < 24) return false;
+    if (lower.contains('total') ||
+        lower.contains('المجموع') ||
+        lower.contains('اجمالي')) {
+      return true;
+    }
+    if (line.length >= 3 && line.length <= 80) return true;
+    return false;
+  }
+
+  static String _cleanTitle(String line) {
+    return line
+        .replaceAll(
+          RegExp(
+            r'^(merchant|from|at|من|لدى)\s*:?\s*',
+            caseSensitive: false,
+          ),
+          '',
+        )
+        .trim();
+  }
+}

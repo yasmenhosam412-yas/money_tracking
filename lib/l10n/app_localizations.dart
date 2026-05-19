@@ -62,8 +62,7 @@ import 'app_localizations_en.dart';
 /// be consistent with the languages listed in the AppLocalizations.supportedLocales
 /// property.
 abstract class AppLocalizations {
-  AppLocalizations(String locale)
-    : localeName = intl.Intl.canonicalizedLocale(locale.toString());
+  AppLocalizations(String locale) : localeName = intl.Intl.canonicalizedLocale(locale.toString());
 
   final String localeName;
 
@@ -71,8 +70,7 @@ abstract class AppLocalizations {
     return Localizations.of<AppLocalizations>(context, AppLocalizations);
   }
 
-  static const LocalizationsDelegate<AppLocalizations> delegate =
-      _AppLocalizationsDelegate();
+  static const LocalizationsDelegate<AppLocalizations> delegate = _AppLocalizationsDelegate();
 
   /// A list of this localizations delegate along with the default localizations
   /// delegates.
@@ -84,18 +82,17 @@ abstract class AppLocalizations {
   /// Additional delegates can be added by appending to this list in
   /// MaterialApp. This list does not have to be used at all if a custom list
   /// of delegates is preferred or required.
-  static const List<LocalizationsDelegate<dynamic>> localizationsDelegates =
-      <LocalizationsDelegate<dynamic>>[
-        delegate,
-        GlobalMaterialLocalizations.delegate,
-        GlobalCupertinoLocalizations.delegate,
-        GlobalWidgetsLocalizations.delegate,
-      ];
+  static const List<LocalizationsDelegate<dynamic>> localizationsDelegates = <LocalizationsDelegate<dynamic>>[
+    delegate,
+    GlobalMaterialLocalizations.delegate,
+    GlobalCupertinoLocalizations.delegate,
+    GlobalWidgetsLocalizations.delegate,
+  ];
 
   /// A list of this localizations delegate's supported locales.
   static const List<Locale> supportedLocales = <Locale>[
     Locale('ar'),
-    Locale('en'),
+    Locale('en')
   ];
 
   /// No description provided for @appTitle.
@@ -152,6 +149,12 @@ abstract class AppLocalizations {
   /// **'Filter by date'**
   String get homeDateFilterTitle;
 
+  /// No description provided for @homeFilterAllMonths.
+  ///
+  /// In en, this message translates to:
+  /// **'All months'**
+  String get homeFilterAllMonths;
+
   /// No description provided for @homeFilterByMonth.
   ///
   /// In en, this message translates to:
@@ -163,6 +166,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Day'**
   String get homeFilterByDay;
+
+  /// No description provided for @homeFilterThisMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'This month'**
+  String get homeFilterThisMonth;
 
   /// No description provided for @homeFilterPickMonth.
   ///
@@ -437,7 +446,7 @@ abstract class AppLocalizations {
   /// No description provided for @sendResetLink.
   ///
   /// In en, this message translates to:
-  /// **'Send Reset Link'**
+  /// **'Send Reset OTP'**
   String get sendResetLink;
 
   /// No description provided for @backToLogin.
@@ -926,6 +935,12 @@ abstract class AppLocalizations {
   /// **'{percent}% saved this month'**
   String balanceSavedThisMonth(int percent);
 
+  /// No description provided for @balanceSavedPercent.
+  ///
+  /// In en, this message translates to:
+  /// **'{percent}% saved'**
+  String balanceSavedPercent(int percent);
+
   /// No description provided for @balanceStatIncome.
   ///
   /// In en, this message translates to:
@@ -944,6 +959,66 @@ abstract class AppLocalizations {
   /// **'Recent Activity'**
   String get balanceRecentActivity;
 
+  /// No description provided for @balanceAddToPlan.
+  ///
+  /// In en, this message translates to:
+  /// **'Add to goal'**
+  String get balanceAddToPlan;
+
+  /// No description provided for @balanceAddToPlanTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Add to savings goal'**
+  String get balanceAddToPlanTitle;
+
+  /// No description provided for @balanceAddToPlanHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Available from balance: {amount}'**
+  String balanceAddToPlanHint(Object amount);
+
+  /// No description provided for @balanceSelectPlan.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a goal'**
+  String get balanceSelectPlan;
+
+  /// No description provided for @balanceAmountToAllocate.
+  ///
+  /// In en, this message translates to:
+  /// **'Amount to add'**
+  String get balanceAmountToAllocate;
+
+  /// No description provided for @balancePlanRemaining.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} left to reach target'**
+  String balancePlanRemaining(Object amount);
+
+  /// No description provided for @balanceAddToPlanSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Amount added to your savings goal'**
+  String get balanceAddToPlanSuccess;
+
+  /// No description provided for @balancePlanAllocationExpenseTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Savings goal: {planTitle}'**
+  String balancePlanAllocationExpenseTitle(String planTitle);
+
+  /// No description provided for @balanceNoPlansForAllocation.
+  ///
+  /// In en, this message translates to:
+  /// **'Create a savings goal in the Plans tab first.'**
+  String get balanceNoPlansForAllocation;
+
+  /// No description provided for @balanceAmountExceedsSurplus.
+  ///
+  /// In en, this message translates to:
+  /// **'Amount exceeds your available balance'**
+  String get balanceAmountExceedsSurplus;
+
   /// No description provided for @itemsCount.
   ///
   /// In en, this message translates to:
@@ -955,6 +1030,54 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{count} entries'**
   String listEntryCount(int count);
+
+  /// No description provided for @clearAllExpenses.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear all'**
+  String get clearAllExpenses;
+
+  /// No description provided for @clearAllIncomes.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear all'**
+  String get clearAllIncomes;
+
+  /// No description provided for @clearAllExpensesConfirmTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete all expenses?'**
+  String get clearAllExpensesConfirmTitle;
+
+  /// No description provided for @clearAllIncomesConfirmTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete all incomes?'**
+  String get clearAllIncomesConfirmTitle;
+
+  /// No description provided for @clearAllExpensesConfirmMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'This will permanently delete all {count} expenses. This cannot be undone.'**
+  String clearAllExpensesConfirmMessage(int count);
+
+  /// No description provided for @clearAllIncomesConfirmMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'This will permanently delete all {count} incomes. This cannot be undone.'**
+  String clearAllIncomesConfirmMessage(int count);
+
+  /// No description provided for @clearAllExpensesSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'All expenses deleted'**
+  String get clearAllExpensesSuccess;
+
+  /// No description provided for @clearAllIncomesSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'All incomes deleted'**
+  String get clearAllIncomesSuccess;
 
   /// No description provided for @balanceIncomeVsExpenses.
   ///
@@ -1141,10 +1264,261 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Stored as {amount} base'**
   String storedAsBase(Object amount);
+
+  /// No description provided for @smartImportTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Smart import'**
+  String get smartImportTitle;
+
+  /// No description provided for @smartImportShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Scan / SMS'**
+  String get smartImportShort;
+
+  /// No description provided for @smartImportInvoiceTab.
+  ///
+  /// In en, this message translates to:
+  /// **'Invoice OCR'**
+  String get smartImportInvoiceTab;
+
+  /// No description provided for @smartImportSmsTab.
+  ///
+  /// In en, this message translates to:
+  /// **'SMS'**
+  String get smartImportSmsTab;
+
+  /// No description provided for @smartImportInvoiceHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Take a photo of a receipt or invoice. We\'ll read the amount and date automatically.'**
+  String get smartImportInvoiceHint;
+
+  /// No description provided for @smartImportDefaultBillTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Bill'**
+  String get smartImportDefaultBillTitle;
+
+  /// No description provided for @smartImportScanCamera.
+  ///
+  /// In en, this message translates to:
+  /// **'Camera'**
+  String get smartImportScanCamera;
+
+  /// No description provided for @smartImportScanGallery.
+  ///
+  /// In en, this message translates to:
+  /// **'Gallery'**
+  String get smartImportScanGallery;
+
+  /// No description provided for @smartImportOcrProcessing.
+  ///
+  /// In en, this message translates to:
+  /// **'Reading invoice…'**
+  String get smartImportOcrProcessing;
+
+  /// No description provided for @smartImportOcrNoData.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not find amount or details on this image.'**
+  String get smartImportOcrNoData;
+
+  /// No description provided for @smartImportOcrFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to read the invoice. Try a clearer photo.'**
+  String get smartImportOcrFailed;
+
+  /// No description provided for @smartImportCameraDenied.
+  ///
+  /// In en, this message translates to:
+  /// **'Camera permission is required to scan invoices.'**
+  String get smartImportCameraDenied;
+
+  /// No description provided for @smartImportExtractedData.
+  ///
+  /// In en, this message translates to:
+  /// **'Extracted data'**
+  String get smartImportExtractedData;
+
+  /// No description provided for @smartImportDateField.
+  ///
+  /// In en, this message translates to:
+  /// **'Date'**
+  String get smartImportDateField;
+
+  /// No description provided for @smartImportTypeField.
+  ///
+  /// In en, this message translates to:
+  /// **'Type'**
+  String get smartImportTypeField;
+
+  /// No description provided for @smartImportAddToApp.
+  ///
+  /// In en, this message translates to:
+  /// **'Add to app'**
+  String get smartImportAddToApp;
+
+  /// No description provided for @smartImportSmsNotSupported.
+  ///
+  /// In en, this message translates to:
+  /// **'SMS import is available on Android only.'**
+  String get smartImportSmsNotSupported;
+
+  /// No description provided for @smartImportSmsEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No financial SMS messages found. Grant SMS permission if prompted.'**
+  String get smartImportSmsEmpty;
+
+  /// No description provided for @smartImportSmsFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not read SMS messages.'**
+  String get smartImportSmsFailed;
+
+  /// No description provided for @smartImportReloadSms.
+  ///
+  /// In en, this message translates to:
+  /// **'Reload'**
+  String get smartImportReloadSms;
+
+  /// No description provided for @smartImportSmsAlreadyAdded.
+  ///
+  /// In en, this message translates to:
+  /// **'Already added'**
+  String get smartImportSmsAlreadyAdded;
+
+  /// No description provided for @smartImportSmsAddAgain.
+  ///
+  /// In en, this message translates to:
+  /// **'Add again'**
+  String get smartImportSmsAddAgain;
+
+  /// No description provided for @smartImportSmsClearAllAdded.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear all added'**
+  String get smartImportSmsClearAllAdded;
+
+  /// No description provided for @smartImportSmsClearAllAddedConfirmTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear imported history?'**
+  String get smartImportSmsClearAllAddedConfirmTitle;
+
+  /// No description provided for @smartImportSmsClearAllAddedConfirmMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'All SMS will show as not added. You can import them again. Your existing expenses and incomes are not deleted.'**
+  String get smartImportSmsClearAllAddedConfirmMessage;
+
+  /// No description provided for @smartImportSmsClearAllAddedDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Imported history cleared'**
+  String get smartImportSmsClearAllAddedDone;
+
+  /// No description provided for @smartImportSmsSkippedDuplicate.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} message(s) were already in the app.'**
+  String smartImportSmsSkippedDuplicate(int count);
+
+  /// No description provided for @smartImportSmsLoadMore.
+  ///
+  /// In en, this message translates to:
+  /// **'Load more messages'**
+  String get smartImportSmsLoadMore;
+
+  /// No description provided for @smartImportSmsLoadingMore.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading more…'**
+  String get smartImportSmsLoadingMore;
+
+  /// No description provided for @smartImportUnknownSender.
+  ///
+  /// In en, this message translates to:
+  /// **'Unknown sender'**
+  String get smartImportUnknownSender;
+
+  /// No description provided for @smartImportSmsTitleExpense.
+  ///
+  /// In en, this message translates to:
+  /// **'Bank expense'**
+  String get smartImportSmsTitleExpense;
+
+  /// No description provided for @smartImportSmsTitleIncome.
+  ///
+  /// In en, this message translates to:
+  /// **'Bank income'**
+  String get smartImportSmsTitleIncome;
+
+  /// No description provided for @smartImportTapToImport.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap to import'**
+  String get smartImportTapToImport;
+
+  /// No description provided for @smartImportAddAllExpenses.
+  ///
+  /// In en, this message translates to:
+  /// **'Add all expenses ({count})'**
+  String smartImportAddAllExpenses(int count);
+
+  /// No description provided for @smartImportAddAllIncomes.
+  ///
+  /// In en, this message translates to:
+  /// **'Add all incomes ({count})'**
+  String smartImportAddAllIncomes(int count);
+
+  /// No description provided for @smartImportAddSelected.
+  ///
+  /// In en, this message translates to:
+  /// **'Add selected ({count})'**
+  String smartImportAddSelected(int count);
+
+  /// No description provided for @smartImportSelectAll.
+  ///
+  /// In en, this message translates to:
+  /// **'Select all'**
+  String get smartImportSelectAll;
+
+  /// No description provided for @smartImportClearSelection.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear'**
+  String get smartImportClearSelection;
+
+  /// No description provided for @smartImportBulkImporting.
+  ///
+  /// In en, this message translates to:
+  /// **'Importing messages…'**
+  String get smartImportBulkImporting;
+
+  /// No description provided for @smartImportBulkNothingToAdd.
+  ///
+  /// In en, this message translates to:
+  /// **'No messages with a valid amount to import.'**
+  String get smartImportBulkNothingToAdd;
+
+  /// No description provided for @smartImportBulkResult.
+  ///
+  /// In en, this message translates to:
+  /// **'Added {incomes} incomes and {expenses} expenses.'**
+  String smartImportBulkResult(int incomes, int expenses);
+
+  /// No description provided for @smartImportBulkPartialFail.
+  ///
+  /// In en, this message translates to:
+  /// **'{failed} message(s) could not be imported.'**
+  String smartImportBulkPartialFail(int failed);
 }
 
-class _AppLocalizationsDelegate
-    extends LocalizationsDelegate<AppLocalizations> {
+class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {
   const _AppLocalizationsDelegate();
 
   @override
@@ -1153,26 +1527,25 @@ class _AppLocalizationsDelegate
   }
 
   @override
-  bool isSupported(Locale locale) =>
-      <String>['ar', 'en'].contains(locale.languageCode);
+  bool isSupported(Locale locale) => <String>['ar', 'en'].contains(locale.languageCode);
 
   @override
   bool shouldReload(_AppLocalizationsDelegate old) => false;
 }
 
 AppLocalizations lookupAppLocalizations(Locale locale) {
+
+
   // Lookup logic when only language code is specified.
   switch (locale.languageCode) {
-    case 'ar':
-      return AppLocalizationsAr();
-    case 'en':
-      return AppLocalizationsEn();
+    case 'ar': return AppLocalizationsAr();
+    case 'en': return AppLocalizationsEn();
   }
 
   throw FlutterError(
     'AppLocalizations.delegate failed to load unsupported locale "$locale". This is likely '
     'an issue with the localizations generation tool. Please file an issue '
     'on GitHub with a reproducible sample app and the gen-l10n configuration '
-    'that was used.',
+    'that was used.'
   );
 }

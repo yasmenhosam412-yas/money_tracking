@@ -71,7 +71,7 @@ class _SignupScreenState extends State<SignupScreen> {
               ),
             );
           }
-          if (state.status == AuthStatus.success) {
+          if (state.status == AuthStatus.successSignup) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 content: Text(l10n.signupSuccessful),

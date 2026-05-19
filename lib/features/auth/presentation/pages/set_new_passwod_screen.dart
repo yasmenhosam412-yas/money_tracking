@@ -48,7 +48,7 @@ class _SetNewPasswodScreenState extends State<SetNewPasswodScreen> {
         key: _formKey,
         child: BlocConsumer<AuthBloc, AuthState>(
           listener: (context, state) {
-            if (state.status == AuthStatus.success) {
+            if (state.status == AuthStatus.successVerifySetNewPass) {
               Navigator.pushAndRemoveUntil(
                 context,
                 MaterialPageRoute(builder: (_) => const LoginScreen()),

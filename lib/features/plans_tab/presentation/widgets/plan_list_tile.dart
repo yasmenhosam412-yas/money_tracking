@@ -43,14 +43,15 @@ class PlanListTile extends StatelessWidget {
             borderRadius: BorderRadius.circular(18),
             border: Border.all(
               color: plan.isCompleted
-                  ? _successColor.withValues(alpha: 0.25)
-                  : AppColors.border,
+                  ? _successColor.withValues(alpha: 0.35)
+                  : AppColors.stroke.withValues(alpha: 0.1),
+              width: 1.5,
             ),
             boxShadow: [
               BoxShadow(
-                color: _planColor.withValues(alpha: 0.06),
-                blurRadius: 12,
-                offset: const Offset(0, 4),
+                color: AppColors.stroke.withValues(alpha: 0.08),
+                blurRadius: 0,
+                offset: const Offset(0, 3),
               ),
             ],
           ),

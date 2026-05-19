@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:intl/intl.dart';
 import 'package:imrpo/core/l10n/l10n_entity_strings.dart';
 import 'package:imrpo/core/services/home_date_filter.dart';
 import 'package:imrpo/core/services/service_locator.dart';
+import 'package:imrpo/core/theme/app_decorations.dart';
 import 'package:imrpo/core/utils/app_colors.dart';
 import 'package:imrpo/core/widgets/tab_refresh_overlay.dart';
 import 'package:imrpo/core/utils/money_format.dart';
@@ -38,6 +38,7 @@ class _IncomesTabState extends State<IncomesTab>
     return Scaffold(
       backgroundColor: AppColors.scaffold,
       floatingActionButton: FloatingActionButton.extended(
+        heroTag: 'fab-incomes',
         onPressed: _openAddSheet,
         backgroundColor: AppColors.income,
         elevation: 2,
@@ -51,16 +52,31 @@ class _IncomesTabState extends State<IncomesTab>
         ),
       ),
       body: BlocConsumer<IncomesTabBloc, IncomesTabState>(
+        listenWhen: (previous, current) =>
+            current.status == IncomesTabStatus.errorDelete ||
+            current.status == IncomesTabStatus.errorAll ||
+            current.status == IncomesTabStatus.errorClearAll ||
+            (previous.status == IncomesTabStatus.loadingClearAll &&
+                current.status == IncomesTabStatus.loaded),
         listener: (context, state) {
           if (state.status == IncomesTabStatus.errorDelete ||
-              state.status == IncomesTabStatus.errorAll) {
+              state.status == IncomesTabStatus.errorAll ||
+              state.status == IncomesTabStatus.errorClearAll) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 content: Text(localizeApiError(l10n, state.message)),
-                backgroundColor: Colors.red,
+                backgroundColor: AppColors.error,
               ),
             );
+            return;
           }
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(l10n.clearAllIncomesSuccess),
+              backgroundColor: AppColors.success,
+              behavior: SnackBarBehavior.floating,
+            ),
+          );
         },
         builder: (context, state) {
           if (state.incomes.isEmpty &&
@@ -75,6 +91,8 @@ class _IncomesTabState extends State<IncomesTab>
 
           final isRefreshing = state.incomes.isNotEmpty &&
               state.status == IncomesTabStatus.loadingAll;
+          final isClearingAll =
+              state.status == IncomesTabStatus.loadingClearAll;
 
           return ListenableBuilder(
             listenable: getIt<HomeDateFilter>(),
@@ -88,7 +106,9 @@ class _IncomesTabState extends State<IncomesTab>
                 (sum, income) => sum + income.amount,
               );
 
-              return TabRefreshOverlay(
+              return Stack(
+            children: [
+              TabRefreshOverlay(
             isRefreshing: isRefreshing,
             indicatorColor: AppColors.income,
             child: RefreshIndicator(
@@ -103,7 +123,10 @@ class _IncomesTabState extends State<IncomesTab>
               SliverToBoxAdapter(
                 child: Padding(
                   padding: const EdgeInsets.fromLTRB(20, 20, 20, 8),
-                  child: _SummaryCard(total: periodTotal),
+                  child: _SummaryCard(
+                    total: periodTotal,
+                    periodLabel: dateFilter.summaryPeriodLabel(context),
+                  ),
                 ),
               ),
 
@@ -111,16 +134,31 @@ class _IncomesTabState extends State<IncomesTab>
                 child: Padding(
                   padding: const EdgeInsets.fromLTRB(20, 16, 20, 8),
                   child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(
-                        l10n.recentIncomes,
-                        style: const TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                          color: AppColors.textColor,
+                      Expanded(
+                        child: Text(
+                          l10n.recentIncomes,
+                          style: const TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: AppColors.textColor,
+                          ),
                         ),
                       ),
+                      if (sorted.isNotEmpty) ...[
+                        TextButton(
+                          onPressed: isClearingAll
+                              ? null
+                              : () => _confirmClearAll(sorted.length),
+                          style: TextButton.styleFrom(
+                            foregroundColor: AppColors.income,
+                            visualDensity: VisualDensity.compact,
+                            padding: const EdgeInsets.symmetric(horizontal: 8),
+                          ),
+                          child: Text(l10n.clearAllIncomes),
+                        ),
+                        const SizedBox(width: 4),
+                      ],
                       Text(
                         l10n.listEntryCount(filtered.length),
                         style: TextStyle(
@@ -162,12 +200,48 @@ class _IncomesTabState extends State<IncomesTab>
               ],
             ),
             ),
+          ),
+              if (isClearingAll)
+                const Positioned.fill(
+                  child: ColoredBox(
+                    color: Color(0x33000000),
+                    child: Center(
+                      child: CircularProgressIndicator(color: AppColors.income),
+                    ),
+                  ),
+                ),
+            ],
           );
             },
           );
         },
       ),
     );
+  }
+
+  Future<void> _confirmClearAll(int count) async {
+    final l10n = AppLocalizations.of(context)!;
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: Text(l10n.clearAllIncomesConfirmTitle),
+        content: Text(l10n.clearAllIncomesConfirmMessage(count)),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(false),
+            child: Text(l10n.cancel),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(dialogContext).pop(true),
+            style: FilledButton.styleFrom(backgroundColor: AppColors.income),
+            child: Text(l10n.clearAllIncomes),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed != true || !mounted) return;
+    context.read<IncomesTabBloc>().add(const ClearAllIncomesEvent());
   }
 
   void _openAddSheet() => _showIncomeSheet(const AddIncomeSheet());
@@ -219,31 +293,24 @@ class _IncomesTabState extends State<IncomesTab>
 
 class _SummaryCard extends StatelessWidget {
   final double total;
+  final String periodLabel;
 
-  const _SummaryCard({required this.total});
+  const _SummaryCard({
+    required this.total,
+    required this.periodLabel,
+  });
 
   @override
   Widget build(BuildContext context) {
-    final month = _currentMonthLabel(context);
     final l10n = AppLocalizations.of(context)!;
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          colors: [AppColors.incomeDark, AppColors.income],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.income.withValues(alpha: 0.35),
-            blurRadius: 16,
-            offset: const Offset(0, 6),
-          ),
-        ],
-      ),
+      decoration: AppDecorations.summaryCard([
+        AppColors.incomeDark,
+        AppColors.income,
+        AppColors.incomeBill,
+      ]),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -272,7 +339,7 @@ class _SummaryCard extends StatelessWidget {
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Text(
-                  month,
+                  periodLabel,
                   style: const TextStyle(
                     color: Colors.white,
                     fontSize: 13,
@@ -303,11 +370,6 @@ class _SummaryCard extends StatelessWidget {
         ],
       ),
     );
-  }
-
-  String _currentMonthLabel(BuildContext context) {
-    final locale = Localizations.localeOf(context).toString();
-    return DateFormat.MMMM(locale).format(DateTime.now());
   }
 }
 

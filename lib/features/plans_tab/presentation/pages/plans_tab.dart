@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:imrpo/core/l10n/l10n_entity_strings.dart';
+import 'package:imrpo/core/theme/app_decorations.dart';
 import 'package:imrpo/core/utils/app_colors.dart';
 import 'package:imrpo/core/utils/money_format.dart';
 import 'package:imrpo/core/widgets/tab_refresh_overlay.dart';
@@ -35,6 +36,7 @@ class _PlansTabState extends State<PlansTab> with AutomaticKeepAliveClientMixin 
     return Scaffold(
       backgroundColor: AppColors.scaffold,
       floatingActionButton: FloatingActionButton.extended(
+        heroTag: 'fab-plans',
         onPressed: _openAddSheet,
         backgroundColor: AppColors.plans,
         elevation: 4,
@@ -68,7 +70,7 @@ class _PlansTabState extends State<PlansTab> with AutomaticKeepAliveClientMixin 
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 content: Text(localizeApiError(listenerL10n, state.error)),
-                backgroundColor: Colors.red,
+                backgroundColor: AppColors.error,
               ),
             );
           }
@@ -332,21 +334,11 @@ class _DashboardCard extends StatelessWidget {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(22),
-      decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          colors: [AppColors.plans, AppColors.plansDark],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        borderRadius: BorderRadius.circular(24),
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.plans.withValues(alpha: 0.32),
-            blurRadius: 20,
-            offset: const Offset(0, 10),
-          ),
-        ],
-      ),
+      decoration: AppDecorations.summaryCard([
+        AppColors.plans,
+        AppColors.plansDark,
+        AppColors.secondary,
+      ]),
       child: Column(
         children: [
           Row(

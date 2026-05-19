@@ -13,6 +13,7 @@ import 'package:imrpo/features/balance_tab/presentation/pages/balance_tab.dart';
 import 'package:imrpo/features/expenses_tab/presentation/pages/expenses_tab.dart';
 import 'package:imrpo/features/incomes_tab/presentation/pages/incomes_tab.dart';
 import 'package:imrpo/features/plans_tab/presentation/pages/plans_tab.dart';
+import 'package:imrpo/core/config/app_router.dart';
 import 'package:imrpo/l10n/app_localizations.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -29,6 +30,8 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   void initState() {
     super.initState();
     _tabController = TabController(length: 4, vsync: this);
+
+    context.read<HomeBloc>().add(LoadUserProfileEvent());
   }
 
   @override
@@ -103,46 +106,46 @@ class _HomeTabBodyState extends State<_HomeTabBody> {
       listenable: getIt<CurrencyPreferences>(),
       builder: (context, _) {
         return Scaffold(
-      backgroundColor: AppColors.scaffold,
-      body: Column(
-        children: [
-          _HomeHeader(accentColor: selectedTab.color),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-            child: Row(
-              children: List.generate(tabs.length, (index) {
-                final tab = tabs[index];
-                final isSelected = selected == index;
-                return Expanded(
-                  child: Padding(
-                    padding: EdgeInsets.only(
-                      left: index == 0 ? 0 : 4,
-                      right: index == tabs.length - 1 ? 0 : 4,
-                    ),
-                    child: _TabChip(
-                      tab: tab,
-                      isSelected: isSelected,
-                      onTap: () => widget.tabController.animateTo(index),
-                    ),
-                  ),
-                );
-              }),
-            ),
+          backgroundColor: AppColors.scaffold,
+          body: Column(
+            children: [
+              _HomeHeader(selectedTab: selectedTab),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+                child: Row(
+                  children: List.generate(tabs.length, (index) {
+                    final tab = tabs[index];
+                    final isSelected = selected == index;
+                    return Expanded(
+                      child: Padding(
+                        padding: EdgeInsets.only(
+                          left: index == 0 ? 0 : 4,
+                          right: index == tabs.length - 1 ? 0 : 4,
+                        ),
+                        child: _TabChip(
+                          tab: tab,
+                          isSelected: isSelected,
+                          onTap: () => widget.tabController.animateTo(index),
+                        ),
+                      ),
+                    );
+                  }),
+                ),
+              ),
+              Expanded(
+                child: TabBarView(
+                  controller: widget.tabController,
+                  children: const [
+                    IncomesTab(),
+                    ExpensesTab(),
+                    BalanceTab(),
+                    PlansTab(),
+                  ],
+                ),
+              ),
+            ],
           ),
-          Expanded(
-            child: TabBarView(
-              controller: widget.tabController,
-              children: const [
-                IncomesTab(),
-                ExpensesTab(),
-                BalanceTab(),
-                PlansTab(),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
+        );
       },
     );
   }
@@ -161,15 +164,16 @@ class _HomeTabItem {
 }
 
 class _HomeHeader extends StatelessWidget {
-  final Color accentColor;
+  final _HomeTabItem selectedTab;
 
-  const _HomeHeader({required this.accentColor});
+  const _HomeHeader({required this.selectedTab});
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     final topPadding = MediaQuery.paddingOf(context).top;
     final dateFilter = getIt<HomeDateFilter>();
+    final accent = selectedTab.color;
 
     return BlocBuilder<HomeBloc, HomeState>(
       builder: (context, homeState) {
@@ -179,118 +183,173 @@ class _HomeHeader extends StatelessWidget {
             homeState.isUpdatingUsername;
 
         return Container(
-      width: double.infinity,
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [
-            AppColors.primary,
-            Color.lerp(AppColors.primary, accentColor, 0.4)!,
-            AppColors.secondary,
-          ],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        borderRadius: const BorderRadius.only(
-          bottomLeft: Radius.circular(24),
-          bottomRight: Radius.circular(24),
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.primary.withValues(alpha: 0.25),
-            blurRadius: 20,
-            offset: const Offset(0, 8),
-          ),
-        ],
-      ),
-      child: Stack(
-        children: [
-          Padding(
-        padding: EdgeInsets.fromLTRB(20, topPadding + 16, 20, 24),
-        child: Row(
-          children: [
-            _UserAvatar(
-              profile: profile,
-              isInitialLoading: isInitialLoading,
-              isRefreshing: isRefreshingProfile,
-              onTap: profile != null && !isInitialLoading
-                  ? () => showUserSettingsSheet(context, profile)
-                  : null,
+          width: double.infinity,
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [
+                AppColors.primary,
+                Color.lerp(AppColors.primary, AppColors.secondary, 0.55)!,
+                Color.lerp(AppColors.secondary, accent, 0.4)!,
+              ],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
             ),
-            const SizedBox(width: 14),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    _welcomeLine(l10n, profile, isInitialLoading),
-                    style: TextStyle(
-                      color: Colors.white.withValues(alpha: 0.85),
-                      fontSize: 13,
-                      fontWeight: FontWeight.w500,
-                    ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    l10n.homeFinanceOverview,
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 22,
-                      fontWeight: FontWeight.bold,
-                      letterSpacing: -0.3,
-                    ),
-                  ),
-                  if (profile != null && profile.email.isNotEmpty) ...[
-                    const SizedBox(height: 4),
-                    Text(
-                      profile.email,
-                      style: TextStyle(
-                        color: Colors.white.withValues(alpha: 0.75),
-                        fontSize: 13,
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ],
-                ],
+            borderRadius: const BorderRadius.only(
+              bottomLeft: Radius.circular(28),
+              bottomRight: Radius.circular(28),
+            ),
+            border: Border(
+              bottom: BorderSide(
+                color: AppColors.stroke.withValues(alpha: 0.08),
+                width: 1.5,
               ),
             ),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.end,
+            boxShadow: [
+              BoxShadow(
+                color: AppColors.primary.withValues(alpha: 0.22),
+                blurRadius: 0,
+                offset: const Offset(0, 4),
+              ),
+            ],
+          ),
+          child: ClipRRect(
+            borderRadius: const BorderRadius.only(
+              bottomLeft: Radius.circular(28),
+              bottomRight: Radius.circular(28),
+            ),
+            child: Stack(
               children: [
-                const DisplayCurrencySelector(lightStyle: true),
-                const SizedBox(height: 8),
-                ListenableBuilder(
-                  listenable: dateFilter,
-                  builder: (context, _) {
-                    return _DateFilterChip(
-                      label: dateFilter.headerLabel(context),
-                      isDayMode: dateFilter.isDayMode,
-                      isActive: dateFilter.isFiltered,
-                      onTap: () => showHomeDateFilterSheet(context),
-                    );
-                  },
+                Positioned(
+                  top: -40,
+                  right: -20,
+                  child: _HeaderDecorCircle(
+                    size: 140,
+                    color: Colors.white.withValues(alpha: 0.08),
+                  ),
                 ),
+                Positioned(
+                  bottom: -30,
+                  left: -24,
+                  child: _HeaderDecorCircle(
+                    size: 110,
+                    color: accent.withValues(alpha: 0.22),
+                  ),
+                ),
+                Padding(
+                  padding: EdgeInsets.fromLTRB(20, topPadding + 14, 20, 20),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          _UserAvatar(
+                            profile: profile,
+                            isInitialLoading: isInitialLoading,
+                            isRefreshing: isRefreshingProfile,
+                            onTap: profile != null && !isInitialLoading
+                                ? () =>
+                                    showUserSettingsSheet(context, profile)
+                                : null,
+                          ),
+                          const SizedBox(width: 14),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  _welcomeLine(
+                                    l10n,
+                                    profile,
+                                    isInitialLoading,
+                                  ),
+                                  style: TextStyle(
+                                    color: Colors.white.withValues(alpha: 0.88),
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  l10n.homeFinanceOverview,
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 22,
+                                    fontWeight: FontWeight.bold,
+                                    letterSpacing: -0.4,
+                                    height: 1.15,
+                                  ),
+                                ),
+                                const SizedBox(height: 10),
+                                _ActiveTabBadge(tab: selectedTab),
+                              ],
+                            ),
+                          ),
+                          if (profile != null && !isInitialLoading)
+                            _HeaderIconButton(
+                              icon: Icons.settings_outlined,
+                              tooltip: l10n.accountSettingsTitle,
+                              onTap: () =>
+                                  showUserSettingsSheet(context, profile),
+                            ),
+                        ],
+                      ),
+                      const SizedBox(height: 16),
+                      SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        child: Row(
+                          children: [
+                            ListenableBuilder(
+                              listenable: dateFilter,
+                              builder: (context, _) {
+                                return _HeaderActionChip(
+                                  icon: dateFilter.isAllMode
+                                      ? Icons.date_range_outlined
+                                      : dateFilter.isDayMode
+                                          ? Icons.today_outlined
+                                          : Icons.calendar_month_outlined,
+                                  label: dateFilter.headerLabel(context),
+                                  isHighlighted: dateFilter.isFiltered,
+                                  trailingIcon: Icons.expand_more_rounded,
+                                  onTap: () =>
+                                      showHomeDateFilterSheet(context),
+                                );
+                              },
+                            ),
+                            const SizedBox(width: 8),
+                            _HeaderActionChip(
+                              icon: Icons.document_scanner_outlined,
+                              label: l10n.smartImportShort,
+                              trailingIcon: Icons.arrow_forward_rounded,
+                              onTap: () => Navigator.of(context).pushNamed(
+                                AppRoutes.smartImport,
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            const DisplayCurrencySelector(lightStyle: true),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                if (isRefreshingProfile)
+                  const Positioned(
+                    left: 0,
+                    right: 0,
+                    bottom: 0,
+                    child: LinearProgressIndicator(
+                      minHeight: 2,
+                      color: Colors.white,
+                      backgroundColor: Colors.white24,
+                    ),
+                  ),
               ],
             ),
-          ],
-        ),
-      ),
-          if (isRefreshingProfile)
-            const Positioned(
-              left: 0,
-              right: 0,
-              bottom: 0,
-              child: LinearProgressIndicator(
-                minHeight: 2,
-                color: Colors.white,
-                backgroundColor: Colors.white24,
-              ),
-            ),
-        ],
-      ),
-    );
+          ),
+        );
       },
     );
   }
@@ -308,17 +367,104 @@ class _HomeHeader extends StatelessWidget {
   }
 }
 
-class _DateFilterChip extends StatelessWidget {
-  final String label;
-  final bool isDayMode;
-  final bool isActive;
+class _HeaderDecorCircle extends StatelessWidget {
+  final double size;
+  final Color color;
+
+  const _HeaderDecorCircle({required this.size, required this.color});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: size,
+      height: size,
+      decoration: BoxDecoration(shape: BoxShape.circle, color: color),
+    );
+  }
+}
+
+class _ActiveTabBadge extends StatelessWidget {
+  final _HomeTabItem tab;
+
+  const _ActiveTabBadge({required this.tab});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+      decoration: BoxDecoration(
+        color: Colors.white.withValues(alpha: 0.18),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.28)),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(tab.icon, size: 14, color: Colors.white),
+          const SizedBox(width: 6),
+          Text(
+            tab.label,
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 12,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _HeaderIconButton extends StatelessWidget {
+  final IconData icon;
+  final String tooltip;
   final VoidCallback onTap;
 
-  const _DateFilterChip({
-    required this.label,
-    required this.isDayMode,
-    required this.isActive,
+  const _HeaderIconButton({
+    required this.icon,
+    required this.tooltip,
     required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Tooltip(
+      message: tooltip,
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(14),
+          child: Container(
+            height: 40,
+            width: 40,
+            decoration: BoxDecoration(
+              color: Colors.white.withValues(alpha: 0.16),
+              borderRadius: BorderRadius.circular(14),
+              border: Border.all(color: Colors.white.withValues(alpha: 0.22)),
+            ),
+            child: Icon(icon, color: Colors.white, size: 20),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _HeaderActionChip extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final VoidCallback onTap;
+  final bool isHighlighted;
+  final IconData? trailingIcon;
+
+  const _HeaderActionChip({
+    required this.icon,
+    required this.label,
+    required this.onTap,
+    this.isHighlighted = false,
+    this.trailingIcon,
   });
 
   @override
@@ -329,26 +475,20 @@ class _DateFilterChip extends StatelessWidget {
         onTap: onTap,
         borderRadius: BorderRadius.circular(20),
         child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 9),
           decoration: BoxDecoration(
-            color: isActive
+            color: isHighlighted
                 ? Colors.white.withValues(alpha: 0.28)
                 : Colors.white.withValues(alpha: 0.16),
             borderRadius: BorderRadius.circular(20),
-            border: isActive
+            border: isHighlighted
                 ? Border.all(color: Colors.white.withValues(alpha: 0.45))
-                : null,
+                : Border.all(color: Colors.white.withValues(alpha: 0.12)),
           ),
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(
-                isDayMode
-                    ? Icons.today_outlined
-                    : Icons.calendar_month_outlined,
-                size: 16,
-                color: Colors.white.withValues(alpha: 0.9),
-              ),
+              Icon(icon, size: 16, color: Colors.white.withValues(alpha: 0.95)),
               const SizedBox(width: 6),
               Text(
                 label,
@@ -358,12 +498,14 @@ class _DateFilterChip extends StatelessWidget {
                   fontWeight: FontWeight.w600,
                 ),
               ),
-              const SizedBox(width: 2),
-              Icon(
-                Icons.expand_more_rounded,
-                size: 18,
-                color: Colors.white.withValues(alpha: 0.85),
-              ),
+              if (trailingIcon != null) ...[
+                const SizedBox(width: 2),
+                Icon(
+                  trailingIcon,
+                  size: 18,
+                  color: Colors.white.withValues(alpha: 0.8),
+                ),
+              ],
             ],
           ),
         ),
@@ -483,25 +625,21 @@ class _TabChip extends StatelessWidget {
           padding: const EdgeInsets.symmetric(vertical: 12),
           decoration: BoxDecoration(
             color: isSelected ? tab.color : AppColors.card,
-            borderRadius: BorderRadius.circular(14),
+            borderRadius: BorderRadius.circular(16),
             border: Border.all(
-              color: isSelected ? tab.color : AppColors.border,
+              color: isSelected
+                  ? AppColors.stroke.withValues(alpha: 0.18)
+                  : AppColors.stroke.withValues(alpha: 0.1),
+              width: 1.5,
             ),
-            boxShadow: isSelected
-                ? [
-                    BoxShadow(
-                      color: tab.color.withValues(alpha: 0.35),
-                      blurRadius: 10,
-                      offset: const Offset(0, 4),
-                    ),
-                  ]
-                : [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.04),
-                      blurRadius: 6,
-                      offset: const Offset(0, 2),
-                    ),
-                  ],
+            boxShadow: [
+              BoxShadow(
+                color: (isSelected ? tab.color : AppColors.stroke)
+                    .withValues(alpha: isSelected ? 0.28 : 0.08),
+                blurRadius: 0,
+                offset: const Offset(0, 3),
+              ),
+            ],
           ),
           child: Column(
             mainAxisSize: MainAxisSize.min,

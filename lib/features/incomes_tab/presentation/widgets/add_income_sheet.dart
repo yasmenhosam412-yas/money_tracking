@@ -14,8 +14,17 @@ import 'package:imrpo/l10n/app_localizations.dart';
 
 class AddIncomeSheet extends StatefulWidget {
   final Income? income;
+  final String? initialTitle;
+  final double? initialAmount;
+  final DateTime? initialDate;
 
-  const AddIncomeSheet({super.key, this.income});
+  const AddIncomeSheet({
+    super.key,
+    this.income,
+    this.initialTitle,
+    this.initialAmount,
+    this.initialDate,
+  });
 
   @override
   State<AddIncomeSheet> createState() => _AddIncomeSheetState();
@@ -47,6 +56,16 @@ class _AddIncomeSheetState extends State<AddIncomeSheet> {
       } else {
         _category = _otherCategory;
         _otherCategoryController.text = income.category;
+      }
+    } else {
+      if (widget.initialTitle != null) {
+        _titleController.text = widget.initialTitle!;
+      }
+      if (widget.initialAmount != null) {
+        _amountController.text = _formatRawAmount(widget.initialAmount!);
+      }
+      if (widget.initialDate != null) {
+        _date = widget.initialDate!;
       }
     }
   }
@@ -356,9 +375,13 @@ class _AddIncomeSheetState extends State<AddIncomeSheet> {
 
   String _formatDisplayAmount(double baseAmount) {
     final display = CurrencyConverter.fromBase(baseAmount, _currencyCode);
-    return display == display.roundToDouble()
-        ? display.toInt().toString()
-        : display.toStringAsFixed(2);
+    return _formatRawAmount(display);
+  }
+
+  String _formatRawAmount(double amount) {
+    return amount == amount.roundToDouble()
+        ? amount.toInt().toString()
+        : amount.toStringAsFixed(2);
   }
 
   String? _resolvedCategory() {

@@ -16,8 +16,10 @@
   },
   "homeFinanceOverview": "Finance Overview",
   "homeDateFilterTitle": "Filter by date",
+  "homeFilterAllMonths": "All months",
   "homeFilterByMonth": "Month",
   "homeFilterByDay": "Day",
+  "homeFilterThisMonth": "This month",
   "homeFilterPickMonth": "Pick month",
   "homeFilterPickDay": "Pick day",
   "homeFilterToday": "Today",
@@ -63,7 +65,7 @@
   "signupSuccessful": "Signup successful",
   "forgotPasswordTitle": "Forgot Password?",
   "forgotPasswordDescription": "Enter your email address and we'll send you a password reset link.",
-  "sendResetLink": "Send Reset Link",
+  "sendResetLink": "Send Reset OTP",
   "backToLogin": "Back to Login",
   "errorTryAgainGeneric": "An error occurred. Please try again.",
   "setNewPasswordTitle": "Set New Password 🔒",
@@ -162,9 +164,44 @@
       }
     }
   },
+  "balanceSavedPercent": "{percent}% saved",
+  "@balanceSavedPercent": {
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
   "balanceStatIncome": "Income",
   "balanceStatExpense": "Expenses",
   "balanceRecentActivity": "Recent Activity",
+  "balanceAddToPlan": "Add to goal",
+  "balanceAddToPlanTitle": "Add to savings goal",
+  "balanceAddToPlanHint": "Available from balance: {amount}",
+  "@balanceAddToPlanHint": {
+    "placeholders": {
+      "amount": {}
+    }
+  },
+  "balanceSelectPlan": "Choose a goal",
+  "balanceAmountToAllocate": "Amount to add",
+  "balancePlanRemaining": "{amount} left to reach target",
+  "@balancePlanRemaining": {
+    "placeholders": {
+      "amount": {}
+    }
+  },
+  "balanceAddToPlanSuccess": "Amount added to your savings goal",
+  "balancePlanAllocationExpenseTitle": "Savings goal: {planTitle}",
+  "@balancePlanAllocationExpenseTitle": {
+    "placeholders": {
+      "planTitle": {
+        "type": "String"
+      }
+    }
+  },
+  "balanceNoPlansForAllocation": "Create a savings goal in the Plans tab first.",
+  "balanceAmountExceedsSurplus": "Amount exceeds your available balance",
   "itemsCount": "{count} items",
   "@itemsCount": {
     "placeholders": {
@@ -181,6 +218,24 @@
       }
     }
   },
+  "clearAllExpenses": "Clear all",
+  "clearAllIncomes": "Clear all",
+  "clearAllExpensesConfirmTitle": "Delete all expenses?",
+  "clearAllIncomesConfirmTitle": "Delete all incomes?",
+  "clearAllExpensesConfirmMessage": "This will permanently delete all {count} expenses. This cannot be undone.",
+  "@clearAllExpensesConfirmMessage": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "clearAllIncomesConfirmMessage": "This will permanently delete all {count} incomes. This cannot be undone.",
+  "@clearAllIncomesConfirmMessage": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "clearAllExpensesSuccess": "All expenses deleted",
+  "clearAllIncomesSuccess": "All incomes deleted",
   "balanceIncomeVsExpenses": "Income vs Expenses",
   "activityIncome": "Income",
   "activityExpense": "Expense",
@@ -245,6 +300,79 @@
   "@storedAsBase": {
     "placeholders": {
       "amount": {}
+    }
+  },
+  "smartImportTitle": "Smart import",
+  "smartImportShort": "Scan / SMS",
+  "smartImportInvoiceTab": "Invoice OCR",
+  "smartImportSmsTab": "SMS",
+  "smartImportInvoiceHint": "Take a photo of a receipt or invoice. We'll read the amount and date automatically.",
+  "smartImportDefaultBillTitle": "Bill",
+  "smartImportScanCamera": "Camera",
+  "smartImportScanGallery": "Gallery",
+  "smartImportOcrProcessing": "Reading invoice…",
+  "smartImportOcrNoData": "Could not find amount or details on this image.",
+  "smartImportOcrFailed": "Failed to read the invoice. Try a clearer photo.",
+  "smartImportCameraDenied": "Camera permission is required to scan invoices.",
+  "smartImportExtractedData": "Extracted data",
+  "smartImportDateField": "Date",
+  "smartImportTypeField": "Type",
+  "smartImportAddToApp": "Add to app",
+  "smartImportSmsNotSupported": "SMS import is available on Android only.",
+  "smartImportSmsEmpty": "No financial SMS messages found. Grant SMS permission if prompted.",
+  "smartImportSmsFailed": "Could not read SMS messages.",
+  "smartImportReloadSms": "Reload",
+  "smartImportSmsAlreadyAdded": "Already added",
+  "smartImportSmsAddAgain": "Add again",
+  "smartImportSmsClearAllAdded": "Clear all added",
+  "smartImportSmsClearAllAddedConfirmTitle": "Clear imported history?",
+  "smartImportSmsClearAllAddedConfirmMessage": "All SMS will show as not added. You can import them again. Your existing expenses and incomes are not deleted.",
+  "smartImportSmsClearAllAddedDone": "Imported history cleared",
+  "smartImportSmsSkippedDuplicate": "{count} message(s) were already in the app.",
+  "@smartImportSmsSkippedDuplicate": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "smartImportSmsLoadMore": "Load more messages",
+  "smartImportSmsLoadingMore": "Loading more…",
+  "smartImportUnknownSender": "Unknown sender",
+  "smartImportSmsTitleExpense": "Bank expense",
+  "smartImportSmsTitleIncome": "Bank income",
+  "smartImportTapToImport": "Tap to import",
+  "smartImportAddAllExpenses": "Add all expenses ({count})",
+  "@smartImportAddAllExpenses": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "smartImportAddAllIncomes": "Add all incomes ({count})",
+  "@smartImportAddAllIncomes": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "smartImportAddSelected": "Add selected ({count})",
+  "@smartImportAddSelected": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "smartImportSelectAll": "Select all",
+  "smartImportClearSelection": "Clear",
+  "smartImportBulkImporting": "Importing messages…",
+  "smartImportBulkNothingToAdd": "No messages with a valid amount to import.",
+  "smartImportBulkResult": "Added {incomes} incomes and {expenses} expenses.",
+  "@smartImportBulkResult": {
+    "placeholders": {
+      "incomes": { "type": "int" },
+      "expenses": { "type": "int" }
+    }
+  },
+  "smartImportBulkPartialFail": "{failed} message(s) could not be imported.",
+  "@smartImportBulkPartialFail": {
+    "placeholders": {
+      "failed": { "type": "int" }
     }
   }
 }

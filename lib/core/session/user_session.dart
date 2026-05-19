@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:imrpo/core/helpers/supabase_auth_helper.dart';
 import 'package:imrpo/core/services/home_date_filter.dart';
 import 'package:imrpo/core/services/service_locator.dart';
 import 'package:imrpo/features/auth/presentation/bloc/auth_bloc.dart';
@@ -14,7 +15,7 @@ class UserSession {
   UserSession._();
 
   static void clearAll(BuildContext context) {
-    getIt<HomeDateFilter>().reset();
+    getIt<HomeDateFilter>().reset(notify: false);
     context.read<HomeBloc>().add(const ClearUserProfileEvent());
     context.read<IncomesTabBloc>().add(const ResetIncomesTabEvent());
     context.read<ExpensesTabBloc>().add(const ResetExpensesTabEvent());
@@ -32,8 +33,25 @@ class UserSession {
           LoadBalanceEvent(
             reference: dateFilter.date,
             filterByDay: dateFilter.isDayMode,
+            includeAllDates: dateFilter.isAllMode,
           ),
         );
     context.read<PlansTabBloc>().add(const LoadPlansEvent());
+  }
+
+  /// Reloads all tabs after the display currency changes.
+  static void refreshForDisplayCurrency(BuildContext context) {
+    if (!SupabaseAuthHelper.isSignedIn) return;
+    context.read<IncomesTabBloc>().add(const LoadIncomesEvent(force: true));
+    context.read<ExpensesTabBloc>().add(const LoadExpensesEvent(force: true));
+    final dateFilter = getIt<HomeDateFilter>();
+    context.read<BalanceTabBloc>().add(
+          LoadBalanceEvent(
+            reference: dateFilter.date,
+            filterByDay: dateFilter.isDayMode,
+            includeAllDates: dateFilter.isAllMode,
+          ),
+        );
+    context.read<PlansTabBloc>().add(const LoadPlansEvent(force: true));
   }
 }

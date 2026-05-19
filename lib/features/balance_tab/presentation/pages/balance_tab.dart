@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:intl/intl.dart';
+import 'package:imrpo/core/helpers/supabase_auth_helper.dart';
 import 'package:imrpo/core/services/home_date_filter.dart';
 import 'package:imrpo/core/services/service_locator.dart';
 import 'package:imrpo/core/utils/app_colors.dart';
@@ -11,6 +11,9 @@ import 'package:imrpo/features/balance_tab/presentation/widgets/balance_activity
 import 'package:imrpo/features/balance_tab/presentation/widgets/balance_breakdown_chart.dart';
 import 'package:imrpo/core/l10n/l10n_entity_strings.dart';
 import 'package:imrpo/features/balance_tab/presentation/widgets/balance_stat_tile.dart';
+import 'package:imrpo/features/expenses_tab/presentation/bloc/expenses_tab_bloc.dart';
+import 'package:imrpo/features/plans_tab/presentation/bloc/plans_tab_bloc.dart';
+import 'package:imrpo/features/plans_tab/presentation/widgets/add_to_plan_from_balance_sheet.dart';
 import 'package:imrpo/l10n/app_localizations.dart';
 
 class BalanceTab extends StatefulWidget {
@@ -46,10 +49,12 @@ class _BalanceTabState extends State<BalanceTab>
   }
 
   void _loadBalance() {
+    if (!SupabaseAuthHelper.isSignedIn) return;
     context.read<BalanceTabBloc>().add(
           LoadBalanceEvent(
             reference: _dateFilter.date,
             filterByDay: _dateFilter.isDayMode,
+            includeAllDates: _dateFilter.isAllMode,
           ),
         );
   }
@@ -68,7 +73,7 @@ class _BalanceTabState extends State<BalanceTab>
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 content: Text(localizeApiError(l10n, state.error)),
-                backgroundColor: Colors.red,
+                backgroundColor: AppColors.error,
               ),
             );
           }
@@ -129,7 +134,12 @@ class _BalanceTabState extends State<BalanceTab>
 
           final l10n = AppLocalizations.of(context)!;
 
-          return TabRefreshOverlay(
+          return ListenableBuilder(
+            listenable: _dateFilter,
+            builder: (context, _) {
+              final periodLabel = _dateFilter.summaryPeriodLabel(context);
+
+              return TabRefreshOverlay(
             isRefreshing: isRefreshing,
             indicatorColor: AppColors.balance,
             child: RefreshIndicator(
@@ -147,6 +157,13 @@ class _BalanceTabState extends State<BalanceTab>
                     child: _NetBalanceCard(
                       balance: state.netBalance,
                       savingsRate: state.savingsRate,
+                      periodLabel: periodLabel,
+                      onAddToPlan: state.netBalance > 0
+                          ? () => _openAddToPlanSheet(
+                                context,
+                                state.netBalance,
+                              )
+                          : null,
                     ),
                   ),
                 ),
@@ -220,25 +237,73 @@ class _BalanceTabState extends State<BalanceTab>
             ),
             ),
           );
+            },
+          );
         },
       ),
     );
+  }
+
+  Future<void> _openAddToPlanSheet(
+    BuildContext context,
+    double availableBalance,
+  ) async {
+    context.read<PlansTabBloc>().add(const LoadPlansEvent());
+    final added = await showModalBottomSheet<bool>(
+      context: context,
+      isScrollControlled: true,
+      useSafeArea: true,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (sheetContext) => AnimatedPadding(
+        padding: EdgeInsets.only(
+          bottom: MediaQuery.viewInsetsOf(sheetContext).bottom,
+        ),
+        duration: const Duration(milliseconds: 150),
+        curve: Curves.easeOut,
+        child: BlocProvider.value(
+          value: context.read<PlansTabBloc>(),
+          child: AddToPlanFromBalanceSheet(
+            availableBalanceBase: availableBalance,
+          ),
+        ),
+      ),
+    );
+
+    if (!context.mounted) return;
+    if (added == true) {
+      _loadBalance();
+      context.read<ExpensesTabBloc>().add(const LoadExpensesEvent());
+      final l10n = AppLocalizations.of(context)!;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(l10n.balanceAddToPlanSuccess),
+          backgroundColor: AppColors.success,
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    }
   }
 }
 
 class _NetBalanceCard extends StatelessWidget {
   final double balance;
   final double savingsRate;
+  final String periodLabel;
+  final VoidCallback? onAddToPlan;
 
   const _NetBalanceCard({
     required this.balance,
     required this.savingsRate,
+    required this.periodLabel,
+    this.onAddToPlan,
   });
 
   @override
   Widget build(BuildContext context) {
     final isPositive = balance >= 0;
-    final month = _currentMonthLabel(context);
     final l10n = AppLocalizations.of(context)!;
 
     return Container(
@@ -247,18 +312,22 @@ class _NetBalanceCard extends StatelessWidget {
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: isPositive
-              ? [AppColors.balanceDark, AppColors.balance]
+              ? [AppColors.balanceDark, AppColors.balance, AppColors.secondary]
               : [AppColors.expenseDark, AppColors.expense],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
         borderRadius: BorderRadius.circular(20),
+        border: Border.all(
+          color: AppColors.stroke.withValues(alpha: 0.12),
+          width: 1.5,
+        ),
         boxShadow: [
           BoxShadow(
             color: (isPositive ? AppColors.balance : AppColors.expenseDark)
-                .withValues(alpha: 0.35),
-            blurRadius: 16,
-            offset: const Offset(0, 6),
+                .withValues(alpha: 0.25),
+            blurRadius: 0,
+            offset: const Offset(0, 4),
           ),
         ],
       ),
@@ -287,7 +356,7 @@ class _NetBalanceCard extends StatelessWidget {
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Text(
-                  month,
+                  periodLabel,
                   style: const TextStyle(
                     color: Colors.white,
                     fontSize: 13,
@@ -327,19 +396,36 @@ class _NetBalanceCard extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           Text(
-            l10n.balanceSavedThisMonth((savingsRate * 100).round()),
+            l10n.balanceSavedPercent((savingsRate * 100).round()),
             style: TextStyle(
               color: Colors.white.withValues(alpha: 0.85),
               fontSize: 13,
             ),
           ),
+          if (onAddToPlan != null) ...[
+            const SizedBox(height: 16),
+            SizedBox(
+              width: double.infinity,
+              child: OutlinedButton.icon(
+                onPressed: onAddToPlan,
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: Colors.white,
+                  side: BorderSide(color: Colors.white.withValues(alpha: 0.5)),
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(14),
+                  ),
+                ),
+                icon: const Icon(Icons.savings_outlined, size: 20),
+                label: Text(
+                  l10n.balanceAddToPlan,
+                  style: const TextStyle(fontWeight: FontWeight.w600),
+                ),
+              ),
+            ),
+          ],
         ],
       ),
     );
-  }
-
-  String _currentMonthLabel(BuildContext context) {
-    final locale = Localizations.localeOf(context).toString();
-    return DateFormat.MMMM(locale).format(DateTime.now());
   }
 }

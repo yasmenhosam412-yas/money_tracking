@@ -67,17 +67,12 @@ class _LoginScreenState extends State<LoginScreen> {
                 backgroundColor: AppColors.error,
               ),
             );
-          } else if (state.status == AuthStatus.success) {
+          } else if (state.status == AuthStatus.successLogin) {
             UserSession.loadAll(context);
-            Navigator.pushReplacement(
+            Navigator.pushAndRemoveUntil(
               context,
               MaterialPageRoute(builder: (_) => const HomeScreen()),
-            );
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(l10n.messageLoginSuccess),
-                backgroundColor: AppColors.success,
-              ),
+              (route) => false,
             );
           }
         },
@@ -144,10 +139,10 @@ class _LoginScreenState extends State<LoginScreen> {
     }
 
     context.read<AuthBloc>().add(
-          LoginEvent(
-            email: _emailController.text.trim(),
-            password: _passController.text,
-          ),
-        );
+      LoginEvent(
+        email: _emailController.text.trim(),
+        password: _passController.text,
+      ),
+    );
   }
 }

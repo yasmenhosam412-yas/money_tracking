@@ -31,7 +31,7 @@ class _CurrencyAmountFieldState extends State<CurrencyAmountField> {
   void initState() {
     super.initState();
     _selected = CurrencyConverter.byCode(
-      widget.initialCurrencyCode ?? CurrencyConverter.baseCode,
+      widget.initialCurrencyCode ?? CurrencyConverter.defaultDisplayCode,
     );
     widget.controller.addListener(_onAmountChanged);
   }

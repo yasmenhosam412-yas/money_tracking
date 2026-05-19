@@ -45,6 +45,7 @@ class BalanceTabBloc extends Bloc<BalanceTabEvent, BalanceTabState> {
     final result = await getBalanceUsecase(
       reference: event.reference,
       filterByDay: event.filterByDay,
+      includeAllDates: event.includeAllDates,
     );
 
     result.fold(

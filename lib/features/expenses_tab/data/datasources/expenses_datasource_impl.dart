@@ -1,3 +1,4 @@
+import 'package:imrpo/core/helpers/supabase_auth_helper.dart';
 import 'package:imrpo/core/helpers/supabase_delete_helper.dart';
 import 'package:imrpo/features/expenses_tab/data/datasources/expenses_datasource.dart';
 import 'package:imrpo/features/expenses_tab/data/models/expense_model.dart';
@@ -19,16 +20,13 @@ class ExpensesDatasourceImpl extends ExpensesDatasource {
       "amount": amount,
       "category": category,
       "date": date.toIso8601String(),
-      "user_id": supabaseClient.auth.currentUser!.id,
+      "user_id": SupabaseAuthHelper.requireUserId(),
     });
   }
 
   @override
   Future<void> deleteExpense(String expanseId) async {
-    final userId = supabaseClient.auth.currentUser?.id;
-    if (userId == null) {
-      throw Exception('Not authenticated');
-    }
+    final userId = SupabaseAuthHelper.requireUserId();
 
     final deleted = await supabaseClient
         .from('expenses')
@@ -41,11 +39,19 @@ class ExpensesDatasourceImpl extends ExpensesDatasource {
   }
 
   @override
+  Future<void> deleteAllExpenses() async {
+    final userId = SupabaseAuthHelper.requireUserId();
+
+    await supabaseClient.from('expenses').delete().eq('user_id', userId);
+  }
+
+  @override
   Future<List<ExpenseModel>> getExpenses() async {
+    final userId = SupabaseAuthHelper.requireUserId();
     final response = await supabaseClient
-        .from("expenses")
+        .from('expenses')
         .select()
-        .eq("user_id", supabaseClient.auth.currentUser!.id);
+        .eq('user_id', userId);
 
     return response.map((e) => ExpenseModel.fromMap(e)).toList();
   }

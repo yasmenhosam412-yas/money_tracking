@@ -1,4 +1,4 @@
-import 'package:imrpo/core/l10n/l10n_error_tokens.dart';
+import 'package:imrpo/core/helpers/supabase_auth_helper.dart';
 import 'package:imrpo/features/auth/data/datasources/auth_datasource.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -57,26 +57,32 @@ class AuthDatasourceImpl extends AuthDatasource {
 
   @override
   Future<void> deleteAccount() async {
-    final user = supabaseClient.auth.currentUser;
-    if (user == null) {
-      throw const AuthException('Not signed in');
-    }
+    final userId = SupabaseAuthHelper.requireUserId();
 
     try {
       await supabaseClient.rpc('delete_account');
     } on PostgrestException catch (e) {
-      if (!_isMissingRpc(e)) {
-        rethrow;
+      if (_isMissingRpc(e)) {
+        await _deleteUserData(userId);
+      } else {
+        try {
+          await _deleteUserData(userId);
+        } catch (_) {
+          rethrow;
+        }
       }
-      throw PostgrestException(
-        message: l10nDeleteAccountRpcRequiredToken,
-        code: 'PGRST202',
-      );
     }
 
     try {
       await supabaseClient.auth.signOut();
     } catch (_) {}
+  }
+
+  Future<void> _deleteUserData(String userId) async {
+    await supabaseClient.from('incomes').delete().eq('user_id', userId);
+    await supabaseClient.from('expenses').delete().eq('user_id', userId);
+    await supabaseClient.from('plans').delete().eq('user_id', userId);
+    await supabaseClient.from('profiles').delete().eq('id', userId);
   }
 
   bool _isMissingRpc(PostgrestException e) {

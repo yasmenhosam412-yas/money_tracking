@@ -4,10 +4,13 @@ import 'package:imrpo/core/config/app_router.dart';
 import 'package:imrpo/core/services/currency_preferences.dart';
 import 'package:imrpo/core/services/locale_preferences.dart';
 import 'package:imrpo/core/services/service_locator.dart';
+import 'package:imrpo/core/services/sms_imported_registry.dart';
 import 'package:imrpo/core/theme/app_theme.dart';
 import 'package:imrpo/features/auth/presentation/bloc/auth_bloc.dart';
+import 'package:imrpo/features/auth/presentation/pages/login_screen.dart';
 import 'package:imrpo/features/balance_tab/presentation/bloc/balance_tab_bloc.dart';
 import 'package:imrpo/features/expenses_tab/presentation/bloc/expenses_tab_bloc.dart';
+import 'package:imrpo/features/home/presentation/pages/home_screen.dart';
 import 'package:imrpo/features/incomes_tab/presentation/bloc/incomes_tab_bloc.dart';
 import 'package:imrpo/features/home/presentation/bloc/home_bloc.dart';
 import 'package:imrpo/features/plans_tab/presentation/bloc/plans_tab_bloc.dart';
@@ -25,12 +28,13 @@ Future<void> main() async {
   setupServiceLocator();
   await getIt<CurrencyPreferences>().load();
   await getIt<LocalePreferences>().load();
+  await getIt<SmsImportedRegistry>().load();
 
   runApp(
     MultiBlocProvider(
       providers: [
         BlocProvider(create: (_) => getIt<AuthBloc>()),
-        BlocProvider(create: (_) => getIt<HomeBloc>()..add(const LoadUserProfileEvent())),
+        BlocProvider(create: (_) => getIt<HomeBloc>()),
         BlocProvider(create: (_) => getIt<IncomesTabBloc>()),
         BlocProvider(create: (_) => getIt<BalanceTabBloc>()),
         BlocProvider(create: (_) => getIt<ExpensesTabBloc>()),
@@ -75,6 +79,9 @@ class MainApp extends StatelessWidget {
               child: child!,
             );
           },
+          home: getIt<SupabaseClient>().auth.currentUser != null
+              ? HomeScreen()
+              : LoginScreen(),
         );
       },
     );

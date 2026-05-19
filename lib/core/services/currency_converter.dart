@@ -4,7 +4,11 @@ import 'package:imrpo/core/models/currency.dart';
 class CurrencyConverter {
   CurrencyConverter._();
 
+  /// Internal storage currency (amounts saved in DB).
   static const String baseCode = 'USD';
+
+  /// Default currency shown in the UI for new users.
+  static const String defaultDisplayCode = 'EGP';
 
   static const List<Currency> currencies = [
     Currency(code: 'USD', name: 'US Dollar', symbol: '\$', rateToUsd: 1.0),

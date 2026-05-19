@@ -42,7 +42,7 @@ class _ForgetPasswordScreenState extends State<ForgetPasswordScreen> {
       onBack: () => Navigator.pop(context),
       child: BlocConsumer<AuthBloc, AuthState>(
         listener: (context, state) {
-          if (state.status == AuthStatus.success) {
+          if (state.status == AuthStatus.successForgetPassword) {
             Navigator.pushReplacement(
               context,
               MaterialPageRoute(

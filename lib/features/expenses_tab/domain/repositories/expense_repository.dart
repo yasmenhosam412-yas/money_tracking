@@ -6,6 +6,7 @@ abstract class ExpenseRepository {
   Future<Either<Failure, void>> addExpense(String title,String category,double amount,DateTime date);
   Future<Either<Failure, void>> updateExpense(String title,String category,double amount,DateTime date,String expenseId);
   Future<Either<Failure, void>> deleteExpense(String expenseId);
+  Future<Either<Failure, void>> deleteAllExpenses();
   Future<Either<Failure, List<ExpenseModel>>> getExpenses();
 
 }

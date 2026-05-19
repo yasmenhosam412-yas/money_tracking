@@ -21,6 +21,7 @@ class BalanceRepositoryImpl implements BalanceRepository {
   Future<Either<Failure, BalanceSummary>> getBalance({
     required DateTime reference,
     bool filterByDay = false,
+    bool includeAllDates = false,
   }) async {
     final incomesResult = await incomeRepository.getIncomes();
     final expensesResult = await expenseRepository.getExpenses();
@@ -35,6 +36,7 @@ class BalanceRepositoryImpl implements BalanceRepository {
             expenses,
             reference,
             filterByDay: filterByDay,
+            includeAllDates: includeAllDates,
           ),
         ),
       ),
@@ -46,13 +48,18 @@ class BalanceRepositoryImpl implements BalanceRepository {
     List<ExpenseModel> expenses,
     DateTime reference, {
     bool filterByDay = false,
+    bool includeAllDates = false,
   }) {
-    final monthlyIncomes = incomes
-        .where((i) => _matches(i.date, reference, filterByDay))
-        .toList();
-    final monthlyExpenses = expenses
-        .where((e) => _matches(e.date, reference, filterByDay))
-        .toList();
+    final monthlyIncomes = includeAllDates
+        ? incomes
+        : incomes
+            .where((i) => _matches(i.date, reference, filterByDay))
+            .toList();
+    final monthlyExpenses = includeAllDates
+        ? expenses
+        : expenses
+            .where((e) => _matches(e.date, reference, filterByDay))
+            .toList();
 
     final monthlyIncome =
         monthlyIncomes.fold<double>(0, (sum, i) => sum + i.amount);

@@ -6,16 +6,21 @@ import 'package:imrpo/features/plans_tab/domain/usecases/delete_plan_usecase.dar
 import 'package:imrpo/features/plans_tab/domain/usecases/get_all_plans_usecase.dart';
 import 'package:imrpo/features/plans_tab/domain/usecases/update_plan_saved_usecase.dart';
 import 'package:imrpo/features/plans_tab/domain/usecases/update_plan_usecase.dart';
+import 'package:imrpo/features/expenses_tab/domain/usecases/add_expense_usecase.dart';
 
 part 'plans_tab_event.dart';
 part 'plans_tab_state.dart';
 
 class PlansTabBloc extends Bloc<PlansTabEvent, PlansTabState> {
+  /// Expense category recorded when allocating balance to a plan.
+  static const planAllocationCategory = 'Savings';
+
   final GetAllPlansUsecase getAllPlansUsecase;
   final AddPlanUsecase addPlanUsecase;
   final UpdatePlanUsecase updatePlanUsecase;
   final UpdatePlanSavedUsecase updatePlanSavedUsecase;
   final DeletePlanUsecase deletePlanUsecase;
+  final AddExpenseUsecase addExpenseUsecase;
 
   PlansTabBloc({
     required this.getAllPlansUsecase,
@@ -23,12 +28,14 @@ class PlansTabBloc extends Bloc<PlansTabEvent, PlansTabState> {
     required this.updatePlanUsecase,
     required this.updatePlanSavedUsecase,
     required this.deletePlanUsecase,
+    required this.addExpenseUsecase,
   }) : super(const PlansTabInitial()) {
     on<LoadPlansEvent>(_onLoad);
     on<ResetPlansTabEvent>(_onReset);
     on<AddPlanEvent>(_onAdd);
     on<UpdatePlanEvent>(_onUpdate);
     on<UpdatePlanSavedEvent>(_onUpdateSaved);
+    on<AddAmountToPlanEvent>(_onAddAmount);
     on<DeletePlanEvent>(_onDelete);
   }
 
@@ -190,6 +197,109 @@ class PlansTabBloc extends Bloc<PlansTabEvent, PlansTabState> {
         }
       },
       (_) => add(const LoadPlansEvent()),
+    );
+  }
+
+  Future<void> _onAddAmount(
+    AddAmountToPlanEvent event,
+    Emitter<PlansTabState> emit,
+  ) async {
+    final current = state;
+    if (current is! PlansTabLoaded) return;
+
+    Plan? plan;
+    for (final candidate in current.plans) {
+      if (candidate.id == event.id) {
+        plan = candidate;
+        break;
+      }
+    }
+    if (plan == null) return;
+    final targetPlan = plan;
+
+    if (event.amountToAdd <= 0) {
+      emit(
+        current.copyWith(
+          status: PlansTabStatus.errorUpdateSaved,
+          error: 'Invalid amount',
+        ),
+      );
+      return;
+    }
+
+    final remainingOnPlan = targetPlan.targetAmount - targetPlan.savedAmount;
+    final addAmount = event.amountToAdd > remainingOnPlan
+        ? remainingOnPlan
+        : event.amountToAdd;
+    if (addAmount <= 0) return;
+
+    emit(
+      current.copyWith(status: PlansTabStatus.loadingUpdateSaved, error: ''),
+    );
+
+    final expenseResult = await addExpenseUsecase(
+      event.expenseTitle,
+      planAllocationCategory,
+      addAmount,
+      DateTime.now(),
+    );
+
+    final expenseFailed = expenseResult.fold(
+      (failure) {
+        final previous = state;
+        if (previous is PlansTabLoaded) {
+          emit(
+            previous.copyWith(
+              status: PlansTabStatus.errorUpdateSaved,
+              error: failure.error,
+            ),
+          );
+        }
+        return true;
+      },
+      (_) => false,
+    );
+    if (expenseFailed) return;
+
+    final newSaved = targetPlan.savedAmount + addAmount;
+    final result = await updatePlanSavedUsecase(targetPlan.id, newSaved);
+
+    result.fold(
+      (failure) {
+        final previous = state;
+        if (previous is PlansTabLoaded) {
+          emit(
+            previous.copyWith(
+              status: PlansTabStatus.errorUpdateSaved,
+              error: failure.error,
+            ),
+          );
+        }
+      },
+      (_) {
+        final previous = state;
+        if (previous is! PlansTabLoaded) return;
+        final updatedPlans = previous.plans
+            .map(
+              (p) => p.id == targetPlan.id
+                  ? Plan(
+                      id: p.id,
+                      title: p.title,
+                      category: p.category,
+                      targetAmount: p.targetAmount,
+                      savedAmount: newSaved,
+                      deadline: p.deadline,
+                    )
+                  : p,
+            )
+            .toList();
+        emit(
+          previous.copyWith(
+            plans: updatedPlans,
+            status: PlansTabStatus.loaded,
+          ),
+        );
+      },
     );
   }
 

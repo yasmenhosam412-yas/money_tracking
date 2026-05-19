@@ -16,8 +16,10 @@
   },
   "homeFinanceOverview": "نظرة مالية",
   "homeDateFilterTitle": "تصفية حسب التاريخ",
+  "homeFilterAllMonths": "كل الشهور",
   "homeFilterByMonth": "شهر",
   "homeFilterByDay": "يوم",
+  "homeFilterThisMonth": "هذا الشهر",
   "homeFilterPickMonth": "اختر الشهر",
   "homeFilterPickDay": "اختر اليوم",
   "homeFilterToday": "اليوم",
@@ -63,7 +65,7 @@
   "signupSuccessful": "تم إنشاء الحساب بنجاح",
   "forgotPasswordTitle": "نسيت كلمة المرور؟",
   "forgotPasswordDescription": "أدخل بريدك الإلكتروني وسنرسل لك رابط إعادة تعيين كلمة المرور.",
-  "sendResetLink": "إرسال رابط الاستعادة",
+  "sendResetLink": "إرسال كود",
   "backToLogin": "العودة لتسجيل الدخول",
   "errorTryAgainGeneric": "حدث خطأ. يرجى المحاولة مرة أخرى.",
   "setNewPasswordTitle": "تعيين كلمة مرور جديدة 🔒",
@@ -162,9 +164,44 @@
       }
     }
   },
+  "balanceSavedPercent": "تم توفير {percent}%",
+  "@balanceSavedPercent": {
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
   "balanceStatIncome": "الدخل",
   "balanceStatExpense": "المصروفات",
   "balanceRecentActivity": "النشاط الأخير",
+  "balanceAddToPlan": "إضافة لهدف",
+  "balanceAddToPlanTitle": "إضافة لهدف ادخار",
+  "balanceAddToPlanHint": "المتاح من الرصيد: {amount}",
+  "@balanceAddToPlanHint": {
+    "placeholders": {
+      "amount": {}
+    }
+  },
+  "balanceSelectPlan": "اختر هدفاً",
+  "balanceAmountToAllocate": "المبلغ للإضافة",
+  "balancePlanRemaining": "متبقي {amount} لإكمال الهدف",
+  "@balancePlanRemaining": {
+    "placeholders": {
+      "amount": {}
+    }
+  },
+  "balanceAddToPlanSuccess": "تمت إضافة المبلغ لهدف الادخار",
+  "balancePlanAllocationExpenseTitle": "هدف ادخار: {planTitle}",
+  "@balancePlanAllocationExpenseTitle": {
+    "placeholders": {
+      "planTitle": {
+        "type": "String"
+      }
+    }
+  },
+  "balanceNoPlansForAllocation": "أنشئ هدف ادخار من تبويب الخطط أولاً.",
+  "balanceAmountExceedsSurplus": "المبلغ أكبر من الرصيد المتاح",
   "itemsCount": "{count} عناصر",
   "@itemsCount": {
     "placeholders": {
@@ -181,6 +218,24 @@
       }
     }
   },
+  "clearAllExpenses": "مسح الكل",
+  "clearAllIncomes": "مسح الكل",
+  "clearAllExpensesConfirmTitle": "حذف كل المصروفات؟",
+  "clearAllIncomesConfirmTitle": "حذف كل الإيرادات؟",
+  "clearAllExpensesConfirmMessage": "سيتم حذف جميع المصروفات ({count}) نهائيًا. لا يمكن التراجع.",
+  "@clearAllExpensesConfirmMessage": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "clearAllIncomesConfirmMessage": "سيتم حذف جميع الإيرادات ({count}) نهائيًا. لا يمكن التراجع.",
+  "@clearAllIncomesConfirmMessage": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "clearAllExpensesSuccess": "تم حذف كل المصروفات",
+  "clearAllIncomesSuccess": "تم حذف كل الإيرادات",
   "balanceIncomeVsExpenses": "الدخل مقابل المصروفات",
   "activityIncome": "دخل",
   "activityExpense": "مصروف",
@@ -245,6 +300,79 @@
   "@storedAsBase": {
     "placeholders": {
       "amount": {}
+    }
+  },
+  "smartImportTitle": "استيراد ذكي",
+  "smartImportShort": "فاتورة / SMS",
+  "smartImportInvoiceTab": "OCR فواتير",
+  "smartImportSmsTab": "رسائل SMS",
+  "smartImportInvoiceHint": "التقط صورة للفاتورة أو الإيصال. سنقرأ المبلغ والتاريخ تلقائياً.",
+  "smartImportDefaultBillTitle": "فاتورة",
+  "smartImportScanCamera": "الكاميرا",
+  "smartImportScanGallery": "المعرض",
+  "smartImportOcrProcessing": "جاري قراءة الفاتورة…",
+  "smartImportOcrNoData": "لم نتمكن من العثور على مبلغ أو تفاصيل في الصورة.",
+  "smartImportOcrFailed": "فشلت قراءة الفاتورة. جرّب صورة أوضح.",
+  "smartImportCameraDenied": "يلزم إذن الكاميرا لمسح الفواتير.",
+  "smartImportExtractedData": "البيانات المستخرجة",
+  "smartImportDateField": "التاريخ",
+  "smartImportTypeField": "النوع",
+  "smartImportAddToApp": "إضافة للتطبيق",
+  "smartImportSmsNotSupported": "قراءة SMS متاحة على أندرويد فقط.",
+  "smartImportSmsEmpty": "لم يتم العثور على رسائل مالية. امنح إذن SMS إن طُلب.",
+  "smartImportSmsFailed": "تعذرت قراءة رسائل SMS.",
+  "smartImportReloadSms": "إعادة التحميل",
+  "smartImportSmsAlreadyAdded": "مضاف مسبقاً",
+  "smartImportSmsAddAgain": "إضافة مرة أخرى",
+  "smartImportSmsClearAllAdded": "مسح كل المضاف",
+  "smartImportSmsClearAllAddedConfirmTitle": "مسح سجل الاستيراد؟",
+  "smartImportSmsClearAllAddedConfirmMessage": "ستظهر كل الرسائل كغير مضافة ويمكنك استيرادها مجدداً. لن تُحذف مصروفاتك أو دخلك الحالي من التطبيق.",
+  "smartImportSmsClearAllAddedDone": "تم مسح سجل الاستيراد",
+  "smartImportSmsSkippedDuplicate": "{count} رسالة موجودة بالفعل في التطبيق.",
+  "@smartImportSmsSkippedDuplicate": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "smartImportSmsLoadMore": "تحميل المزيد من الرسائل",
+  "smartImportSmsLoadingMore": "جاري التحميل…",
+  "smartImportUnknownSender": "مرسل غير معروف",
+  "smartImportSmsTitleExpense": "مصروف بنكي",
+  "smartImportSmsTitleIncome": "دخل بنكي",
+  "smartImportTapToImport": "اضغط للاستيراد",
+  "smartImportAddAllExpenses": "إضافة كل المصروفات ({count})",
+  "@smartImportAddAllExpenses": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "smartImportAddAllIncomes": "إضافة كل الدخل ({count})",
+  "@smartImportAddAllIncomes": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "smartImportAddSelected": "إضافة المحدد ({count})",
+  "@smartImportAddSelected": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "smartImportSelectAll": "تحديد الكل",
+  "smartImportClearSelection": "إلغاء التحديد",
+  "smartImportBulkImporting": "جاري استيراد الرسائل…",
+  "smartImportBulkNothingToAdd": "لا توجد رسائل بمبلغ صالح للاستيراد.",
+  "smartImportBulkResult": "تمت إضافة {incomes} دخل و{expenses} مصروف.",
+  "@smartImportBulkResult": {
+    "placeholders": {
+      "incomes": { "type": "int" },
+      "expenses": { "type": "int" }
+    }
+  },
+  "smartImportBulkPartialFail": "تعذر استيراد {failed} رسالة.",
+  "@smartImportBulkPartialFail": {
+    "placeholders": {
+      "failed": { "type": "int" }
     }
   }
 }
