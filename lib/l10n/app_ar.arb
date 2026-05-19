@@ -1,0 +1,250 @@
+{
+  "@@locale": "ar",
+  "appTitle": "imrpo",
+  "tabIncomes": "الدخل",
+  "tabExpenses": "المصروفات",
+  "tabBalance": "الرصيد",
+  "tabPlans": "الخطط",
+  "homeWelcomeBack": "مرحبًا بعودتك",
+  "homeWelcomeUser": "مرحبًا بعودتك، {name}",
+  "@homeWelcomeUser": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "homeFinanceOverview": "نظرة مالية",
+  "homeDateFilterTitle": "تصفية حسب التاريخ",
+  "homeFilterByMonth": "شهر",
+  "homeFilterByDay": "يوم",
+  "homeFilterPickMonth": "اختر الشهر",
+  "homeFilterPickDay": "اختر اليوم",
+  "homeFilterToday": "اليوم",
+  "homeFilterNoEntries": "لا توجد عناصر لهذه الفترة",
+  "accountSettingsTitle": "إعدادات الحساب",
+  "changeUsername": "تغيير اسم المستخدم",
+  "settingsLanguage": "اللغة",
+  "languageEnglish": "الإنجليزية",
+  "languageArabic": "العربية",
+  "logout": "تسجيل الخروج",
+  "deleteAccount": "حذف الحساب",
+  "deleteAccountConfirmTitle": "حذف الحساب؟",
+  "deleteAccountConfirmMessage": "سيتم حذف ملفك الشخصي والدخل والمصروفات والخطط نهائيًا. لا يمكن التراجع عن هذا الإجراء.",
+  "cancel": "إلغاء",
+  "save": "حفظ",
+  "usernameUpdated": "تم تحديث اسم المستخدم",
+  "errorEnterUsername": "يرجى إدخال اسم المستخدم",
+  "logoutConfirmTitle": "تسجيل الخروج؟",
+  "logoutConfirmMessage": "ستحتاج إلى تسجيل الدخول مرة أخرى لاستخدام التطبيق.",
+  "loginWelcomeTitle": "مرحبًا بعودتك 👋",
+  "loginWelcomeSubtitle": "سجّل الدخول لمتابعة استخدام حسابك",
+  "labelEmail": "البريد الإلكتروني",
+  "hintEmail": "example@gmail.com",
+  "labelPassword": "كلمة المرور",
+  "hintPasswordDots": "••••••••",
+  "forgotPasswordQuestion": "نسيت كلمة المرور؟",
+  "loginButton": "تسجيل الدخول",
+  "orDivider": "أو",
+  "noAccountPrompt": "ليس لديك حساب؟",
+  "signUpLink": "إنشاء حساب",
+  "messageEnterEmailPassword": "أدخل البريد الإلكتروني وكلمة المرور",
+  "messageLoginFailed": "فشل تسجيل الدخول",
+  "messageLoginSuccess": "تم تسجيل الدخول بنجاح",
+  "signupCreateTitle": "إنشاء حساب 🚀",
+  "signupCreateSubtitle": "أنشئ حسابك للمتابعة",
+  "labelFullName": "الاسم الكامل",
+  "hintEnterYourName": "أدخل اسمك",
+  "labelConfirmPassword": "تأكيد كلمة المرور",
+  "createAccountButton": "إنشاء حساب",
+  "alreadyHaveAccount": "لديك حساب بالفعل؟",
+  "loginLinkShort": "تسجيل الدخول",
+  "signupErrorGeneric": "حدث خطأ",
+  "signupSuccessful": "تم إنشاء الحساب بنجاح",
+  "forgotPasswordTitle": "نسيت كلمة المرور؟",
+  "forgotPasswordDescription": "أدخل بريدك الإلكتروني وسنرسل لك رابط إعادة تعيين كلمة المرور.",
+  "sendResetLink": "إرسال رابط الاستعادة",
+  "backToLogin": "العودة لتسجيل الدخول",
+  "errorTryAgainGeneric": "حدث خطأ. يرجى المحاولة مرة أخرى.",
+  "setNewPasswordTitle": "تعيين كلمة مرور جديدة 🔒",
+  "setNewPasswordSubtitle": "أدخل رمز التحقق وأنشئ كلمة المرور الجديدة.",
+  "labelOtpCode": "رمز التحقق",
+  "hintOtpCode": "أدخل رمز التحقق",
+  "labelNewPassword": "كلمة المرور الجديدة",
+  "buttonSetNewPassword": "تعيين كلمة المرور",
+  "passwordUpdatedSuccessfully": "تم تحديث كلمة المرور بنجاح ✅",
+  "noRouteForName": "لا يوجد مسار معرّف لـ {name}",
+  "@noRouteForName": {
+    "placeholders": {
+      "name": {}
+    }
+  },
+  "noInternetConnection": "لا يوجد اتصال بالإنترنت",
+  "errorGeneric": "حدث خطأ ما",
+  "errorDeleteFailed": "تعذر الحذف. يرجى المحاولة مرة أخرى.",
+  "errorDeleteAccountFailed": "تعذر حذف حسابك. يرجى المحاولة مرة أخرى.",
+  "errorDeleteAccountRpcRequired": "حذف الحساب غير مُعد على الخادم. نفّذ supabase/delete_account.sql في مشروع Supabase.",
+  "addIncome": "إضافة دخل",
+  "editIncome": "تعديل الدخل",
+  "recentIncomes": "الدخل الأخير",
+  "totalIncome": "إجمالي الدخل",
+  "addExpense": "إضافة مصروف",
+  "editExpense": "تعديل المصروف",
+  "recentExpenses": "المصروفات الأخيرة",
+  "totalExpenses": "إجمالي المصروفات",
+  "noIncomesTitle": "لا يوجد دخل بعد",
+  "noIncomesSubtitle": "اضغط الزر أدناه لتسجيل أول دخل",
+  "noExpensesTitle": "لا توجد مصروفات بعد",
+  "noExpensesSubtitle": "اضغط الزر أدناه لتسجيل أول مصروف",
+  "titleField": "العنوان",
+  "hintExpenseTitle": "مثال: مشتريات",
+  "hintIncomeTitle": "مثال: الراتب",
+  "amountField": "المبلغ",
+  "categoryField": "التصنيف",
+  "otherCategoryField": "تصنيف آخر",
+  "otherCategoryHint": "أدخل اسم التصنيف",
+  "saveExpense": "حفظ المصروف",
+  "updateExpense": "تحديث المصروف",
+  "expenseAddedSuccess": "تمت إضافة المصروف بنجاح",
+  "expenseUpdatedSuccess": "تم تحديث المصروف بنجاح",
+  "saveIncome": "حفظ الدخل",
+  "updateIncome": "تحديث الدخل",
+  "incomeAddedSuccess": "تمت إضافة الدخل بنجاح",
+  "incomeUpdatedSuccess": "تم تحديث الدخل بنجاح",
+  "errorEnterTitle": "يرجى إدخال عنوان",
+  "errorEnterValidAmount": "يرجى إدخال مبلغ صالح",
+  "errorEnterCategoryName": "يرجى إدخال اسم التصنيف",
+  "errorSavedExceedsTarget": "المبلغ المحفوظ لا يمكن أن يتجاوز الهدف",
+  "expenseCatFood": "طعام",
+  "expenseCatRent": "إيجار",
+  "expenseCatTransport": "مواصلات",
+  "expenseCatShopping": "تسوق",
+  "expenseCatBills": "فواتير",
+  "expenseCatOther": "أخرى",
+  "incomeCatWork": "عمل",
+  "incomeCatFreelance": "عمل حر",
+  "incomeCatBusiness": "أعمال",
+  "incomeCatInvestment": "استثمار",
+  "incomeCatOther": "أخرى",
+  "planCatSavings": "ادخار",
+  "planCatTravel": "سفر",
+  "planCatPurchase": "شراء",
+  "planCatEducation": "تعليم",
+  "planCatOther": "أخرى",
+  "planNewFab": "هدف جديد",
+  "planEditGoal": "تعديل الهدف",
+  "planAddPlan": "إضافة خطة",
+  "goalTitleLabel": "عنوان الهدف",
+  "goalTitleHint": "مثال: صندوق الطوارئ",
+  "targetAmountLabel": "المبلغ المستهدف",
+  "amountSavedLabel": "المبلغ المدخر",
+  "setDeadlineOptional": "تحديد موعد نهائي (اختياري)",
+  "savePlan": "حفظ الخطة",
+  "updateGoal": "تحديث الهدف",
+  "errorEnterGoalTitle": "يرجى إدخال عنوان الهدف",
+  "errorEnterTargetAmount": "يرجى إدخال مبلغ مستهدف صالح",
+  "errorEnterAmountSaved": "يرجى إدخال المبلغ المدخر",
+  "updateSavedTitle": "تحديث المدخرات",
+  "targetWithAmount": "الهدف: {amount}",
+  "@targetWithAmount": {
+    "placeholders": {
+      "amount": {}
+    }
+  },
+  "saveAmountButton": "حفظ المبلغ",
+  "errorEnterValidSavedAmount": "يرجى إدخال مبلغ مدخر صالح",
+  "balanceNetBalance": "صافي الرصيد",
+  "balanceSavedThisMonth": "تم توفير {percent}% هذا الشهر",
+  "@balanceSavedThisMonth": {
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "balanceStatIncome": "الدخل",
+  "balanceStatExpense": "المصروفات",
+  "balanceRecentActivity": "النشاط الأخير",
+  "itemsCount": "{count} عناصر",
+  "@itemsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "listEntryCount": "{count} سجلًا",
+  "@listEntryCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "balanceIncomeVsExpenses": "الدخل مقابل المصروفات",
+  "activityIncome": "دخل",
+  "activityExpense": "مصروف",
+  "plansActive": "نشط",
+  "plansDone": "مكتمل",
+  "plansRemaining": "متبقي",
+  "plansSavingsGoalsSection": "أهداف الادخار",
+  "plansGoalsOverview": "نظرة على الأهداف",
+  "plansSavedOfTarget": "من {total} مدخر",
+  "@plansSavedOfTarget": {
+    "placeholders": {
+      "total": {}
+    }
+  },
+  "plansDonePercentLabel": "مكتمل",
+  "plansGoalsCompletedSummary": "{completed} من {total} أهداف مكتملة",
+  "@plansGoalsCompletedSummary": {
+    "placeholders": {
+      "completed": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "plansMoneyLeft": "متبقي {amount}",
+  "@plansMoneyLeft": {
+    "placeholders": {
+      "amount": {}
+    }
+  },
+  "ofTargetAmount": "من {amount}",
+  "@ofTargetAmount": {
+    "placeholders": {
+      "amount": {}
+    }
+  },
+  "dueDateLabel": "الاستحقاق {date}",
+  "@dueDateLabel": {
+    "placeholders": {
+      "date": {}
+    }
+  },
+  "planGoalCompleted": "اكتمل الهدف",
+  "planTapToEditGoal": "اضغط لتعديل الهدف",
+  "plansEmptyTitle": "ابدأ هدفك الأول",
+  "plansEmptySubtitle": "حدد هدفًا، تتبع ما توفره، وشاهد تقدمك ينمو.",
+  "plansCreateGoalButton": "إنشاء هدف",
+  "demoSalary": "راتب",
+  "demoRent": "إيجار",
+  "demoFreelanceProject": "مشروع عمل حر",
+  "demoGroceries": "مشتريات",
+  "demoGas": "وقود",
+  "demoElectricBill": "فاتورة كهرباء",
+  "demoUtilities": "مرافق",
+  "demoSideBusiness": "عمل جانبي",
+  "demoEmergencyFund": "صندوق الطوارئ",
+  "demoSummerVacation": "إجازة صيفية",
+  "demoNewLaptop": "لابتوب جديد",
+  "storedAsBase": "يُحفظ كـ {amount} (عملة الحساب)",
+  "@storedAsBase": {
+    "placeholders": {
+      "amount": {}
+    }
+  }
+}

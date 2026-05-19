@@ -1,0 +1,244 @@
+import 'package:bloc/bloc.dart';
+import 'package:equatable/equatable.dart';
+import 'package:imrpo/features/plans_tab/domain/entities/plan.dart';
+import 'package:imrpo/features/plans_tab/domain/usecases/add_plan_usecase.dart';
+import 'package:imrpo/features/plans_tab/domain/usecases/delete_plan_usecase.dart';
+import 'package:imrpo/features/plans_tab/domain/usecases/get_all_plans_usecase.dart';
+import 'package:imrpo/features/plans_tab/domain/usecases/update_plan_saved_usecase.dart';
+import 'package:imrpo/features/plans_tab/domain/usecases/update_plan_usecase.dart';
+
+part 'plans_tab_event.dart';
+part 'plans_tab_state.dart';
+
+class PlansTabBloc extends Bloc<PlansTabEvent, PlansTabState> {
+  final GetAllPlansUsecase getAllPlansUsecase;
+  final AddPlanUsecase addPlanUsecase;
+  final UpdatePlanUsecase updatePlanUsecase;
+  final UpdatePlanSavedUsecase updatePlanSavedUsecase;
+  final DeletePlanUsecase deletePlanUsecase;
+
+  PlansTabBloc({
+    required this.getAllPlansUsecase,
+    required this.addPlanUsecase,
+    required this.updatePlanUsecase,
+    required this.updatePlanSavedUsecase,
+    required this.deletePlanUsecase,
+  }) : super(const PlansTabInitial()) {
+    on<LoadPlansEvent>(_onLoad);
+    on<ResetPlansTabEvent>(_onReset);
+    on<AddPlanEvent>(_onAdd);
+    on<UpdatePlanEvent>(_onUpdate);
+    on<UpdatePlanSavedEvent>(_onUpdateSaved);
+    on<DeletePlanEvent>(_onDelete);
+  }
+
+  PlansTabLoaded _loadingState() {
+    final current = state;
+    if (current is PlansTabLoaded) {
+      return current.copyWith(status: PlansTabStatus.loading, error: '');
+    }
+    return const PlansTabLoaded(
+      plans: [],
+      status: PlansTabStatus.loading,
+    );
+  }
+
+  void _onReset(ResetPlansTabEvent event, Emitter<PlansTabState> emit) {
+    emit(const PlansTabInitial());
+  }
+
+  Future<void> _onLoad(
+    LoadPlansEvent event,
+    Emitter<PlansTabState> emit,
+  ) async {
+    final current = state;
+    if (!event.force &&
+        current is PlansTabLoaded &&
+        current.status == PlansTabStatus.loading &&
+        !current.hasData) {
+      return;
+    }
+    if (current is PlansTabLoaded && current.hasData) {
+      emit(current.copyWith(status: PlansTabStatus.loading, error: ''));
+    } else {
+      emit(_loadingState());
+    }
+
+    final result = await getAllPlansUsecase();
+
+    result.fold(
+      (failure) {
+        final previous = state;
+        if (previous is PlansTabLoaded && previous.hasData) {
+          emit(
+            previous.copyWith(
+              status: PlansTabStatus.error,
+              error: failure.error,
+            ),
+          );
+        } else {
+          emit(
+            PlansTabLoaded(
+              plans: const [],
+              status: PlansTabStatus.error,
+              error: failure.error,
+            ),
+          );
+        }
+      },
+      (plans) {
+        emit(
+          PlansTabLoaded(
+            plans: plans,
+            status: PlansTabStatus.loaded,
+          ),
+        );
+      },
+    );
+  }
+
+  Future<void> _onAdd(
+    AddPlanEvent event,
+    Emitter<PlansTabState> emit,
+  ) async {
+    final current = state;
+    if (current is PlansTabLoaded) {
+      emit(current.copyWith(status: PlansTabStatus.loadingAdd, error: ''));
+    }
+
+    final result = await addPlanUsecase(
+      event.title,
+      event.category,
+      event.targetAmount,
+      event.savedAmount,
+      event.deadline,
+    );
+
+    result.fold(
+      (failure) {
+        final previous = state;
+        if (previous is PlansTabLoaded) {
+          emit(
+            previous.copyWith(
+              status: PlansTabStatus.errorAdd,
+              error: failure.error,
+            ),
+          );
+        }
+      },
+      (_) => add(const LoadPlansEvent()),
+    );
+  }
+
+  Future<void> _onUpdate(
+    UpdatePlanEvent event,
+    Emitter<PlansTabState> emit,
+  ) async {
+    final current = state;
+    if (current is PlansTabLoaded) {
+      emit(current.copyWith(status: PlansTabStatus.loadingUpdate, error: ''));
+    }
+
+    final result = await updatePlanUsecase(
+      event.id,
+      event.title,
+      event.category,
+      event.targetAmount,
+      event.savedAmount,
+      event.deadline,
+    );
+
+    result.fold(
+      (failure) {
+        final previous = state;
+        if (previous is PlansTabLoaded) {
+          emit(
+            previous.copyWith(
+              status: PlansTabStatus.errorUpdate,
+              error: failure.error,
+            ),
+          );
+        }
+      },
+      (_) => add(const LoadPlansEvent()),
+    );
+  }
+
+  Future<void> _onUpdateSaved(
+    UpdatePlanSavedEvent event,
+    Emitter<PlansTabState> emit,
+  ) async {
+    final current = state;
+    if (current is PlansTabLoaded) {
+      emit(
+        current.copyWith(status: PlansTabStatus.loadingUpdateSaved, error: ''),
+      );
+    }
+
+    final result = await updatePlanSavedUsecase(event.id, event.savedAmount);
+
+    result.fold(
+      (failure) {
+        final previous = state;
+        if (previous is PlansTabLoaded) {
+          emit(
+            previous.copyWith(
+              status: PlansTabStatus.errorUpdateSaved,
+              error: failure.error,
+            ),
+          );
+        }
+      },
+      (_) => add(const LoadPlansEvent()),
+    );
+  }
+
+  Future<void> _onDelete(
+    DeletePlanEvent event,
+    Emitter<PlansTabState> emit,
+  ) async {
+    final current = state;
+    if (current is PlansTabLoaded) {
+      emit(
+        current.copyWith(
+          status: PlansTabStatus.loadingDelete,
+          deletingPlanId: event.id,
+          error: '',
+        ),
+      );
+    }
+
+    final result = await deletePlanUsecase(event.id);
+    if (emit.isDone) return;
+
+    if (result.isLeft()) {
+      final failure = result.fold((l) => l, (_) => throw StateError('unreachable'));
+      final previous = state;
+      if (previous is PlansTabLoaded) {
+        emit(
+          previous.copyWith(
+            status: PlansTabStatus.errorDelete,
+            error: failure.error,
+            deletingPlanId: null,
+          ),
+        );
+      }
+      return;
+    }
+
+    if (current is PlansTabLoaded) {
+      final updatedPlans =
+          current.plans.where((plan) => plan.id != event.id).toList();
+      emit(
+        current.copyWith(
+          plans: updatedPlans,
+          status: PlansTabStatus.loaded,
+          deletingPlanId: null,
+          error: '',
+        ),
+      );
+    }
+
+    add(const LoadPlansEvent(force: true));
+  }
+}

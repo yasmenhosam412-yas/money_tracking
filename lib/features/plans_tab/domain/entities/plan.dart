@@ -1,0 +1,36 @@
+import 'package:equatable/equatable.dart';
+
+class Plan extends Equatable {
+  final String id;
+  final String title;
+  final String category;
+  final double targetAmount;
+  final double savedAmount;
+  final DateTime? deadline;
+
+  const Plan({
+    required this.id,
+    required this.title,
+    required this.category,
+    required this.targetAmount,
+    required this.savedAmount,
+    this.deadline,
+  });
+
+  double get progress {
+    if (targetAmount <= 0) return 0;
+    return (savedAmount / targetAmount).clamp(0.0, 1.0);
+  }
+
+  bool get isCompleted => savedAmount >= targetAmount;
+
+  @override
+  List<Object?> get props => [
+    id,
+    title,
+    category,
+    targetAmount,
+    savedAmount,
+    deadline,
+  ];
+}

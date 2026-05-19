@@ -1,0 +1,250 @@
+{
+  "@@locale": "en",
+  "appTitle": "imrpo",
+  "tabIncomes": "Incomes",
+  "tabExpenses": "Expenses",
+  "tabBalance": "Balance",
+  "tabPlans": "Plans",
+  "homeWelcomeBack": "Welcome back",
+  "homeWelcomeUser": "Welcome back, {name}",
+  "@homeWelcomeUser": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "homeFinanceOverview": "Finance Overview",
+  "homeDateFilterTitle": "Filter by date",
+  "homeFilterByMonth": "Month",
+  "homeFilterByDay": "Day",
+  "homeFilterPickMonth": "Pick month",
+  "homeFilterPickDay": "Pick day",
+  "homeFilterToday": "Today",
+  "homeFilterNoEntries": "No entries for this period",
+  "accountSettingsTitle": "Account settings",
+  "changeUsername": "Change username",
+  "settingsLanguage": "Language",
+  "languageEnglish": "English",
+  "languageArabic": "Arabic",
+  "logout": "Log out",
+  "deleteAccount": "Delete account",
+  "deleteAccountConfirmTitle": "Delete account?",
+  "deleteAccountConfirmMessage": "This will permanently remove your profile, incomes, expenses, and plans. This cannot be undone.",
+  "cancel": "Cancel",
+  "save": "Save",
+  "usernameUpdated": "Username updated",
+  "errorEnterUsername": "Please enter a username",
+  "logoutConfirmTitle": "Log out?",
+  "logoutConfirmMessage": "You will need to sign in again to use the app.",
+  "loginWelcomeTitle": "Welcome Back 👋",
+  "loginWelcomeSubtitle": "Login to continue using your account",
+  "labelEmail": "Email",
+  "hintEmail": "example@gmail.com",
+  "labelPassword": "Password",
+  "hintPasswordDots": "••••••••",
+  "forgotPasswordQuestion": "Forgot Password?",
+  "loginButton": "Login",
+  "orDivider": "OR",
+  "noAccountPrompt": "Don't have an account?",
+  "signUpLink": "Sign Up",
+  "messageEnterEmailPassword": "Enter email and password",
+  "messageLoginFailed": "Login failed",
+  "messageLoginSuccess": "Login successfully",
+  "signupCreateTitle": "Create Account 🚀",
+  "signupCreateSubtitle": "Create your account to continue",
+  "labelFullName": "Full Name",
+  "hintEnterYourName": "Enter your name",
+  "labelConfirmPassword": "Confirm Password",
+  "createAccountButton": "Create Account",
+  "alreadyHaveAccount": "Already have an account?",
+  "loginLinkShort": "Login",
+  "signupErrorGeneric": "An error occurred",
+  "signupSuccessful": "Signup successful",
+  "forgotPasswordTitle": "Forgot Password?",
+  "forgotPasswordDescription": "Enter your email address and we'll send you a password reset link.",
+  "sendResetLink": "Send Reset Link",
+  "backToLogin": "Back to Login",
+  "errorTryAgainGeneric": "An error occurred. Please try again.",
+  "setNewPasswordTitle": "Set New Password 🔒",
+  "setNewPasswordSubtitle": "Enter the OTP code and create your new password.",
+  "labelOtpCode": "OTP Code",
+  "hintOtpCode": "Enter verification code",
+  "labelNewPassword": "New Password",
+  "buttonSetNewPassword": "Set New Password",
+  "passwordUpdatedSuccessfully": "Password updated successfully ✅",
+  "noRouteForName": "No route defined for {name}",
+  "@noRouteForName": {
+    "placeholders": {
+      "name": {}
+    }
+  },
+  "noInternetConnection": "No internet connection",
+  "errorGeneric": "Something went wrong",
+  "errorDeleteFailed": "Could not delete. Please try again.",
+  "errorDeleteAccountFailed": "Could not delete your account. Please try again.",
+  "errorDeleteAccountRpcRequired": "Account deletion is not set up on the server. Run supabase/delete_account.sql in your Supabase project.",
+  "addIncome": "Add Income",
+  "editIncome": "Edit Income",
+  "recentIncomes": "Recent Incomes",
+  "totalIncome": "Total Income",
+  "addExpense": "Add Expense",
+  "editExpense": "Edit Expense",
+  "recentExpenses": "Recent Expenses",
+  "totalExpenses": "Total Expenses",
+  "noIncomesTitle": "No incomes yet",
+  "noIncomesSubtitle": "Tap the button below to record your first income",
+  "noExpensesTitle": "No expenses yet",
+  "noExpensesSubtitle": "Tap the button below to record your first expense",
+  "titleField": "Title",
+  "hintExpenseTitle": "e.g. Groceries",
+  "hintIncomeTitle": "e.g. Salary",
+  "amountField": "Amount",
+  "categoryField": "Category",
+  "otherCategoryField": "Other category",
+  "otherCategoryHint": "Enter category name",
+  "saveExpense": "Save Expense",
+  "updateExpense": "Update Expense",
+  "expenseAddedSuccess": "Expense added successfully",
+  "expenseUpdatedSuccess": "Expense updated successfully",
+  "saveIncome": "Save Income",
+  "updateIncome": "Update Income",
+  "incomeAddedSuccess": "Income added successfully",
+  "incomeUpdatedSuccess": "Income updated successfully",
+  "errorEnterTitle": "Please enter a title",
+  "errorEnterValidAmount": "Please enter a valid amount",
+  "errorEnterCategoryName": "Please enter a category name",
+  "errorSavedExceedsTarget": "Saved amount cannot exceed target",
+  "expenseCatFood": "Food",
+  "expenseCatRent": "Rent",
+  "expenseCatTransport": "Transport",
+  "expenseCatShopping": "Shopping",
+  "expenseCatBills": "Bills",
+  "expenseCatOther": "Other",
+  "incomeCatWork": "Work",
+  "incomeCatFreelance": "Freelance",
+  "incomeCatBusiness": "Business",
+  "incomeCatInvestment": "Investment",
+  "incomeCatOther": "Other",
+  "planCatSavings": "Savings",
+  "planCatTravel": "Travel",
+  "planCatPurchase": "Purchase",
+  "planCatEducation": "Education",
+  "planCatOther": "Other",
+  "planNewFab": "New goal",
+  "planEditGoal": "Edit Goal",
+  "planAddPlan": "Add Plan",
+  "goalTitleLabel": "Goal title",
+  "goalTitleHint": "e.g. Emergency Fund",
+  "targetAmountLabel": "Target amount",
+  "amountSavedLabel": "Amount saved",
+  "setDeadlineOptional": "Set deadline (optional)",
+  "savePlan": "Save Plan",
+  "updateGoal": "Update Goal",
+  "errorEnterGoalTitle": "Please enter a goal title",
+  "errorEnterTargetAmount": "Please enter a valid target amount",
+  "errorEnterAmountSaved": "Please enter amount saved",
+  "updateSavedTitle": "Update saved",
+  "targetWithAmount": "Target: {amount}",
+  "@targetWithAmount": {
+    "placeholders": {
+      "amount": {}
+    }
+  },
+  "saveAmountButton": "Save amount",
+  "errorEnterValidSavedAmount": "Please enter a valid saved amount",
+  "balanceNetBalance": "Net Balance",
+  "balanceSavedThisMonth": "{percent}% saved this month",
+  "@balanceSavedThisMonth": {
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "balanceStatIncome": "Income",
+  "balanceStatExpense": "Expenses",
+  "balanceRecentActivity": "Recent Activity",
+  "itemsCount": "{count} items",
+  "@itemsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "listEntryCount": "{count} entries",
+  "@listEntryCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "balanceIncomeVsExpenses": "Income vs Expenses",
+  "activityIncome": "Income",
+  "activityExpense": "Expense",
+  "plansActive": "Active",
+  "plansDone": "Done",
+  "plansRemaining": "Left",
+  "plansSavingsGoalsSection": "Savings goals",
+  "plansGoalsOverview": "Goals overview",
+  "plansSavedOfTarget": "of {total} saved",
+  "@plansSavedOfTarget": {
+    "placeholders": {
+      "total": {}
+    }
+  },
+  "plansDonePercentLabel": "done",
+  "plansGoalsCompletedSummary": "{completed} of {total} goals completed",
+  "@plansGoalsCompletedSummary": {
+    "placeholders": {
+      "completed": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "plansMoneyLeft": "{amount} left",
+  "@plansMoneyLeft": {
+    "placeholders": {
+      "amount": {}
+    }
+  },
+  "ofTargetAmount": "of {amount}",
+  "@ofTargetAmount": {
+    "placeholders": {
+      "amount": {}
+    }
+  },
+  "dueDateLabel": "Due {date}",
+  "@dueDateLabel": {
+    "placeholders": {
+      "date": {}
+    }
+  },
+  "planGoalCompleted": "Goal completed",
+  "planTapToEditGoal": "Tap to edit goal",
+  "plansEmptyTitle": "Start your first goal",
+  "plansEmptySubtitle": "Set a target, track what you save, and watch your progress grow.",
+  "plansCreateGoalButton": "Create goal",
+  "demoSalary": "Salary",
+  "demoRent": "Rent",
+  "demoFreelanceProject": "Freelance Project",
+  "demoGroceries": "Groceries",
+  "demoGas": "Gas",
+  "demoElectricBill": "Electric Bill",
+  "demoUtilities": "Utilities",
+  "demoSideBusiness": "Side Business",
+  "demoEmergencyFund": "Emergency Fund",
+  "demoSummerVacation": "Summer Vacation",
+  "demoNewLaptop": "New Laptop",
+  "storedAsBase": "Stored as {amount} base",
+  "@storedAsBase": {
+    "placeholders": {
+      "amount": {}
+    }
+  }
+}
