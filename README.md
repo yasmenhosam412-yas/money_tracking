@@ -1,4 +1,4 @@
-# imrpo 💰
+# finance app 💰
 
 A modern Flutter personal finance application for tracking income, expenses, and savings goals with a clean and intuitive user experience.
 
