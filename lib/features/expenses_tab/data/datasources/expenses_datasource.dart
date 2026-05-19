@@ -6,4 +6,6 @@ abstract class ExpensesDatasource {
   Future<void> deleteExpense(String expanseId);
   Future<void> deleteAllExpenses();
   Future<List<ExpenseModel>> getExpenses();
+  Future<int> renameCategory(String fromCategory, String toCategory);
+  Future<int> deleteByCategory(String category);
 }

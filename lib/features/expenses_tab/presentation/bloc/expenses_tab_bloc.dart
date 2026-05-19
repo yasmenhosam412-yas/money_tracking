@@ -6,6 +6,8 @@ import 'package:imrpo/features/expenses_tab/domain/usecases/add_expense_usecase.
 import 'package:imrpo/features/expenses_tab/domain/usecases/delete_all_expenses_usecase.dart';
 import 'package:imrpo/features/expenses_tab/domain/usecases/delete_expense_usecase.dart';
 import 'package:imrpo/features/expenses_tab/domain/usecases/get_all_expenses_usecase.dart';
+import 'package:imrpo/features/expenses_tab/domain/usecases/delete_expenses_by_category_usecase.dart';
+import 'package:imrpo/features/expenses_tab/domain/usecases/rename_expense_category_usecase.dart';
 import 'package:imrpo/features/expenses_tab/domain/usecases/update_expense_usecase.dart';
 part 'expenses_tab_event.dart';
 part 'expenses_tab_state.dart';
@@ -16,12 +18,17 @@ class ExpensesTabBloc extends Bloc<ExpensesTabEvent, ExpensesTabState> {
   final DeleteExpenseUsecase deleteExpenseUsecase;
   final DeleteAllExpensesUsecase deleteAllExpensesUsecase;
   final GetAllExpensesUsecase getAllExpensesUsecase;
+  final RenameExpenseCategoryUsecase renameExpenseCategoryUsecase;
+  final DeleteExpensesByCategoryUsecase deleteExpensesByCategoryUsecase;
+
   ExpensesTabBloc({
     required this.addExpenseUsecase,
     required this.updateExpenseUsecase,
     required this.deleteExpenseUsecase,
     required this.deleteAllExpensesUsecase,
     required this.getAllExpensesUsecase,
+    required this.renameExpenseCategoryUsecase,
+    required this.deleteExpensesByCategoryUsecase,
   }) : super(const ExpensesTabState()) {
     on<LoadExpensesEvent>(_onLoad);
     on<ResetExpensesTabEvent>(_onReset);
@@ -29,6 +36,8 @@ class ExpensesTabBloc extends Bloc<ExpensesTabEvent, ExpensesTabState> {
     on<UpdateExpenseEvent>(_onUpdate);
     on<DeleteExpenseEvent>(_onDelete);
     on<ClearAllExpensesEvent>(_onClearAll);
+    on<RenameExpenseCategoryEvent>(_onRenameCategory);
+    on<DeleteExpensesByCategoryEvent>(_onDeleteByCategory);
   }
 
   void _onReset(ResetExpensesTabEvent event, Emitter<ExpensesTabState> emit) {
@@ -183,6 +192,72 @@ class ExpensesTabBloc extends Bloc<ExpensesTabEvent, ExpensesTabState> {
             status: ExpensesTabStatus.loaded,
             expenses: const [],
             deletingExpenseId: '',
+            error: '',
+          ),
+        );
+      },
+    );
+  }
+
+  Future<void> _onRenameCategory(
+    RenameExpenseCategoryEvent event,
+    Emitter<ExpensesTabState> emit,
+  ) async {
+    emit(state.copyWith(status: ExpensesTabStatus.loadingCategory, error: ''));
+    final result = await renameExpenseCategoryUsecase(
+      fromCategory: event.fromCategory,
+      toCategory: event.toCategory,
+    );
+    final failure = result.fold((l) => l, (_) => null);
+    if (failure != null) {
+      emit(
+        state.copyWith(
+          status: ExpensesTabStatus.errorCategory,
+          error: failure.error,
+        ),
+      );
+      return;
+    }
+    await _reloadAfterCategoryChange(emit);
+  }
+
+  Future<void> _onDeleteByCategory(
+    DeleteExpensesByCategoryEvent event,
+    Emitter<ExpensesTabState> emit,
+  ) async {
+    emit(state.copyWith(status: ExpensesTabStatus.loadingCategory, error: ''));
+    final result = await deleteExpensesByCategoryUsecase(event.category);
+    final failure = result.fold((l) => l, (_) => null);
+    if (failure != null) {
+      emit(
+        state.copyWith(
+          status: ExpensesTabStatus.errorCategory,
+          error: failure.error,
+        ),
+      );
+      return;
+    }
+    await _reloadAfterCategoryChange(emit);
+  }
+
+  Future<void> _reloadAfterCategoryChange(
+    Emitter<ExpensesTabState> emit,
+  ) async {
+    final result = await getAllExpensesUsecase();
+    result.fold(
+      (failure) {
+        emit(
+          state.copyWith(
+            status: ExpensesTabStatus.errorCategory,
+            error: failure.error,
+          ),
+        );
+      },
+      (expenses) {
+        emit(
+          state.copyWith(
+            status: ExpensesTabStatus.loaded,
+            expenses: expenses,
             error: '',
           ),
         );

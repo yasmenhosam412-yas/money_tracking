@@ -71,6 +71,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsLanguage => 'Language';
 
   @override
+  String get settingsCalculator => 'Calculator';
+
+  @override
+  String get calculatorTitle => 'Calculator';
+
+  @override
   String get languageEnglish => 'English';
 
   @override
@@ -277,10 +283,154 @@ class AppLocalizationsEn extends AppLocalizations {
   String get hintExpenseTitle => 'e.g. Groceries';
 
   @override
-  String get hintIncomeTitle => 'e.g. Salary';
+  String get hintIncomeTitle => 'e.g. March payment';
+
+  @override
+  String get incomeSourceField => 'Source';
+
+  @override
+  String get hintIncomeSource => 'e.g. Visa card, Rents, Salary';
+
+  @override
+  String get incomeBySource => 'By source';
+
+  @override
+  String get incomeFilterAllSources => 'All sources';
+
+  @override
+  String get incomeFilterNoSourceEntries => 'No incomes for this source in the selected period';
+
+  @override
+  String get incomeSourceRents => 'Rents';
+
+  @override
+  String get incomeSourceVisaCard => 'Visa card';
+
+  @override
+  String get incomeSourceCash => 'Cash';
 
   @override
   String get amountField => 'Amount';
+
+  @override
+  String get expenseByCategory => 'By category';
+
+  @override
+  String get expenseCategoryEdit => 'Edit category';
+
+  @override
+  String get expenseCategoryRemove => 'Remove category';
+
+  @override
+  String get expenseCategoryRenameTitle => 'Rename category';
+
+  @override
+  String expenseCategoryRenameHint(String name) {
+    return 'Updates all expenses in \"$name\".';
+  }
+
+  @override
+  String get expenseCategoryNameTaken => 'That category name is already in use';
+
+  @override
+  String get expenseCategoryUpdatedSuccess => 'Category updated';
+
+  @override
+  String get expenseCategoryRemoveTitle => 'Remove category';
+
+  @override
+  String expenseCategoryRemoveMessage(int count, String name) {
+    return 'What should happen to $count expense(s) in \"$name\"?';
+  }
+
+  @override
+  String get expenseCategoryMoveToOther => 'Move all to Other';
+
+  @override
+  String get expenseCategoryDeleteAll => 'Delete all expenses in this category';
+
+  @override
+  String get expenseCategoryDeleteConfirmTitle => 'Delete expenses?';
+
+  @override
+  String expenseCategoryDeleteConfirmMessage(int count) {
+    return 'This permanently deletes $count expense(s). This cannot be undone.';
+  }
+
+  @override
+  String get expenseCategoryDeleteConfirmAction => 'Delete';
+
+  @override
+  String get expenseFilterAllCategories => 'All categories';
+
+  @override
+  String get expenseFilterNoCategoryEntries => 'No expenses for this category in the selected period';
+
+  @override
+  String get budgetMonthlyTitle => 'Monthly budgets';
+
+  @override
+  String get budgetSetAction => 'Set budget';
+
+  @override
+  String get budgetSetTitle => 'Set monthly budget';
+
+  @override
+  String get budgetSetHint => 'Pick a category and set how much you plan to spend this month.';
+
+  @override
+  String get budgetCustomCategory => 'Category name';
+
+  @override
+  String get budgetMonthlyLimit => 'Monthly limit';
+
+  @override
+  String get budgetSave => 'Save budget';
+
+  @override
+  String get budgetEmptyHint => 'Set a limit per category to see how much of your budget you\'ve used.';
+
+  @override
+  String get budgetSetFirst => 'Create first budget';
+
+  @override
+  String get budgetTotalSpent => 'Total spent';
+
+  @override
+  String budgetRemaining(String amount) {
+    return '$amount left';
+  }
+
+  @override
+  String budgetOverBy(String amount) {
+    return 'Over by $amount';
+  }
+
+  @override
+  String get budgetDeleteTitle => 'Remove budget?';
+
+  @override
+  String budgetDeleteMessage(String category) {
+    return 'Remove the budget for $category?';
+  }
+
+  @override
+  String get budgetDeleteConfirm => 'Remove';
+
+  @override
+  String budgetAlertNear(int count) {
+    return '$count category near the limit';
+  }
+
+  @override
+  String budgetAlertOver(int count) {
+    return '$count category over budget';
+  }
+
+  @override
+  String budgetAlertOverAndNear(int over, int near) {
+    return '$over over budget, $near near limit';
+  }
 
   @override
   String get categoryField => 'Category';
@@ -528,6 +678,18 @@ class AppLocalizationsEn extends AppLocalizations {
   String get balanceIncomeVsExpenses => 'Income vs Expenses';
 
   @override
+  String get balanceFilterAll => 'All';
+
+  @override
+  String get balanceFilterIncome => 'Income';
+
+  @override
+  String get balanceFilterExpense => 'Expenses';
+
+  @override
+  String get balanceNoFilteredActivity => 'No activity matches this filter';
+
+  @override
   String get activityIncome => 'Income';
 
   @override
@@ -716,6 +878,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get smartImportSmsLoadMore => 'Load more messages';
 
   @override
+  String get smartImportSmsLoading => 'Reading your SMS messages…';
+
+  @override
   String get smartImportSmsLoadingMore => 'Loading more…';
 
   @override
@@ -752,6 +917,21 @@ class AppLocalizationsEn extends AppLocalizations {
   String get smartImportClearSelection => 'Clear';
 
   @override
+  String get smartImportBulkCategorySheetTitle => 'Category for import';
+
+  @override
+  String get smartImportBulkCategorySheetHint => 'Apply the same category or source to all selected messages.';
+
+  @override
+  String get smartImportBulkExpenseCategory => 'Expense category';
+
+  @override
+  String get smartImportBulkIncomeSource => 'Income source';
+
+  @override
+  String get smartImportBulkApplyAndImport => 'Import';
+
+  @override
   String get smartImportBulkImporting => 'Importing messages…';
 
   @override
@@ -766,4 +946,114 @@ class AppLocalizationsEn extends AppLocalizations {
   String smartImportBulkPartialFail(int failed) {
     return '$failed message(s) could not be imported.';
   }
+
+  @override
+  String get settingsAppLock => 'App lock';
+
+  @override
+  String get settingsAppLockBiometric => 'Face ID / fingerprint';
+
+  @override
+  String get settingsAppLockChangePin => 'Change PIN';
+
+  @override
+  String get appLockTitle => 'Unlock Pocketly';
+
+  @override
+  String get appLockSubtitle => 'Enter your PIN to continue';
+
+  @override
+  String get appLockWrongPin => 'Incorrect PIN. Try again.';
+
+  @override
+  String get appLockBiometricReason => 'Unlock your finances';
+
+  @override
+  String get appLockEnterPinTitle => 'Enter your PIN';
+
+  @override
+  String get appLockEnterPinSubtitle => 'Confirm to continue';
+
+  @override
+  String get appLockCreatePinTitle => 'Create a PIN';
+
+  @override
+  String get appLockCreatePinSubtitle => 'Use 4 digits you will remember';
+
+  @override
+  String get appLockConfirmPinTitle => 'Confirm your PIN';
+
+  @override
+  String get appLockConfirmPinSubtitle => 'Enter the same PIN again';
+
+  @override
+  String get appLockPinMismatch => 'PINs do not match';
+
+  @override
+  String get appLockEnabledSuccess => 'App lock is on';
+
+  @override
+  String get appLockDisabledSuccess => 'App lock is off';
+
+  @override
+  String get appLockEnableFailed => 'Could not enable app lock';
+
+  @override
+  String get appLockBiometricPromptTitle => 'Use biometrics?';
+
+  @override
+  String get appLockBiometricPromptMessage => 'Unlock faster with Face ID or fingerprint on this device.';
+
+  @override
+  String get appLockBiometricFailed => 'Biometrics could not be enabled';
+
+  @override
+  String get appLockChangePinSuccess => 'PIN updated';
+
+  @override
+  String get appLockChangePinFailed => 'Could not update PIN';
+
+  @override
+  String get notNow => 'Not now';
+
+  @override
+  String get enable => 'Enable';
+
+  @override
+  String get monthlyReportTitle => 'Monthly report';
+
+  @override
+  String get monthlyReportShort => 'Report';
+
+  @override
+  String get monthlyReportVsLastMonth => 'Compared to last month';
+
+  @override
+  String get monthlyReportBudgetTitle => 'Budget vs actual';
+
+  @override
+  String get monthlyReportNoBudgets => 'No budgets set for this month. Add limits on the Expenses tab to track spending here.';
+
+  @override
+  String monthlyReportEntrySummary(int incomeCount, int expenseCount) {
+    return '$incomeCount income sources · $expenseCount expense categories';
+  }
+
+  @override
+  String get globalSearchTitle => 'Search';
+
+  @override
+  String get globalSearchHint => 'Title, category, source, amount…';
+
+  @override
+  String get globalSearchAll => 'All';
+
+  @override
+  String get globalSearchNoResults => 'No matching entries';
+
+  @override
+  String get globalSearchAllTime => 'All time';
+
+  @override
+  String get globalSearchCurrentPeriod => 'This period';
 }

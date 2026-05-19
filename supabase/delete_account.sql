@@ -16,6 +16,7 @@ begin
 
   delete from public.incomes where user_id = uid;
   delete from public.expenses where user_id = uid;
+  delete from public.budgets where user_id = uid;
   delete from public.plans where user_id = uid;
   delete from public.profiles where id = uid;
   delete from auth.users where id = uid;

@@ -26,7 +26,10 @@ class ExpenseListTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    final cat = localizeExpenseCategory(l10n, expense.category);
+    final category = localizeExpenseCategory(l10n, expense.category);
+    final title = localizeDemoTitle(l10n, expense.title);
+    final showTitleSubtitle =
+        title.trim().toLowerCase() != category.trim().toLowerCase();
     return Material(
       color: Colors.transparent,
       child: InkWell(
@@ -59,7 +62,7 @@ class ExpenseListTile extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      localizeDemoTitle(l10n, expense.title),
+                      category,
                       style: const TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w600,
@@ -68,7 +71,9 @@ class ExpenseListTile extends StatelessWidget {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      '$cat · ${_formatDate(context, expense.date)}',
+                      showTitleSubtitle
+                          ? '$title · ${_formatDate(context, expense.date)}'
+                          : _formatDate(context, expense.date),
                       style: TextStyle(
                         fontSize: 13,
                         color: AppColors.textColor.withValues(alpha: 0.55),

@@ -1,4 +1,5 @@
 import 'package:get_it/get_it.dart';
+import 'package:imrpo/core/services/app_lock_service.dart';
 import 'package:imrpo/core/services/currency_preferences.dart';
 import 'package:imrpo/core/services/home_date_filter.dart';
 import 'package:imrpo/core/services/invoice_ocr_service.dart';
@@ -20,6 +21,14 @@ import 'package:imrpo/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:imrpo/features/balance_tab/data/repositories/balance_repository_impl.dart';
 import 'package:imrpo/features/balance_tab/domain/repositories/balance_repository.dart';
 import 'package:imrpo/features/balance_tab/domain/usecases/get_balance_usecase.dart';
+import 'package:imrpo/features/budgets/data/datasources/budget_datasource.dart';
+import 'package:imrpo/features/budgets/data/datasources/budget_datasource_impl.dart';
+import 'package:imrpo/features/budgets/data/repositories/budget_repository_impl.dart';
+import 'package:imrpo/features/budgets/domain/repositories/budget_repository.dart';
+import 'package:imrpo/features/budgets/domain/usecases/delete_budget_usecase.dart';
+import 'package:imrpo/features/budgets/domain/usecases/get_budgets_usecase.dart';
+import 'package:imrpo/features/budgets/domain/usecases/upsert_budget_usecase.dart';
+import 'package:imrpo/features/budgets/presentation/bloc/budgets_bloc.dart';
 import 'package:imrpo/features/balance_tab/presentation/bloc/balance_tab_bloc.dart';
 import 'package:imrpo/features/expenses_tab/data/datasources/expenses_datasource.dart';
 import 'package:imrpo/features/expenses_tab/data/datasources/expenses_datasource_impl.dart';
@@ -28,7 +37,9 @@ import 'package:imrpo/features/expenses_tab/domain/repositories/expense_reposito
 import 'package:imrpo/features/expenses_tab/domain/usecases/add_expense_usecase.dart';
 import 'package:imrpo/features/expenses_tab/domain/usecases/delete_all_expenses_usecase.dart';
 import 'package:imrpo/features/expenses_tab/domain/usecases/delete_expense_usecase.dart';
+import 'package:imrpo/features/expenses_tab/domain/usecases/delete_expenses_by_category_usecase.dart';
 import 'package:imrpo/features/expenses_tab/domain/usecases/get_all_expenses_usecase.dart';
+import 'package:imrpo/features/expenses_tab/domain/usecases/rename_expense_category_usecase.dart';
 import 'package:imrpo/features/expenses_tab/domain/usecases/update_expense_usecase.dart';
 import 'package:imrpo/features/expenses_tab/presentation/bloc/expenses_tab_bloc.dart';
 import 'package:imrpo/features/incomes_tab/data/datasources/income_datasource.dart';
@@ -65,6 +76,8 @@ final getIt = GetIt.instance;
 void setupServiceLocator() {
   /// Supabase Client
   getIt.registerLazySingleton<SupabaseClient>(() => Supabase.instance.client);
+
+  getIt.registerLazySingleton<AppLockService>(() => AppLockService());
 
   getIt.registerLazySingleton<CurrencyPreferences>(() => CurrencyPreferences());
 
@@ -175,8 +188,10 @@ void setupServiceLocator() {
   );
 
   getIt.registerLazySingleton<ExpenseRepository>(
-    () =>
-        ExpenseRepositroyImpl(expensesDatasource: getIt<ExpensesDatasource>()),
+    () => ExpenseRepositroyImpl(
+      expensesDatasource: getIt<ExpensesDatasource>(),
+      budgetDatasource: getIt<BudgetDatasource>(),
+    ),
   );
 
   getIt.registerLazySingleton(
@@ -197,6 +212,18 @@ void setupServiceLocator() {
     () => GetAllExpensesUsecase(expenseRepository: getIt<ExpenseRepository>()),
   );
 
+  getIt.registerLazySingleton(
+    () => RenameExpenseCategoryUsecase(
+      expenseRepository: getIt<ExpenseRepository>(),
+    ),
+  );
+
+  getIt.registerLazySingleton(
+    () => DeleteExpensesByCategoryUsecase(
+      expenseRepository: getIt<ExpenseRepository>(),
+    ),
+  );
+
   getIt.registerFactory<ExpensesTabBloc>(
     () => ExpensesTabBloc(
       addExpenseUsecase: getIt<AddExpenseUsecase>(),
@@ -204,6 +231,38 @@ void setupServiceLocator() {
       deleteExpenseUsecase: getIt<DeleteExpenseUsecase>(),
       deleteAllExpensesUsecase: getIt<DeleteAllExpensesUsecase>(),
       getAllExpensesUsecase: getIt<GetAllExpensesUsecase>(),
+      renameExpenseCategoryUsecase: getIt<RenameExpenseCategoryUsecase>(),
+      deleteExpensesByCategoryUsecase: getIt<DeleteExpensesByCategoryUsecase>(),
+    ),
+  );
+
+  //--------------------------BUDGETS--------------------------
+
+  getIt.registerLazySingleton<BudgetDatasource>(
+    () => BudgetDatasourceImpl(supabaseClient: getIt<SupabaseClient>()),
+  );
+
+  getIt.registerLazySingleton<BudgetRepository>(
+    () => BudgetRepositoryImpl(budgetDatasource: getIt<BudgetDatasource>()),
+  );
+
+  getIt.registerLazySingleton(
+    () => GetBudgetsUsecase(budgetRepository: getIt<BudgetRepository>()),
+  );
+
+  getIt.registerLazySingleton(
+    () => UpsertBudgetUsecase(budgetRepository: getIt<BudgetRepository>()),
+  );
+
+  getIt.registerLazySingleton(
+    () => DeleteBudgetUsecase(budgetRepository: getIt<BudgetRepository>()),
+  );
+
+  getIt.registerFactory<BudgetsBloc>(
+    () => BudgetsBloc(
+      getBudgetsUsecase: getIt<GetBudgetsUsecase>(),
+      upsertBudgetUsecase: getIt<UpsertBudgetUsecase>(),
+      deleteBudgetUsecase: getIt<DeleteBudgetUsecase>(),
     ),
   );
 

@@ -33,8 +33,24 @@ class TransactionTextParser {
     'سحب من',
     'سداد فاتورة',
     'سداد فاتورتك',
+    'تم دفع فاتورة',
+    'دفع فاتورة',
+    'bill payment',
+    'payment of bill',
+    'cash withdrawal',
+    'withdrawn at atm',
+    'atm withdrawal',
+    'سحب نقدي',
+    'سحب من ماكينة',
+    'سحب من الصراف',
+    'الصراف الآلي',
+    'الصراف الالي',
     'تحويل صادر',
     'تحويل من',
+    'تم تحويل لحظي',
+    'تحويل لحظي',
+    'إلى رقم مرجعي',
+    'الى رقم مرجعي',
     'trx on your card',
     'you have a trx on your card',
     'you have a trx',
@@ -71,6 +87,10 @@ class TransactionTextParser {
     'تم ايداع',
     'إيداع مبلغ',
     'ايداع مبلغ',
+    'ايداع نقدي',
+    'إيداع نقدي',
+    'cash deposit',
+    'cash deposited',
     'تحويل وارد',
     'استلام مبلغ',
     'تم استلام',
@@ -227,7 +247,8 @@ class TransactionTextParser {
   );
 
   static final _mobileWalletSender = RegExp(
-    r'vodafone|vf[\s-]?cash|vf-cash|vfcash|فودافون|محفظ|^vf$',
+    r'vodafone|vf[\s-]?cash|vf-cash|vfcash|فودافون|محفظ|^vf$|'
+    r'etisalat|e&|اتصالات|flous|ايه\s*اند|orange\s*cash',
     caseSensitive: false,
   );
 
@@ -278,6 +299,22 @@ class TransactionTextParser {
     caseSensitive: false,
   );
 
+  /// "تم تحويل لحظى بمبلغ 200 إلى رقم مرجعى …"
+  static final _instantTransferOutAmount = RegExp(
+    r'تم\s*تحويل\s*لحظ[يى]\s*بمبلغ\s*([0-9]{1,9}(?:[.,][0-9]{1,2})?)',
+    caseSensitive: false,
+  );
+
+  static final _instantTransferReference = RegExp(
+    r'رقم\s*مرجع[يى]\s*:?\s*([A-Za-z0-9]+(?:\s+[A-Za-z0-9]+)?)',
+    caseSensitive: false,
+  );
+
+  static final _arabicInlineDateTime = RegExp(
+    r'(?:فى|في|on)\s*(\d{1,2})[/.-](\d{1,2})[/.-](\d{2,4})\s+(\d{1,2}):(\d{2})',
+    caseSensitive: false,
+  );
+
   static final _vfAcceptedAmount = RegExp(
     r'تم\s*قبول\s*مبلغ\s*:?\s*([0-9]{1,9}(?:[.,][0-9]{1,2})?)',
     caseSensitive: false,
@@ -314,15 +351,54 @@ class TransactionTextParser {
     caseSensitive: false,
   );
 
-  /// "تم إيداع EGP 7900 إلى حساب رقم #0014"
+  /// "تم إيداع EGP 7900" / "تم إيداع مبلغ 5000 جنيه"
   static final _bankArabicDepositAmount = RegExp(
-    r'تم\s*(?:إيداع|ايداع)\s*(?:egp|le)?\s*([0-9]{1,9}(?:[.,][0-9]{1,2})?)',
+    r'تم\s*(?:إيداع|ايداع)\s*(?:مبلغ\s*)?(?:egp|le)?\s*([0-9]{1,9}(?:[.,][0-9]{1,2})?)',
     caseSensitive: false,
   );
 
-  /// "تم خصم EGP 500 من حساب"
+  /// "تم خصم EGP 500" / "تم سحب مبلغ 500 من الصراف"
   static final _bankArabicDebitAmount = RegExp(
-    r'تم\s*(?:خصم|سحب)\s*(?:egp|le)?\s*([0-9]{1,9}(?:[.,][0-9]{1,2})?)',
+    r'تم\s*(?:خصم|سحب)\s*(?:مبلغ\s*)?(?:egp|le)?\s*([0-9]{1,9}(?:[.,][0-9]{1,2})?)',
+    caseSensitive: false,
+  );
+
+  /// "سداد فاتورة كهرباء بمبلغ 350" / "Bill payment of EGP 200"
+  static final _billPaymentAmount = RegExp(
+    r'(?:سداد|تم\s*سداد|bill\s+payment)\s*(?:فاتورة|فاتورتك|of)?\s*(?:بمبلغ\s*)?(?:egp|le)?\s*([0-9]{1,9}(?:[.,][0-9]{1,2})?)',
+    caseSensitive: false,
+  );
+
+  /// "Cash withdrawal of EGP 500 at ATM" / "تم سحب 500 من الصراف الآلي"
+  static final _atmWithdrawalAmount = RegExp(
+    r'(?:cash\s+withdrawal|atm\s+withdrawal|withdrawn\s+at\s+atm)\s+(?:of\s+)?(?:egp|le)?\s*([0-9]{1,9}(?:[.,][0-9]{1,2})?)',
+    caseSensitive: false,
+  );
+
+  static final _atmWithdrawalArabicAmount = RegExp(
+    r'تم\s*سحب\s*(?:مبلغ\s*)?([0-9]{1,9}(?:[.,][0-9]{1,2})?).{0,80}(?:صراف|atm)',
+    caseSensitive: false,
+  );
+
+  /// "Cash deposit of EGP 1000" / "إيداع نقدي بمبلغ 2000"
+  static final _cashDepositAmount = RegExp(
+    r'(?:cash\s+deposit|ايداع\s*نقدي|إيداع\s*نقدي)\s*(?:of\s+)?(?:مبلغ\s*)?(?:egp|le)?\s*([0-9]{1,9}(?:[.,][0-9]{1,2})?)',
+    caseSensitive: false,
+  );
+
+  /// CIB / bank: "debited with EGP 1,500.00 at CARREFOUR"
+  static final _bankDebitedAtMerchant = RegExp(
+    r'(?:debited|charged)\s+(?:with|for)\s+(?:egp|le)?\s*([0-9]{1,9}(?:[.,][0-9]{1,2})?).{0,60}\s+at\s+(.+?)(?:\s+on\s+\d|\s+available|\s+for\s+more|$)',
+    caseSensitive: false,
+  );
+
+  static final _billPaymentMerchant = RegExp(
+    r'سداد\s*(?:فاتورة|فاتورتك)\s+(.+?)(?:\s+بمبلغ|\s+بقيمة|\s+بقيمه|\.|$)',
+    caseSensitive: false,
+  );
+
+  static final _englishAtmLocation = RegExp(
+    r'at\s+(?:atm\s+)?(.+?)(?:\s+on\s+\d|\s+available|\.|$)',
     caseSensitive: false,
   );
 
@@ -420,9 +496,36 @@ class TransactionTextParser {
     }
     return _extractCardMerchant(body) ??
         _extractSenderName(body) ??
+        _extractBillPaymentMerchant(body) ??
+        _extractInstantTransferReference(body) ??
+        _extractBankDebitMerchant(body) ??
+        _extractAtmTitle(body) ??
         _extractBankAccountTitle(body) ??
         _extractSalaryTitle(body) ??
         _extractWalletTitle(body);
+  }
+
+  static String? _extractInstantTransferReference(String text) {
+    if (!_isInstantOutgoingTransfer(text.toLowerCase())) return null;
+    final match = _instantTransferReference.firstMatch(text);
+    if (match == null) return null;
+    final ref = match.group(1)?.replaceAll(RegExp(r'\s+'), ' ').trim();
+    if (ref == null || ref.isEmpty) return null;
+    return 'Ref $ref';
+  }
+
+  static bool _isInstantOutgoingTransfer(String lower) {
+    if (!lower.contains('تحويل لحظ')) return false;
+    if (_isWalletIncomingTransfer(lower)) return false;
+    if (lower.contains('رقم مرجع') ||
+        lower.contains('الى رقم') ||
+        lower.contains('إلى رقم')) {
+      return true;
+    }
+    return lower.contains('بمبلغ') &&
+        (lower.contains('الى') || lower.contains('إلى')) &&
+        !lower.contains('لمحفظ') &&
+        !lower.contains('ل محفظ');
   }
 
   static bool _isBankAccountTransaction(String lower) {
@@ -436,26 +539,75 @@ class TransactionTextParser {
 
   static String? _extractBankAccountTitle(String text) {
     final lower = text.toLowerCase();
-    if (_isVodafoneCashMessage(lower)) return null;
+    if (_isAnyMobileWalletMessage(lower)) return null;
+    if (_isAtmWithdrawal(lower)) return null;
+    if (_isBillPayment(lower)) return null;
     final isArabicBankLine = _isBankAccountTransaction(lower) ||
         ((lower.contains('تم إيداع') ||
                 lower.contains('تم ايداع') ||
                 lower.contains('تم خصم') ||
                 lower.contains('تم سحب')) &&
-            lower.contains('egp') &&
+            (lower.contains('egp') ||
+                lower.contains('جنيه') ||
+                lower.contains('جم')) &&
             lower.contains('حساب'));
     if (!isArabicBankLine) return null;
     final account = _bankAccountRef.firstMatch(text);
     if (account != null) {
       return 'Account #${account.group(1)}';
     }
-    if (lower.contains('تم إيداع') || lower.contains('تم ايداع')) {
+    if (lower.contains('تم إيداع') ||
+        lower.contains('تم ايداع') ||
+        _isCashDeposit(lower)) {
       return 'Bank deposit';
     }
     if (lower.contains('تم خصم') || lower.contains('تم سحب')) {
       return 'Bank withdrawal';
     }
     return null;
+  }
+
+  static String? _extractBillPaymentMerchant(String text) {
+    if (!_isBillPayment(text.toLowerCase())) return null;
+    final match = _billPaymentMerchant.firstMatch(text);
+    if (match != null) {
+      final name = _sanitizeMerchantTitle(match.group(1));
+      if (name != null) return name;
+    }
+    return 'Bill payment';
+  }
+
+  static String? _extractBankDebitMerchant(String text) {
+    final lower = text.toLowerCase();
+    if (_isAnyMobileWalletMessage(lower)) return null;
+    final match = _bankDebitedAtMerchant.firstMatch(text);
+    if (match != null) {
+      return _sanitizeMerchantTitle(match.group(2));
+    }
+    if (_isCibMessage(lower) &&
+        (lower.contains('تم خصم') || lower.contains('debited'))) {
+      return 'CIB';
+    }
+    return null;
+  }
+
+  static String? _extractAtmTitle(String text) {
+    final lower = text.toLowerCase();
+    if (!_isAtmWithdrawal(lower)) return null;
+
+    if (lower.contains('atm withdrawal') ||
+        lower.contains('cash withdrawal') ||
+        lower.contains('withdrawn at atm')) {
+      final match = _englishAtmLocation.firstMatch(text);
+      if (match != null) {
+        final location = _sanitizeMerchantTitle(match.group(1));
+        if (location != null &&
+            !RegExp(r'^atm\b', caseSensitive: false).hasMatch(location)) {
+          return 'ATM · $location';
+        }
+      }
+    }
+    return 'ATM withdrawal';
   }
 
   static String? _extractSalaryTitle(String text) {
@@ -507,8 +659,63 @@ class TransactionTextParser {
         lower.contains('vf-cash') ||
         lower.contains('vf.eg') ||
         lower.contains('vfcash') ||
-        lower.contains('محفظتك') ||
-        lower.contains('محفظة');
+        (lower.contains('محفظتك') && !lower.contains('اتصالات')) ||
+        (lower.contains('محفظة') &&
+            !lower.contains('اتصالات') &&
+            !lower.contains('cib'));
+  }
+
+  static bool _isEtisalatCashMessage(String lower) {
+    return lower.contains('etisalat') ||
+        lower.contains('اتصالات') ||
+        lower.contains('e& money') ||
+        lower.contains('e& cash') ||
+        lower.contains('flous') ||
+        lower.contains('محفظة اتصالات') ||
+        lower.contains('ايه اند');
+  }
+
+  static bool _isAnyMobileWalletMessage(String lower) {
+    return _isVodafoneCashMessage(lower) || _isEtisalatCashMessage(lower);
+  }
+
+  static bool _isCibMessage(String lower) {
+    return lower.contains('cib') ||
+        lower.contains('بنك cib') ||
+        lower.contains('commercial international');
+  }
+
+  static bool _isAtmWithdrawal(String lower) {
+    if (_isWalletIncomingTransfer(lower)) return false;
+    return lower.contains('صراف آلي') ||
+        lower.contains('صراف الالي') ||
+        lower.contains('الصراف الآلي') ||
+        lower.contains('الصراف الالي') ||
+        lower.contains('atm withdrawal') ||
+        lower.contains('withdrawn at atm') ||
+        lower.contains('cash withdrawal') ||
+        lower.contains('سحب من ماكينة') ||
+        lower.contains('سحب نقدي') ||
+        (lower.contains('تم سحب') &&
+            (lower.contains('صراف') || lower.contains('atm')));
+  }
+
+  static bool _isBillPayment(String lower) {
+    return lower.contains('سداد فاتورة') ||
+        lower.contains('سداد فاتورتك') ||
+        lower.contains('تم دفع فاتورة') ||
+        lower.contains('دفع فاتورة') ||
+        (lower.contains('تم سداد') && lower.contains('فاتورة')) ||
+        lower.contains('bill payment') ||
+        lower.contains('payment of bill');
+  }
+
+  static bool _isCashDeposit(String lower) {
+    if (_isAtmWithdrawal(lower) || _isBillPayment(lower)) return false;
+    return lower.contains('ايداع نقدي') ||
+        lower.contains('إيداع نقدي') ||
+        lower.contains('cash deposit') ||
+        lower.contains('cash deposited');
   }
 
   static bool _isWalletIncomingTransfer(String lower) {
@@ -537,8 +744,10 @@ class TransactionTextParser {
   }
 
   static String? _extractWalletTitle(String text) {
-    if (!_isVodafoneCashMessage(text.toLowerCase())) return null;
-    return 'Vodafone Cash';
+    final lower = text.toLowerCase();
+    if (_isEtisalatCashMessage(lower)) return 'Etisalat Cash';
+    if (_isVodafoneCashMessage(lower)) return 'Vodafone Cash';
+    return null;
   }
 
   static String? _extractCardBillPaymentTitle(String text) {
@@ -557,13 +766,18 @@ class TransactionTextParser {
 
   /// Normalize common Arabic spelling variants in Vodafone/bank SMS.
   static String _normalizeSmsText(String text) {
-    var t = text.replaceAll('\r', '').trim();
+    var t = text.replaceAll('\r', '').replaceAll('\n', ' ').trim();
+    t = t.replaceAll(RegExp(r'\s+'), ' ');
     const replacements = <String, String>{
       'إستلام': 'استلام',
       'أستلام': 'استلام',
       'إيداع': 'ايداع',
       'أيداع': 'ايداع',
       'إضافة': 'اضافة',
+      'لحظى': 'لحظي',
+      'مرجعى': 'مرجعي',
+      'فى': 'في',
+      'إلى': 'الى',
     };
     for (final entry in replacements.entries) {
       t = t.replaceAll(entry.key, entry.value);
@@ -721,7 +935,7 @@ class TransactionTextParser {
       if (_isVodafoneCashIncome(lower)) return FinancialEntryType.income;
       if (_isVodafoneCashExpense(lower)) return FinancialEntryType.expense;
     }
-    if (_isVodafoneCashMessage(lower)) {
+    if (_isAnyMobileWalletMessage(lower)) {
       if (_isVodafoneCashIncome(lower)) return FinancialEntryType.income;
       if (_isVodafoneCashExpense(lower)) return FinancialEntryType.expense;
     }
@@ -730,6 +944,12 @@ class TransactionTextParser {
 
   static FinancialEntryType? _detectTransactionType(String lower) {
     if (_isCardPurchase(lower)) return FinancialEntryType.expense;
+    if (_isInstantOutgoingTransfer(lower)) {
+      return FinancialEntryType.expense;
+    }
+    if (_isAtmWithdrawal(lower)) return FinancialEntryType.expense;
+    if (_isBillPayment(lower)) return FinancialEntryType.expense;
+    if (_isCashDeposit(lower)) return FinancialEntryType.income;
     if (_isCardBillPayment(lower)) return FinancialEntryType.income;
     if (_isSalaryBonusCredit(lower)) return FinancialEntryType.income;
     if (_isVodafoneCashIncome(lower)) return FinancialEntryType.income;
@@ -767,6 +987,8 @@ class TransactionTextParser {
       'تم قبول مبلغ',
       'تم إيداع',
       'تم ايداع',
+      'ايداع نقدي',
+      'cash deposit',
       'تحويل وارد',
       'إضافة راتب',
       'اضافة راتب',
@@ -779,6 +1001,13 @@ class TransactionTextParser {
       'تم سحب',
       'تم دفع',
       'تم سداد',
+      'سداد فاتورة',
+      'تم تحويل لحظي',
+      'رقم مرجعي',
+      'صراف آلي',
+      'atm withdrawal',
+      'cash withdrawal',
+      'bill payment',
       'debited from',
       'has been debited',
       'withdrawn from',
@@ -931,6 +1160,42 @@ class TransactionTextParser {
     final cardBill = _cardBillPaymentAmount.firstMatch(text);
     if (cardBill != null) {
       final value = _parseNumber(cardBill.group(1)!);
+      if (value > 0 && value <= 1_000_000) return value;
+    }
+
+    final instantOut = _instantTransferOutAmount.firstMatch(text);
+    if (instantOut != null) {
+      final value = _parseNumber(instantOut.group(1)!);
+      if (value > 0 && value <= 1_000_000) return value;
+    }
+
+    final billPay = _billPaymentAmount.firstMatch(text);
+    if (billPay != null) {
+      final value = _parseNumber(billPay.group(1)!);
+      if (value > 0 && value <= 1_000_000) return value;
+    }
+
+    final atmEn = _atmWithdrawalAmount.firstMatch(text);
+    if (atmEn != null) {
+      final value = _parseNumber(atmEn.group(1)!);
+      if (value > 0 && value <= 1_000_000) return value;
+    }
+
+    final atmAr = _atmWithdrawalArabicAmount.firstMatch(text);
+    if (atmAr != null) {
+      final value = _parseNumber(atmAr.group(1)!);
+      if (value > 0 && value <= 1_000_000) return value;
+    }
+
+    final cashDep = _cashDepositAmount.firstMatch(text);
+    if (cashDep != null) {
+      final value = _parseNumber(cashDep.group(1)!);
+      if (value > 0 && value <= 1_000_000) return value;
+    }
+
+    final bankDebitMerchant = _bankDebitedAtMerchant.firstMatch(text);
+    if (bankDebitMerchant != null) {
+      final value = _parseNumber(bankDebitMerchant.group(1)!);
       if (value > 0 && value <= 1_000_000) return value;
     }
 
@@ -1111,6 +1376,21 @@ class TransactionTextParser {
         final year = int.parse(bankDt.group(3)!);
         final hour = int.parse(bankDt.group(4)!);
         final minute = int.parse(bankDt.group(5)!);
+        final fullYear = year < 100 ? 2000 + year : year;
+        return DateTime(fullYear, month, day, hour, minute);
+      } catch (_) {
+        // fall through
+      }
+    }
+
+    final inlineDt = _arabicInlineDateTime.firstMatch(text);
+    if (inlineDt != null) {
+      try {
+        final day = int.parse(inlineDt.group(1)!);
+        final month = int.parse(inlineDt.group(2)!);
+        final year = int.parse(inlineDt.group(3)!);
+        final hour = int.parse(inlineDt.group(4)!);
+        final minute = int.parse(inlineDt.group(5)!);
         final fullYear = year < 100 ? 2000 + year : year;
         return DateTime(fullYear, month, day, hour, minute);
       } catch (_) {

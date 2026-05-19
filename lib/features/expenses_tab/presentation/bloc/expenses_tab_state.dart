@@ -6,12 +6,14 @@ enum ExpensesTabStatus {
   loadingDelete,
   loadingClearAll,
   loadingUpdate,
+  loadingCategory,
   loadingAll,
   loaded,
   errorAdd,
   errorDelete,
   errorClearAll,
   errorUpdate,
+  errorCategory,
   errorAll,
 }
 

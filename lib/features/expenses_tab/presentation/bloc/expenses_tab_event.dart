@@ -68,3 +68,25 @@ class DeleteExpenseEvent extends ExpensesTabEvent {
 class ClearAllExpensesEvent extends ExpensesTabEvent {
   const ClearAllExpensesEvent();
 }
+
+class RenameExpenseCategoryEvent extends ExpensesTabEvent {
+  final String fromCategory;
+  final String toCategory;
+
+  const RenameExpenseCategoryEvent({
+    required this.fromCategory,
+    required this.toCategory,
+  });
+
+  @override
+  List<Object> get props => [fromCategory, toCategory];
+}
+
+class DeleteExpensesByCategoryEvent extends ExpensesTabEvent {
+  final String category;
+
+  const DeleteExpensesByCategoryEvent(this.category);
+
+  @override
+  List<Object> get props => [category];
+}

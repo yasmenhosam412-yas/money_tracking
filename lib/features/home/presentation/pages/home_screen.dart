@@ -287,6 +287,14 @@ class _HomeHeader extends StatelessWidget {
                               ],
                             ),
                           ),
+                          _HeaderIconButton(
+                            icon: Icons.search_rounded,
+                            tooltip: l10n.globalSearchTitle,
+                            onTap: () => Navigator.of(context).pushNamed(
+                              AppRoutes.search,
+                            ),
+                          ),
+                          const SizedBox(width: 4),
                           if (profile != null && !isInitialLoading)
                             _HeaderIconButton(
                               icon: Icons.settings_outlined,

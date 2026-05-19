@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:imrpo/core/config/app_router.dart';
+import 'package:imrpo/core/services/app_lock_service.dart';
 import 'package:imrpo/core/services/locale_preferences.dart';
 import 'package:imrpo/core/services/service_locator.dart';
+import 'package:imrpo/features/home/presentation/widgets/app_lock_settings.dart';
 import 'package:imrpo/core/session/user_session.dart';
 import 'package:imrpo/core/l10n/l10n_entity_strings.dart';
 import 'package:imrpo/core/utils/app_colors.dart';
@@ -209,6 +211,85 @@ class _UserSettingsSheetState extends State<UserSettingsSheet> {
                           onTap: actionsLocked
                               ? null
                               : () => _showLanguageDialog(context),
+                        );
+                      },
+                    ),
+                    _SettingsTile(
+                      icon: Icons.assessment_outlined,
+                      label: l10n.monthlyReportTitle,
+                      onTap: actionsLocked
+                          ? null
+                          : () {
+                              Navigator.of(context).pop();
+                              Navigator.of(context).pushNamed(
+                                AppRoutes.monthlyReport,
+                              );
+                            },
+                    ),
+                    _SettingsTile(
+                      icon: Icons.calculate_rounded,
+                      label: l10n.settingsCalculator,
+                      onTap: actionsLocked
+                          ? null
+                          : () {
+                              Navigator.of(context).pop();
+                              Navigator.of(context).pushNamed(
+                                AppRoutes.calculator,
+                              );
+                            },
+                    ),
+                    ListenableBuilder(
+                      listenable: getIt<AppLockService>(),
+                      builder: (context, _) {
+                        final lock = getIt<AppLockService>();
+
+                        return Column(
+                          children: [
+                            _SettingsTile(
+                              icon: Icons.lock_outline_rounded,
+                              label: l10n.settingsAppLock,
+                              trailing: Switch.adaptive(
+                                value: lock.isEnabled,
+                                activeThumbColor: AppColors.primary,
+                                onChanged: actionsLocked
+                                    ? null
+                                    : (enabled) async {
+                                        if (enabled) {
+                                          await enableAppLock(context);
+                                        } else {
+                                          await disableAppLock(context);
+                                        }
+                                      },
+                              ),
+                            ),
+                            if (lock.isEnabled &&
+                                lock.canUseBiometrics) ...[
+                              _SettingsTile(
+                                icon: lock.supportsFace
+                                    ? Icons.face_rounded
+                                    : Icons.fingerprint_rounded,
+                                label: l10n.settingsAppLockBiometric,
+                                trailing: Switch.adaptive(
+                                  value: lock.biometricEnabled,
+                                  activeThumbColor: AppColors.primary,
+                                  onChanged: actionsLocked
+                                      ? null
+                                      : (enabled) => toggleAppLockBiometric(
+                                            context,
+                                            enabled: enabled,
+                                          ),
+                                ),
+                              ),
+                            ],
+                            if (lock.isEnabled)
+                              _SettingsTile(
+                                icon: Icons.pin_outlined,
+                                label: l10n.settingsAppLockChangePin,
+                                onTap: actionsLocked
+                                    ? null
+                                    : () => changeAppLockPin(context),
+                              ),
+                          ],
                         );
                       },
                     ),
@@ -469,7 +550,7 @@ class _SettingsTile extends StatelessWidget {
                   ),
                 ),
               ),
-              ?trailing,
+              if (trailing != null) trailing!,
               if (isLoading)
                 const SizedBox(
                   width: 22,
@@ -479,7 +560,7 @@ class _SettingsTile extends StatelessWidget {
                     color: AppColors.primary,
                   ),
                 )
-              else
+              else if (trailing == null)
                 Icon(
                   Icons.chevron_right_rounded,
                   color: AppColors.textColor.withValues(alpha: 0.35),

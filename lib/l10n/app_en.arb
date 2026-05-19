@@ -27,6 +27,8 @@
   "accountSettingsTitle": "Account settings",
   "changeUsername": "Change username",
   "settingsLanguage": "Language",
+  "settingsCalculator": "Calculator",
+  "calculatorTitle": "Calculator",
   "languageEnglish": "English",
   "languageArabic": "Arabic",
   "logout": "Log out",
@@ -100,8 +102,97 @@
   "noExpensesSubtitle": "Tap the button below to record your first expense",
   "titleField": "Title",
   "hintExpenseTitle": "e.g. Groceries",
-  "hintIncomeTitle": "e.g. Salary",
+  "hintIncomeTitle": "e.g. March payment",
+  "incomeSourceField": "Source",
+  "hintIncomeSource": "e.g. Visa card, Rents, Salary",
+  "incomeBySource": "By source",
+  "incomeFilterAllSources": "All sources",
+  "incomeFilterNoSourceEntries": "No incomes for this source in the selected period",
+  "incomeSourceRents": "Rents",
+  "incomeSourceVisaCard": "Visa card",
+  "incomeSourceCash": "Cash",
   "amountField": "Amount",
+  "expenseByCategory": "By category",
+  "expenseCategoryEdit": "Edit category",
+  "expenseCategoryRemove": "Remove category",
+  "expenseCategoryRenameTitle": "Rename category",
+  "expenseCategoryRenameHint": "Updates all expenses in \"{name}\".",
+  "@expenseCategoryRenameHint": {
+    "placeholders": {
+      "name": { "type": "String" }
+    }
+  },
+  "expenseCategoryNameTaken": "That category name is already in use",
+  "expenseCategoryUpdatedSuccess": "Category updated",
+  "expenseCategoryRemoveTitle": "Remove category",
+  "expenseCategoryRemoveMessage": "What should happen to {count} expense(s) in \"{name}\"?",
+  "@expenseCategoryRemoveMessage": {
+    "placeholders": {
+      "count": { "type": "int" },
+      "name": { "type": "String" }
+    }
+  },
+  "expenseCategoryMoveToOther": "Move all to Other",
+  "expenseCategoryDeleteAll": "Delete all expenses in this category",
+  "expenseCategoryDeleteConfirmTitle": "Delete expenses?",
+  "expenseCategoryDeleteConfirmMessage": "This permanently deletes {count} expense(s). This cannot be undone.",
+  "@expenseCategoryDeleteConfirmMessage": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "expenseCategoryDeleteConfirmAction": "Delete",
+  "expenseFilterAllCategories": "All categories",
+  "expenseFilterNoCategoryEntries": "No expenses for this category in the selected period",
+  "budgetMonthlyTitle": "Monthly budgets",
+  "budgetSetAction": "Set budget",
+  "budgetSetTitle": "Set monthly budget",
+  "budgetSetHint": "Pick a category and set how much you plan to spend this month.",
+  "budgetCustomCategory": "Category name",
+  "budgetMonthlyLimit": "Monthly limit",
+  "budgetSave": "Save budget",
+  "budgetEmptyHint": "Set a limit per category to see how much of your budget you've used.",
+  "budgetSetFirst": "Create first budget",
+  "budgetTotalSpent": "Total spent",
+  "budgetRemaining": "{amount} left",
+  "@budgetRemaining": {
+    "placeholders": {
+      "amount": { "type": "String" }
+    }
+  },
+  "budgetOverBy": "Over by {amount}",
+  "@budgetOverBy": {
+    "placeholders": {
+      "amount": { "type": "String" }
+    }
+  },
+  "budgetDeleteTitle": "Remove budget?",
+  "budgetDeleteMessage": "Remove the budget for {category}?",
+  "@budgetDeleteMessage": {
+    "placeholders": {
+      "category": { "type": "String" }
+    }
+  },
+  "budgetDeleteConfirm": "Remove",
+  "budgetAlertNear": "{count} category near the limit",
+  "@budgetAlertNear": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "budgetAlertOver": "{count} category over budget",
+  "@budgetAlertOver": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "budgetAlertOverAndNear": "{over} over budget, {near} near limit",
+  "@budgetAlertOverAndNear": {
+    "placeholders": {
+      "over": { "type": "int" },
+      "near": { "type": "int" }
+    }
+  },
   "categoryField": "Category",
   "otherCategoryField": "Other category",
   "otherCategoryHint": "Enter category name",
@@ -237,6 +328,10 @@
   "clearAllExpensesSuccess": "All expenses deleted",
   "clearAllIncomesSuccess": "All incomes deleted",
   "balanceIncomeVsExpenses": "Income vs Expenses",
+  "balanceFilterAll": "All",
+  "balanceFilterIncome": "Income",
+  "balanceFilterExpense": "Expenses",
+  "balanceNoFilteredActivity": "No activity matches this filter",
   "activityIncome": "Income",
   "activityExpense": "Expense",
   "plansActive": "Active",
@@ -335,6 +430,7 @@
     }
   },
   "smartImportSmsLoadMore": "Load more messages",
+  "smartImportSmsLoading": "Reading your SMS messages…",
   "smartImportSmsLoadingMore": "Loading more…",
   "smartImportUnknownSender": "Unknown sender",
   "smartImportSmsTitleExpense": "Bank expense",
@@ -360,6 +456,11 @@
   },
   "smartImportSelectAll": "Select all",
   "smartImportClearSelection": "Clear",
+  "smartImportBulkCategorySheetTitle": "Category for import",
+  "smartImportBulkCategorySheetHint": "Apply the same category or source to all selected messages.",
+  "smartImportBulkExpenseCategory": "Expense category",
+  "smartImportBulkIncomeSource": "Income source",
+  "smartImportBulkApplyAndImport": "Import",
   "smartImportBulkImporting": "Importing messages…",
   "smartImportBulkNothingToAdd": "No messages with a valid amount to import.",
   "smartImportBulkResult": "Added {incomes} incomes and {expenses} expenses.",
@@ -374,5 +475,47 @@
     "placeholders": {
       "failed": { "type": "int" }
     }
-  }
+  },
+  "settingsAppLock": "App lock",
+  "settingsAppLockBiometric": "Face ID / fingerprint",
+  "settingsAppLockChangePin": "Change PIN",
+  "appLockTitle": "Unlock Pocketly",
+  "appLockSubtitle": "Enter your PIN to continue",
+  "appLockWrongPin": "Incorrect PIN. Try again.",
+  "appLockBiometricReason": "Unlock your finances",
+  "appLockEnterPinTitle": "Enter your PIN",
+  "appLockEnterPinSubtitle": "Confirm to continue",
+  "appLockCreatePinTitle": "Create a PIN",
+  "appLockCreatePinSubtitle": "Use 4 digits you will remember",
+  "appLockConfirmPinTitle": "Confirm your PIN",
+  "appLockConfirmPinSubtitle": "Enter the same PIN again",
+  "appLockPinMismatch": "PINs do not match",
+  "appLockEnabledSuccess": "App lock is on",
+  "appLockDisabledSuccess": "App lock is off",
+  "appLockEnableFailed": "Could not enable app lock",
+  "appLockBiometricPromptTitle": "Use biometrics?",
+  "appLockBiometricPromptMessage": "Unlock faster with Face ID or fingerprint on this device.",
+  "appLockBiometricFailed": "Biometrics could not be enabled",
+  "appLockChangePinSuccess": "PIN updated",
+  "appLockChangePinFailed": "Could not update PIN",
+  "notNow": "Not now",
+  "enable": "Enable",
+  "monthlyReportTitle": "Monthly report",
+  "monthlyReportShort": "Report",
+  "monthlyReportVsLastMonth": "Compared to last month",
+  "monthlyReportBudgetTitle": "Budget vs actual",
+  "monthlyReportNoBudgets": "No budgets set for this month. Add limits on the Expenses tab to track spending here.",
+  "monthlyReportEntrySummary": "{incomeCount} income sources · {expenseCount} expense categories",
+  "@monthlyReportEntrySummary": {
+    "placeholders": {
+      "incomeCount": { "type": "int" },
+      "expenseCount": { "type": "int" }
+    }
+  },
+  "globalSearchTitle": "Search",
+  "globalSearchHint": "Title, category, source, amount…",
+  "globalSearchAll": "All",
+  "globalSearchNoResults": "No matching entries",
+  "globalSearchAllTime": "All time",
+  "globalSearchCurrentPeriod": "This period"
 }

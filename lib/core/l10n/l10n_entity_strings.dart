@@ -32,6 +32,14 @@ String localizeIncomeCategory(AppLocalizations l10n, String stored) {
       return l10n.incomeCatInvestment;
     case 'Other':
       return l10n.incomeCatOther;
+    case 'Salary':
+      return l10n.demoSalary;
+    case 'Rents':
+      return l10n.incomeSourceRents;
+    case 'Visa Card':
+      return l10n.incomeSourceVisaCard;
+    case 'Cash':
+      return l10n.incomeSourceCash;
     default:
       return stored;
   }

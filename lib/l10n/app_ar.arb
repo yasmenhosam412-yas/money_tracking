@@ -27,6 +27,8 @@
   "accountSettingsTitle": "إعدادات الحساب",
   "changeUsername": "تغيير اسم المستخدم",
   "settingsLanguage": "اللغة",
+  "settingsCalculator": "الآلة الحاسبة",
+  "calculatorTitle": "الآلة الحاسبة",
   "languageEnglish": "الإنجليزية",
   "languageArabic": "العربية",
   "logout": "تسجيل الخروج",
@@ -100,8 +102,97 @@
   "noExpensesSubtitle": "اضغط الزر أدناه لتسجيل أول مصروف",
   "titleField": "العنوان",
   "hintExpenseTitle": "مثال: مشتريات",
-  "hintIncomeTitle": "مثال: الراتب",
+  "hintIncomeTitle": "مثال: دفعة مارس",
+  "incomeSourceField": "المصدر",
+  "hintIncomeSource": "مثال: فيزا، إيجارات، راتب",
+  "incomeBySource": "حسب المصدر",
+  "incomeFilterAllSources": "كل المصادر",
+  "incomeFilterNoSourceEntries": "لا يوجد دخل لهذا المصدر في الفترة المحددة",
+  "incomeSourceRents": "إيجارات",
+  "incomeSourceVisaCard": "بطاقة فيزا",
+  "incomeSourceCash": "نقد",
   "amountField": "المبلغ",
+  "expenseByCategory": "حسب التصنيف",
+  "expenseCategoryEdit": "تعديل التصنيف",
+  "expenseCategoryRemove": "إزالة التصنيف",
+  "expenseCategoryRenameTitle": "إعادة تسمية التصنيف",
+  "expenseCategoryRenameHint": "سيتم تحديث كل المصروفات في \"{name}\".",
+  "@expenseCategoryRenameHint": {
+    "placeholders": {
+      "name": { "type": "String" }
+    }
+  },
+  "expenseCategoryNameTaken": "اسم التصنيف مستخدم بالفعل",
+  "expenseCategoryUpdatedSuccess": "تم تحديث التصنيف",
+  "expenseCategoryRemoveTitle": "إزالة التصنيف",
+  "expenseCategoryRemoveMessage": "ماذا تريد أن تفعل بـ {count} مصروف في \"{name}\"؟",
+  "@expenseCategoryRemoveMessage": {
+    "placeholders": {
+      "count": { "type": "int" },
+      "name": { "type": "String" }
+    }
+  },
+  "expenseCategoryMoveToOther": "نقل الكل إلى أخرى",
+  "expenseCategoryDeleteAll": "حذف كل مصروفات هذا التصنيف",
+  "expenseCategoryDeleteConfirmTitle": "حذف المصروفات؟",
+  "expenseCategoryDeleteConfirmMessage": "سيُحذف {count} مصروف نهائياً. لا يمكن التراجع.",
+  "@expenseCategoryDeleteConfirmMessage": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "expenseCategoryDeleteConfirmAction": "حذف",
+  "expenseFilterAllCategories": "كل التصنيفات",
+  "expenseFilterNoCategoryEntries": "لا توجد مصروفات لهذا التصنيف في الفترة المحددة",
+  "budgetMonthlyTitle": "الميزانية الشهرية",
+  "budgetSetAction": "تعيين ميزانية",
+  "budgetSetTitle": "ميزانية شهرية",
+  "budgetSetHint": "اختر تصنيفاً وحدد المبلغ المخطط إنفاقه هذا الشهر.",
+  "budgetCustomCategory": "اسم التصنيف",
+  "budgetMonthlyLimit": "الحد الشهري",
+  "budgetSave": "حفظ الميزانية",
+  "budgetEmptyHint": "حدّد سقفاً لكل تصنيف لمتابعة ما أنفقته من الميزانية.",
+  "budgetSetFirst": "إنشاء أول ميزانية",
+  "budgetTotalSpent": "إجمالي المصروف",
+  "budgetRemaining": "متبقي {amount}",
+  "@budgetRemaining": {
+    "placeholders": {
+      "amount": { "type": "String" }
+    }
+  },
+  "budgetOverBy": "تجاوز بمقدار {amount}",
+  "@budgetOverBy": {
+    "placeholders": {
+      "amount": { "type": "String" }
+    }
+  },
+  "budgetDeleteTitle": "حذف الميزانية؟",
+  "budgetDeleteMessage": "حذف ميزانية {category}؟",
+  "@budgetDeleteMessage": {
+    "placeholders": {
+      "category": { "type": "String" }
+    }
+  },
+  "budgetDeleteConfirm": "حذف",
+  "budgetAlertNear": "{count} تصنيف قارب الحد",
+  "@budgetAlertNear": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "budgetAlertOver": "{count} تصنيف تجاوز الميزانية",
+  "@budgetAlertOver": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "budgetAlertOverAndNear": "{over} تجاوزوا الميزانية، {near} قاربوا الحد",
+  "@budgetAlertOverAndNear": {
+    "placeholders": {
+      "over": { "type": "int" },
+      "near": { "type": "int" }
+    }
+  },
   "categoryField": "التصنيف",
   "otherCategoryField": "تصنيف آخر",
   "otherCategoryHint": "أدخل اسم التصنيف",
@@ -237,6 +328,10 @@
   "clearAllExpensesSuccess": "تم حذف كل المصروفات",
   "clearAllIncomesSuccess": "تم حذف كل الإيرادات",
   "balanceIncomeVsExpenses": "الدخل مقابل المصروفات",
+  "balanceFilterAll": "الكل",
+  "balanceFilterIncome": "الدخل",
+  "balanceFilterExpense": "المصروفات",
+  "balanceNoFilteredActivity": "لا يوجد نشاط يطابق هذا الفلتر",
   "activityIncome": "دخل",
   "activityExpense": "مصروف",
   "plansActive": "نشط",
@@ -335,6 +430,7 @@
     }
   },
   "smartImportSmsLoadMore": "تحميل المزيد من الرسائل",
+  "smartImportSmsLoading": "جاري قراءة رسائل SMS…",
   "smartImportSmsLoadingMore": "جاري التحميل…",
   "smartImportUnknownSender": "مرسل غير معروف",
   "smartImportSmsTitleExpense": "مصروف بنكي",
@@ -360,6 +456,11 @@
   },
   "smartImportSelectAll": "تحديد الكل",
   "smartImportClearSelection": "إلغاء التحديد",
+  "smartImportBulkCategorySheetTitle": "التصنيف للاستيراد",
+  "smartImportBulkCategorySheetHint": "طبّق نفس التصنيف أو المصدر على كل الرسائل المحددة.",
+  "smartImportBulkExpenseCategory": "تصنيف المصروف",
+  "smartImportBulkIncomeSource": "مصدر الدخل",
+  "smartImportBulkApplyAndImport": "استيراد",
   "smartImportBulkImporting": "جاري استيراد الرسائل…",
   "smartImportBulkNothingToAdd": "لا توجد رسائل بمبلغ صالح للاستيراد.",
   "smartImportBulkResult": "تمت إضافة {incomes} دخل و{expenses} مصروف.",
@@ -374,5 +475,47 @@
     "placeholders": {
       "failed": { "type": "int" }
     }
-  }
+  },
+  "settingsAppLock": "قفل التطبيق",
+  "settingsAppLockBiometric": "Face ID / بصمة الإصبع",
+  "settingsAppLockChangePin": "تغيير رمز PIN",
+  "appLockTitle": "فتح Pocketly",
+  "appLockSubtitle": "أدخل رمز PIN للمتابعة",
+  "appLockWrongPin": "رمز PIN غير صحيح. حاول مرة أخرى.",
+  "appLockBiometricReason": "افتح حسابك المالي",
+  "appLockEnterPinTitle": "أدخل رمز PIN",
+  "appLockEnterPinSubtitle": "أكّد للمتابعة",
+  "appLockCreatePinTitle": "إنشاء رمز PIN",
+  "appLockCreatePinSubtitle": "استخدم 4 أرقام يسهل تذكرها",
+  "appLockConfirmPinTitle": "تأكيد رمز PIN",
+  "appLockConfirmPinSubtitle": "أدخل نفس الرمز مرة أخرى",
+  "appLockPinMismatch": "رمزا PIN غير متطابقين",
+  "appLockEnabledSuccess": "تم تفعيل قفل التطبيق",
+  "appLockDisabledSuccess": "تم إيقاف قفل التطبيق",
+  "appLockEnableFailed": "تعذر تفعيل قفل التطبيق",
+  "appLockBiometricPromptTitle": "استخدام البصمة؟",
+  "appLockBiometricPromptMessage": "افتح التطبيق بسرعة عبر Face ID أو بصمة الإصبع على هذا الجهاز.",
+  "appLockBiometricFailed": "تعذر تفعيل البصمة",
+  "appLockChangePinSuccess": "تم تحديث رمز PIN",
+  "appLockChangePinFailed": "تعذر تحديث رمز PIN",
+  "notNow": "ليس الآن",
+  "enable": "تفعيل",
+  "monthlyReportTitle": "التقرير الشهري",
+  "monthlyReportShort": "تقرير",
+  "monthlyReportVsLastMonth": "مقارنة بالشهر السابق",
+  "monthlyReportBudgetTitle": "الميزانية مقابل الفعلي",
+  "monthlyReportNoBudgets": "لا توجد ميزانيات لهذا الشهر. أضف حدودًا من تبويب المصروفات لتتبع الإنفاق هنا.",
+  "monthlyReportEntrySummary": "{incomeCount} مصادر دخل · {expenseCount} تصنيفات مصروف",
+  "@monthlyReportEntrySummary": {
+    "placeholders": {
+      "incomeCount": { "type": "int" },
+      "expenseCount": { "type": "int" }
+    }
+  },
+  "globalSearchTitle": "بحث",
+  "globalSearchHint": "العنوان، التصنيف، المصدر، المبلغ…",
+  "globalSearchAll": "الكل",
+  "globalSearchNoResults": "لا توجد نتائج مطابقة",
+  "globalSearchAllTime": "كل الفترات",
+  "globalSearchCurrentPeriod": "الفترة الحالية"
 }

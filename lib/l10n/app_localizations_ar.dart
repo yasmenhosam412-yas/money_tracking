@@ -71,6 +71,12 @@ class AppLocalizationsAr extends AppLocalizations {
   String get settingsLanguage => 'اللغة';
 
   @override
+  String get settingsCalculator => 'الآلة الحاسبة';
+
+  @override
+  String get calculatorTitle => 'الآلة الحاسبة';
+
+  @override
   String get languageEnglish => 'الإنجليزية';
 
   @override
@@ -277,10 +283,154 @@ class AppLocalizationsAr extends AppLocalizations {
   String get hintExpenseTitle => 'مثال: مشتريات';
 
   @override
-  String get hintIncomeTitle => 'مثال: الراتب';
+  String get hintIncomeTitle => 'مثال: دفعة مارس';
+
+  @override
+  String get incomeSourceField => 'المصدر';
+
+  @override
+  String get hintIncomeSource => 'مثال: فيزا، إيجارات، راتب';
+
+  @override
+  String get incomeBySource => 'حسب المصدر';
+
+  @override
+  String get incomeFilterAllSources => 'كل المصادر';
+
+  @override
+  String get incomeFilterNoSourceEntries => 'لا يوجد دخل لهذا المصدر في الفترة المحددة';
+
+  @override
+  String get incomeSourceRents => 'إيجارات';
+
+  @override
+  String get incomeSourceVisaCard => 'بطاقة فيزا';
+
+  @override
+  String get incomeSourceCash => 'نقد';
 
   @override
   String get amountField => 'المبلغ';
+
+  @override
+  String get expenseByCategory => 'حسب التصنيف';
+
+  @override
+  String get expenseCategoryEdit => 'تعديل التصنيف';
+
+  @override
+  String get expenseCategoryRemove => 'إزالة التصنيف';
+
+  @override
+  String get expenseCategoryRenameTitle => 'إعادة تسمية التصنيف';
+
+  @override
+  String expenseCategoryRenameHint(String name) {
+    return 'سيتم تحديث كل المصروفات في \"$name\".';
+  }
+
+  @override
+  String get expenseCategoryNameTaken => 'اسم التصنيف مستخدم بالفعل';
+
+  @override
+  String get expenseCategoryUpdatedSuccess => 'تم تحديث التصنيف';
+
+  @override
+  String get expenseCategoryRemoveTitle => 'إزالة التصنيف';
+
+  @override
+  String expenseCategoryRemoveMessage(int count, String name) {
+    return 'ماذا تريد أن تفعل بـ $count مصروف في \"$name\"؟';
+  }
+
+  @override
+  String get expenseCategoryMoveToOther => 'نقل الكل إلى أخرى';
+
+  @override
+  String get expenseCategoryDeleteAll => 'حذف كل مصروفات هذا التصنيف';
+
+  @override
+  String get expenseCategoryDeleteConfirmTitle => 'حذف المصروفات؟';
+
+  @override
+  String expenseCategoryDeleteConfirmMessage(int count) {
+    return 'سيُحذف $count مصروف نهائياً. لا يمكن التراجع.';
+  }
+
+  @override
+  String get expenseCategoryDeleteConfirmAction => 'حذف';
+
+  @override
+  String get expenseFilterAllCategories => 'كل التصنيفات';
+
+  @override
+  String get expenseFilterNoCategoryEntries => 'لا توجد مصروفات لهذا التصنيف في الفترة المحددة';
+
+  @override
+  String get budgetMonthlyTitle => 'الميزانية الشهرية';
+
+  @override
+  String get budgetSetAction => 'تعيين ميزانية';
+
+  @override
+  String get budgetSetTitle => 'ميزانية شهرية';
+
+  @override
+  String get budgetSetHint => 'اختر تصنيفاً وحدد المبلغ المخطط إنفاقه هذا الشهر.';
+
+  @override
+  String get budgetCustomCategory => 'اسم التصنيف';
+
+  @override
+  String get budgetMonthlyLimit => 'الحد الشهري';
+
+  @override
+  String get budgetSave => 'حفظ الميزانية';
+
+  @override
+  String get budgetEmptyHint => 'حدّد سقفاً لكل تصنيف لمتابعة ما أنفقته من الميزانية.';
+
+  @override
+  String get budgetSetFirst => 'إنشاء أول ميزانية';
+
+  @override
+  String get budgetTotalSpent => 'إجمالي المصروف';
+
+  @override
+  String budgetRemaining(String amount) {
+    return 'متبقي $amount';
+  }
+
+  @override
+  String budgetOverBy(String amount) {
+    return 'تجاوز بمقدار $amount';
+  }
+
+  @override
+  String get budgetDeleteTitle => 'حذف الميزانية؟';
+
+  @override
+  String budgetDeleteMessage(String category) {
+    return 'حذف ميزانية $category؟';
+  }
+
+  @override
+  String get budgetDeleteConfirm => 'حذف';
+
+  @override
+  String budgetAlertNear(int count) {
+    return '$count تصنيف قارب الحد';
+  }
+
+  @override
+  String budgetAlertOver(int count) {
+    return '$count تصنيف تجاوز الميزانية';
+  }
+
+  @override
+  String budgetAlertOverAndNear(int over, int near) {
+    return '$over تجاوزوا الميزانية، $near قاربوا الحد';
+  }
 
   @override
   String get categoryField => 'التصنيف';
@@ -528,6 +678,18 @@ class AppLocalizationsAr extends AppLocalizations {
   String get balanceIncomeVsExpenses => 'الدخل مقابل المصروفات';
 
   @override
+  String get balanceFilterAll => 'الكل';
+
+  @override
+  String get balanceFilterIncome => 'الدخل';
+
+  @override
+  String get balanceFilterExpense => 'المصروفات';
+
+  @override
+  String get balanceNoFilteredActivity => 'لا يوجد نشاط يطابق هذا الفلتر';
+
+  @override
   String get activityIncome => 'دخل';
 
   @override
@@ -716,6 +878,9 @@ class AppLocalizationsAr extends AppLocalizations {
   String get smartImportSmsLoadMore => 'تحميل المزيد من الرسائل';
 
   @override
+  String get smartImportSmsLoading => 'جاري قراءة رسائل SMS…';
+
+  @override
   String get smartImportSmsLoadingMore => 'جاري التحميل…';
 
   @override
@@ -752,6 +917,21 @@ class AppLocalizationsAr extends AppLocalizations {
   String get smartImportClearSelection => 'إلغاء التحديد';
 
   @override
+  String get smartImportBulkCategorySheetTitle => 'التصنيف للاستيراد';
+
+  @override
+  String get smartImportBulkCategorySheetHint => 'طبّق نفس التصنيف أو المصدر على كل الرسائل المحددة.';
+
+  @override
+  String get smartImportBulkExpenseCategory => 'تصنيف المصروف';
+
+  @override
+  String get smartImportBulkIncomeSource => 'مصدر الدخل';
+
+  @override
+  String get smartImportBulkApplyAndImport => 'استيراد';
+
+  @override
   String get smartImportBulkImporting => 'جاري استيراد الرسائل…';
 
   @override
@@ -766,4 +946,114 @@ class AppLocalizationsAr extends AppLocalizations {
   String smartImportBulkPartialFail(int failed) {
     return 'تعذر استيراد $failed رسالة.';
   }
+
+  @override
+  String get settingsAppLock => 'قفل التطبيق';
+
+  @override
+  String get settingsAppLockBiometric => 'Face ID / بصمة الإصبع';
+
+  @override
+  String get settingsAppLockChangePin => 'تغيير رمز PIN';
+
+  @override
+  String get appLockTitle => 'فتح Pocketly';
+
+  @override
+  String get appLockSubtitle => 'أدخل رمز PIN للمتابعة';
+
+  @override
+  String get appLockWrongPin => 'رمز PIN غير صحيح. حاول مرة أخرى.';
+
+  @override
+  String get appLockBiometricReason => 'افتح حسابك المالي';
+
+  @override
+  String get appLockEnterPinTitle => 'أدخل رمز PIN';
+
+  @override
+  String get appLockEnterPinSubtitle => 'أكّد للمتابعة';
+
+  @override
+  String get appLockCreatePinTitle => 'إنشاء رمز PIN';
+
+  @override
+  String get appLockCreatePinSubtitle => 'استخدم 4 أرقام يسهل تذكرها';
+
+  @override
+  String get appLockConfirmPinTitle => 'تأكيد رمز PIN';
+
+  @override
+  String get appLockConfirmPinSubtitle => 'أدخل نفس الرمز مرة أخرى';
+
+  @override
+  String get appLockPinMismatch => 'رمزا PIN غير متطابقين';
+
+  @override
+  String get appLockEnabledSuccess => 'تم تفعيل قفل التطبيق';
+
+  @override
+  String get appLockDisabledSuccess => 'تم إيقاف قفل التطبيق';
+
+  @override
+  String get appLockEnableFailed => 'تعذر تفعيل قفل التطبيق';
+
+  @override
+  String get appLockBiometricPromptTitle => 'استخدام البصمة؟';
+
+  @override
+  String get appLockBiometricPromptMessage => 'افتح التطبيق بسرعة عبر Face ID أو بصمة الإصبع على هذا الجهاز.';
+
+  @override
+  String get appLockBiometricFailed => 'تعذر تفعيل البصمة';
+
+  @override
+  String get appLockChangePinSuccess => 'تم تحديث رمز PIN';
+
+  @override
+  String get appLockChangePinFailed => 'تعذر تحديث رمز PIN';
+
+  @override
+  String get notNow => 'ليس الآن';
+
+  @override
+  String get enable => 'تفعيل';
+
+  @override
+  String get monthlyReportTitle => 'التقرير الشهري';
+
+  @override
+  String get monthlyReportShort => 'تقرير';
+
+  @override
+  String get monthlyReportVsLastMonth => 'مقارنة بالشهر السابق';
+
+  @override
+  String get monthlyReportBudgetTitle => 'الميزانية مقابل الفعلي';
+
+  @override
+  String get monthlyReportNoBudgets => 'لا توجد ميزانيات لهذا الشهر. أضف حدودًا من تبويب المصروفات لتتبع الإنفاق هنا.';
+
+  @override
+  String monthlyReportEntrySummary(int incomeCount, int expenseCount) {
+    return '$incomeCount مصادر دخل · $expenseCount تصنيفات مصروف';
+  }
+
+  @override
+  String get globalSearchTitle => 'بحث';
+
+  @override
+  String get globalSearchHint => 'العنوان، التصنيف، المصدر، المبلغ…';
+
+  @override
+  String get globalSearchAll => 'الكل';
+
+  @override
+  String get globalSearchNoResults => 'لا توجد نتائج مطابقة';
+
+  @override
+  String get globalSearchAllTime => 'كل الفترات';
+
+  @override
+  String get globalSearchCurrentPeriod => 'الفترة الحالية';
 }

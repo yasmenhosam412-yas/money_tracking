@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:imrpo/core/theme/app_decorations.dart';
 import 'package:imrpo/core/utils/app_colors.dart';
 import 'package:imrpo/core/utils/money_format.dart';
@@ -16,6 +17,12 @@ class BalanceActivityTile extends StatelessWidget {
     final l10n = AppLocalizations.of(context)!;
     final isIncome = activity.type == BalanceActivityType.income;
     final color = isIncome ? AppColors.income : AppColors.expense;
+    final categoryLabel = isIncome
+        ? localizeIncomeCategory(l10n, activity.category)
+        : localizeExpenseCategory(l10n, activity.category);
+    final title = localizeDemoTitle(l10n, activity.title);
+    final showTitleSubtitle =
+        title.trim().toLowerCase() != categoryLabel.trim().toLowerCase();
 
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
@@ -44,7 +51,7 @@ class BalanceActivityTile extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  localizeDemoTitle(l10n, activity.title),
+                  categoryLabel,
                   style: const TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
@@ -53,7 +60,9 @@ class BalanceActivityTile extends StatelessWidget {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  isIncome ? l10n.activityIncome : l10n.activityExpense,
+                  showTitleSubtitle
+                      ? '$title · ${_formatDate(context, activity.date)}'
+                      : '${isIncome ? l10n.activityIncome : l10n.activityExpense} · ${_formatDate(context, activity.date)}',
                   style: TextStyle(
                     fontSize: 13,
                     color: AppColors.textColor.withValues(alpha: 0.55),
@@ -75,4 +84,8 @@ class BalanceActivityTile extends StatelessWidget {
     );
   }
 
+  String _formatDate(BuildContext context, DateTime date) {
+    final locale = Localizations.localeOf(context).toString();
+    return DateFormat.MMMd(locale).format(date);
+  }
 }

@@ -5,10 +5,14 @@ import 'package:imrpo/core/services/home_date_filter.dart';
 import 'package:imrpo/core/services/service_locator.dart';
 import 'package:imrpo/core/utils/app_colors.dart';
 import 'package:imrpo/core/utils/money_format.dart';
+import 'package:imrpo/core/widgets/tab_centered_scroll.dart';
 import 'package:imrpo/core/widgets/tab_refresh_overlay.dart';
 import 'package:imrpo/features/balance_tab/presentation/bloc/balance_tab_bloc.dart';
+import 'package:imrpo/features/balance_tab/domain/entities/balance_activity.dart';
+import 'package:imrpo/features/balance_tab/presentation/widgets/balance_activity_filter_bar.dart';
 import 'package:imrpo/features/balance_tab/presentation/widgets/balance_activity_tile.dart';
 import 'package:imrpo/features/balance_tab/presentation/widgets/balance_breakdown_chart.dart';
+import 'package:imrpo/features/balance_tab/presentation/widgets/balance_category_breakdown.dart';
 import 'package:imrpo/core/l10n/l10n_entity_strings.dart';
 import 'package:imrpo/features/balance_tab/presentation/widgets/balance_stat_tile.dart';
 import 'package:imrpo/features/expenses_tab/presentation/bloc/expenses_tab_bloc.dart';
@@ -25,10 +29,102 @@ class BalanceTab extends StatefulWidget {
 
 class _BalanceTabState extends State<BalanceTab>
     with AutomaticKeepAliveClientMixin {
+  BalanceActivityFilter _activityFilter = BalanceActivityFilter.all;
+  String? _selectedIncomeSource;
+  String? _selectedExpenseCategory;
+
   @override
   bool get wantKeepAlive => true;
 
   late final HomeDateFilter _dateFilter;
+
+  static String _categoryKey(BalanceActivity activity) {
+    final category = activity.category.trim();
+    return category.isEmpty ? 'Other' : category;
+  }
+
+  static Map<String, double> _totalsByCategory(
+    List<BalanceActivity> activities,
+    BalanceActivityType type,
+  ) {
+    final totals = <String, double>{};
+    for (final activity in activities.where((a) => a.type == type)) {
+      final key = _categoryKey(activity);
+      totals[key] = (totals[key] ?? 0) + activity.amount;
+    }
+    final entries = totals.entries.toList()
+      ..sort((a, b) => b.value.compareTo(a.value));
+    return Map.fromEntries(entries);
+  }
+
+  List<BalanceActivity> _filterActivities(List<BalanceActivity> activities) {
+    return activities.where((activity) {
+      if (_activityFilter == BalanceActivityFilter.income &&
+          activity.type != BalanceActivityType.income) {
+        return false;
+      }
+      if (_activityFilter == BalanceActivityFilter.expense &&
+          activity.type != BalanceActivityType.expense) {
+        return false;
+      }
+      if (_selectedIncomeSource != null &&
+          activity.type == BalanceActivityType.income) {
+        return _categoryKey(activity) == _selectedIncomeSource;
+      }
+      if (_selectedExpenseCategory != null &&
+          activity.type == BalanceActivityType.expense) {
+        return _categoryKey(activity) == _selectedExpenseCategory;
+      }
+      if (_selectedIncomeSource != null &&
+          activity.type == BalanceActivityType.expense) {
+        return false;
+      }
+      if (_selectedExpenseCategory != null &&
+          activity.type == BalanceActivityType.income) {
+        return false;
+      }
+      return true;
+    }).toList();
+  }
+
+  void _clearCategoryFilters() {
+    setState(() {
+      _selectedIncomeSource = null;
+      _selectedExpenseCategory = null;
+    });
+  }
+
+  void _onIncomeSourceSelected(String source) {
+    setState(() {
+      _activityFilter = BalanceActivityFilter.income;
+      _selectedExpenseCategory = null;
+      _selectedIncomeSource =
+          _selectedIncomeSource == source ? null : source;
+    });
+  }
+
+  void _onExpenseCategorySelected(String category) {
+    setState(() {
+      _activityFilter = BalanceActivityFilter.expense;
+      _selectedIncomeSource = null;
+      _selectedExpenseCategory =
+          _selectedExpenseCategory == category ? null : category;
+    });
+  }
+
+  void _onActivityFilterChanged(BalanceActivityFilter filter) {
+    setState(() {
+      _activityFilter = filter;
+      if (filter == BalanceActivityFilter.all) {
+        _selectedIncomeSource = null;
+        _selectedExpenseCategory = null;
+      } else if (filter == BalanceActivityFilter.income) {
+        _selectedExpenseCategory = null;
+      } else {
+        _selectedIncomeSource = null;
+      }
+    });
+  }
 
   @override
   void initState() {
@@ -63,7 +159,7 @@ class _BalanceTabState extends State<BalanceTab>
   Widget build(BuildContext context) {
     super.build(context);
     return Scaffold(
-      backgroundColor: AppColors.scaffold,
+      backgroundColor: Colors.transparent,
       body: BlocConsumer<BalanceTabBloc, BalanceTabState>(
         listener: (context, state) {
           if (state is BalanceTabLoaded &&
@@ -80,8 +176,8 @@ class _BalanceTabState extends State<BalanceTab>
         },
         builder: (context, state) {
           if (state is! BalanceTabLoaded) {
-            return const Center(
-              child: CircularProgressIndicator(color: AppColors.balance),
+            return tabCenteredScroll(
+              const CircularProgressIndicator(color: AppColors.balance),
             );
           }
 
@@ -89,15 +185,15 @@ class _BalanceTabState extends State<BalanceTab>
               state.status == BalanceTabStatus.loading && state.hasData;
 
           if (!state.hasData && state.status == BalanceTabStatus.loading) {
-            return const Center(
-              child: CircularProgressIndicator(color: AppColors.balance),
+            return tabCenteredScroll(
+              const CircularProgressIndicator(color: AppColors.balance),
             );
           }
 
           if (!state.hasData && state.status == BalanceTabStatus.error) {
             final l10n = AppLocalizations.of(context)!;
-            return Center(
-              child: Padding(
+            return tabCenteredScroll(
+              Padding(
                 padding: const EdgeInsets.all(24),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -131,6 +227,13 @@ class _BalanceTabState extends State<BalanceTab>
 
           final sorted = List.of(state.activities)
             ..sort((a, b) => b.date.compareTo(a.date));
+          final incomeBySource =
+              _totalsByCategory(sorted, BalanceActivityType.income);
+          final expenseByCategory =
+              _totalsByCategory(sorted, BalanceActivityType.expense);
+          final filteredActivities = _filterActivities(sorted);
+          final incomeSources = incomeBySource.keys.toList()..sort();
+          final expenseCategories = expenseByCategory.keys.toList()..sort();
 
           final l10n = AppLocalizations.of(context)!;
 
@@ -138,6 +241,16 @@ class _BalanceTabState extends State<BalanceTab>
             listenable: _dateFilter,
             builder: (context, _) {
               final periodLabel = _dateFilter.summaryPeriodLabel(context);
+              final activeIncomeSource =
+                  _selectedIncomeSource != null &&
+                      incomeSources.contains(_selectedIncomeSource)
+                  ? _selectedIncomeSource
+                  : null;
+              final activeExpenseCategory =
+                  _selectedExpenseCategory != null &&
+                      expenseCategories.contains(_selectedExpenseCategory)
+                  ? _selectedExpenseCategory
+                  : null;
 
               return TabRefreshOverlay(
             isRefreshing: isRefreshing,
@@ -198,41 +311,161 @@ class _BalanceTabState extends State<BalanceTab>
                     ),
                   ),
                 ),
+                if (incomeBySource.isNotEmpty)
+                  SliverToBoxAdapter(
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(20, 12, 20, 0),
+                      child: BalanceCategoryBreakdown(
+                        title: l10n.incomeBySource,
+                        totals: incomeBySource,
+                        accentColor: AppColors.income,
+                        accentLight: AppColors.incomeLight,
+                        accentDark: AppColors.incomeDark,
+                        selectedKey: activeIncomeSource,
+                        onSelected: _onIncomeSourceSelected,
+                        localizeKey: localizeIncomeCategory,
+                      ),
+                    ),
+                  ),
+                if (expenseByCategory.isNotEmpty)
+                  SliverToBoxAdapter(
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(20, 12, 20, 0),
+                      child: BalanceCategoryBreakdown(
+                        title: l10n.expenseByCategory,
+                        totals: expenseByCategory,
+                        accentColor: AppColors.expense,
+                        accentLight: AppColors.expenseLight,
+                        accentDark: AppColors.expenseDark,
+                        selectedKey: activeExpenseCategory,
+                        onSelected: _onExpenseCategorySelected,
+                        localizeKey: localizeExpenseCategory,
+                      ),
+                    ),
+                  ),
                 SliverToBoxAdapter(
                   child: Padding(
                     padding: const EdgeInsets.fromLTRB(20, 20, 20, 8),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          l10n.balanceRecentActivity,
-                          style: const TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                            color: AppColors.textColor,
-                          ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              l10n.balanceRecentActivity,
+                              style: const TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                                color: AppColors.textColor,
+                              ),
+                            ),
+                            Text(
+                              l10n.itemsCount(filteredActivities.length),
+                              style: TextStyle(
+                                fontSize: 13,
+                                color: AppColors.textColor
+                                    .withValues(alpha: 0.5),
+                              ),
+                            ),
+                          ],
                         ),
-                        Text(
-                          l10n.itemsCount(sorted.length),
-                          style: TextStyle(
-                            fontSize: 13,
-                            color: AppColors.textColor.withValues(alpha: 0.5),
-                          ),
+                        const SizedBox(height: 12),
+                        BalanceActivityFilterBar(
+                          selected: _activityFilter,
+                          onTypeChanged: _onActivityFilterChanged,
                         ),
+                        if (_activityFilter == BalanceActivityFilter.income &&
+                            incomeSources.length > 1) ...[
+                          const SizedBox(height: 12),
+                          BalanceCategoryFilterChips(
+                            categories: incomeSources,
+                            selectedCategory: activeIncomeSource,
+                            accentColor: AppColors.income,
+                            allLabel: l10n.incomeFilterAllSources,
+                            onSelected: (source) {
+                              setState(() => _selectedIncomeSource = source);
+                            },
+                            localizeKey: localizeIncomeCategory,
+                          ),
+                        ],
+                        if (_activityFilter == BalanceActivityFilter.expense &&
+                            expenseCategories.length > 1) ...[
+                          const SizedBox(height: 12),
+                          BalanceCategoryFilterChips(
+                            categories: expenseCategories,
+                            selectedCategory: activeExpenseCategory,
+                            accentColor: AppColors.expense,
+                            allLabel: l10n.expenseFilterAllCategories,
+                            onSelected: (category) {
+                              setState(
+                                () => _selectedExpenseCategory = category,
+                              );
+                            },
+                            localizeKey: localizeExpenseCategory,
+                          ),
+                        ],
                       ],
                     ),
                   ),
                 ),
-                SliverPadding(
-                  padding: const EdgeInsets.fromLTRB(20, 0, 20, 24),
-                  sliver: SliverList(
-                    delegate: SliverChildBuilderDelegate(
-                      (context, index) =>
-                          BalanceActivityTile(activity: sorted[index]),
-                      childCount: sorted.length,
+                if (filteredActivities.isEmpty && sorted.isNotEmpty)
+                  SliverFillRemaining(
+                    hasScrollBody: false,
+                    child: Center(
+                      child: Padding(
+                        padding: const EdgeInsets.all(40),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              Icons.filter_alt_off_outlined,
+                              size: 48,
+                              color: AppColors.textColor.withValues(
+                                alpha: 0.35,
+                              ),
+                            ),
+                            const SizedBox(height: 16),
+                            Text(
+                              l10n.balanceNoFilteredActivity,
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                fontSize: 15,
+                                color: AppColors.textColor.withValues(
+                                  alpha: 0.6,
+                                ),
+                              ),
+                            ),
+                            const SizedBox(height: 16),
+                            TextButton(
+                              onPressed: () {
+                                setState(() {
+                                  _activityFilter = BalanceActivityFilter.all;
+                                  _clearCategoryFilters();
+                                });
+                              },
+                              style: TextButton.styleFrom(
+                                foregroundColor: AppColors.balance,
+                              ),
+                              child: Text(l10n.balanceFilterAll),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  )
+                else
+                  SliverPadding(
+                    padding: const EdgeInsets.fromLTRB(20, 0, 20, 24),
+                    sliver: SliverList(
+                      delegate: SliverChildBuilderDelegate(
+                        (context, index) => BalanceActivityTile(
+                          activity: filteredActivities[index],
+                        ),
+                        childCount: filteredActivities.length,
+                      ),
                     ),
                   ),
-                ),
               ],
             ),
             ),

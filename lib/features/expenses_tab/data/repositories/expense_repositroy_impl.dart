@@ -1,13 +1,18 @@
 import 'package:dartz/dartz.dart';
 import 'package:imrpo/core/helpers/error_helper.dart';
+import 'package:imrpo/features/budgets/data/datasources/budget_datasource.dart';
 import 'package:imrpo/features/expenses_tab/data/datasources/expenses_datasource.dart';
 import 'package:imrpo/features/expenses_tab/data/models/expense_model.dart';
 import 'package:imrpo/features/expenses_tab/domain/repositories/expense_repository.dart';
 
 class ExpenseRepositroyImpl extends ExpenseRepository {
   final ExpensesDatasource expensesDatasource;
+  final BudgetDatasource budgetDatasource;
 
-  ExpenseRepositroyImpl({required this.expensesDatasource});
+  ExpenseRepositroyImpl({
+    required this.expensesDatasource,
+    required this.budgetDatasource,
+  });
   @override
   Future<Either<Failure, void>> addExpense(
     String title,
@@ -70,6 +75,37 @@ class ExpenseRepositroyImpl extends ExpenseRepository {
         date,
       );
       return Right(null);
+    } catch (e) {
+      return Left(ErrorHelper.handle(e));
+    }
+  }
+
+  @override
+  Future<Either<Failure, int>> renameCategory(
+    String fromCategory,
+    String toCategory,
+  ) async {
+    try {
+      final count = await expensesDatasource.renameCategory(
+        fromCategory,
+        toCategory,
+      );
+      try {
+        await budgetDatasource.renameCategory(fromCategory, toCategory);
+      } catch (_) {
+        // Budget rename may conflict if target category already has a budget.
+      }
+      return Right(count);
+    } catch (e) {
+      return Left(ErrorHelper.handle(e));
+    }
+  }
+
+  @override
+  Future<Either<Failure, int>> deleteByCategory(String category) async {
+    try {
+      final count = await expensesDatasource.deleteByCategory(category);
+      return Right(count);
     } catch (e) {
       return Left(ErrorHelper.handle(e));
     }

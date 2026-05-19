@@ -10,12 +10,15 @@ import 'package:imrpo/core/services/service_locator.dart';
 import 'package:imrpo/core/services/sms_bulk_import_service.dart';
 import 'package:imrpo/core/services/sms_import_service.dart';
 import 'package:imrpo/core/services/sms_imported_registry.dart';
+import 'package:imrpo/core/theme/app_decorations.dart';
 import 'package:imrpo/core/utils/app_colors.dart';
+import 'package:imrpo/core/widgets/tab_refresh_overlay.dart';
 import 'package:imrpo/core/utils/money_format.dart';
 import 'package:imrpo/features/expenses_tab/presentation/bloc/expenses_tab_bloc.dart';
 import 'package:imrpo/features/expenses_tab/presentation/widgets/add_expense_sheet.dart';
 import 'package:imrpo/features/incomes_tab/presentation/bloc/incomes_tab_bloc.dart';
 import 'package:imrpo/features/incomes_tab/presentation/widgets/add_income_sheet.dart';
+import 'package:imrpo/features/smart_import/presentation/widgets/smart_import_bulk_category_sheet.dart';
 import 'package:imrpo/l10n/app_localizations.dart';
 import 'package:intl/intl.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -63,82 +66,50 @@ class _SmartImportScreenState extends State<SmartImportScreen>
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
 
-    return Stack(
-      children: [
-        Scaffold(
-          backgroundColor: AppColors.scaffold,
-          appBar: AppBar(
-            title: Text(l10n.smartImportTitle),
-            backgroundColor: AppColors.primary,
-            foregroundColor: Colors.white,
-            bottom: TabBar(
-              controller: _tabController,
-              indicatorColor: Colors.white,
-              labelColor: Colors.white,
-              unselectedLabelColor: Colors.white70,
-              tabs: [
-                Tab(
-                  text: l10n.smartImportInvoiceTab,
-                  icon: const Icon(Icons.receipt_long_outlined),
-                ),
-                Tab(
-                  text: l10n.smartImportSmsTab,
-                  icon: const Icon(Icons.sms_outlined),
-                ),
-              ],
+    return Scaffold(
+      backgroundColor: AppColors.scaffold,
+      body: SafeArea(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            _SmartImportHeader(
+              title: l10n.smartImportTitle,
+              tabController: _tabController,
+              invoiceLabel: l10n.smartImportInvoiceTab,
+              smsLabel: l10n.smartImportSmsTab,
             ),
-          ),
-          body: TabBarView(
-            controller: _tabController,
-            children: [
-              _InvoiceOcrTab(
-                loading: _ocrLoading,
-                previewPath: _ocrPreviewPath,
-                result: _ocrResult,
-                onScanCamera: () => _scanInvoice(ImageSource.camera),
-                onScanGallery: () => _scanInvoice(ImageSource.gallery),
-                onAddEntry: _openPrefilledSheet,
+            Expanded(
+              child: TabBarView(
+                controller: _tabController,
+                children: [
+                  _InvoiceOcrTab(
+                    loading: _ocrLoading,
+                    previewPath: _ocrPreviewPath,
+                    result: _ocrResult,
+                    onScanCamera: () => _scanInvoice(ImageSource.camera),
+                    onScanGallery: () => _scanInvoice(ImageSource.gallery),
+                    onAddEntry: _openPrefilledSheet,
+                  ),
+                  _SmsImportTab(
+                    loading: _smsLoading,
+                    loadingMore: _smsLoadingMore,
+                    hasMore: _smsHasMore,
+                    bulkImporting: _bulkImporting,
+                    messages: _smsMessages,
+                    error: _smsError,
+                    smsSupported: _smsService.isSupported,
+                    onRefresh: _loadSms,
+                    onLoadMore: _loadMoreSms,
+                    onAddEntry: _openPrefilledSheetFromSms,
+                    onBulkImport: _bulkImport,
+                    onClearAllAdded: _confirmClearAllImportedSms,
+                  ),
+                ],
               ),
-              _SmsImportTab(
-                loading: _smsLoading,
-                loadingMore: _smsLoadingMore,
-                hasMore: _smsHasMore,
-                bulkImporting: _bulkImporting,
-                messages: _smsMessages,
-                error: _smsError,
-                smsSupported: _smsService.isSupported,
-                onRefresh: _loadSms,
-                onLoadMore: _loadMoreSms,
-                onAddEntry: _openPrefilledSheetFromSms,
-                onBulkImport: _bulkImport,
-                onClearAllAdded: _confirmClearAllImportedSms,
-              ),
-            ],
-          ),
+            ),
+          ],
         ),
-        if (_bulkImporting)
-          const ModalBarrier(dismissible: false, color: Colors.black26),
-        if (_bulkImporting)
-          Center(
-            child: Card(
-              margin: const EdgeInsets.all(32),
-              child: Padding(
-                padding: const EdgeInsets.all(24),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const CircularProgressIndicator(color: AppColors.primary),
-                    const SizedBox(height: 16),
-                    Text(
-                      l10n.smartImportBulkImporting,
-                      style: const TextStyle(fontWeight: FontWeight.w600),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-      ],
+      ),
     );
   }
 
@@ -245,8 +216,10 @@ class _SmartImportScreenState extends State<SmartImportScreen>
       });
     } catch (_) {
       if (mounted) {
-        _showSnack(AppLocalizations.of(context)!.smartImportSmsFailed,
-            isError: true);
+        _showSnack(
+          AppLocalizations.of(context)!.smartImportSmsFailed,
+          isError: true,
+        );
       }
     } finally {
       if (mounted) setState(() => _smsLoadingMore = false);
@@ -263,7 +236,11 @@ class _SmartImportScreenState extends State<SmartImportScreen>
     );
   }
 
-  Future<void> _bulkImport(List<SmsMessageItem> items) async {
+  Future<void> _bulkImport(
+    List<SmsMessageItem> items, {
+    String? expenseCategory,
+    String? incomeSource,
+  }) async {
     final l10n = AppLocalizations.of(context)!;
     final importable = items.where(_bulkImportService.canImport).toList();
 
@@ -275,7 +252,11 @@ class _SmartImportScreenState extends State<SmartImportScreen>
     setState(() => _bulkImporting = true);
 
     try {
-      final result = await _bulkImportService.importAll(importable);
+      final result = await _bulkImportService.importAll(
+        importable,
+        expenseCategory: expenseCategory,
+        incomeSource: incomeSource,
+      );
       if (!mounted) return;
 
       context.read<ExpensesTabBloc>().add(const LoadExpensesEvent(force: true));
@@ -425,6 +406,109 @@ class _SmartImportScreenState extends State<SmartImportScreen>
   }
 }
 
+class _SmartImportHeader extends StatelessWidget {
+  final String title;
+  final TabController tabController;
+  final String invoiceLabel;
+  final String smsLabel;
+
+  const _SmartImportHeader({
+    required this.title,
+    required this.tabController,
+    required this.invoiceLabel,
+    required this.smsLabel,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(8, 4, 16, 0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Row(
+            children: [
+              IconButton(
+                onPressed: () => Navigator.of(context).maybePop(),
+                icon: const Icon(Icons.arrow_back_rounded),
+                color: AppColors.textColor,
+              ),
+              Expanded(
+                child: Text(
+                  title,
+                  style: const TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.textColor,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(12, 4, 12, 12),
+            child: Container(
+              padding: const EdgeInsets.all(4),
+              decoration: BoxDecoration(
+                color: AppColors.surface,
+                borderRadius: BorderRadius.circular(14),
+                border: Border.all(color: AppColors.border),
+              ),
+              child: TabBar(
+                controller: tabController,
+                indicator: BoxDecoration(
+                  color: AppColors.card,
+                  borderRadius: BorderRadius.circular(10),
+                  boxShadow: AppDecorations.flatShadow(
+                    color: AppColors.stroke,
+                    offset: const Offset(0, 2),
+                  ),
+                ),
+                indicatorSize: TabBarIndicatorSize.tab,
+                dividerColor: Colors.transparent,
+                labelColor: AppColors.textColor,
+                unselectedLabelColor: AppColors.textMuted,
+                labelStyle: const TextStyle(
+                  fontWeight: FontWeight.w700,
+                  fontSize: 13,
+                ),
+                unselectedLabelStyle: const TextStyle(
+                  fontWeight: FontWeight.w600,
+                  fontSize: 13,
+                ),
+                tabs: [
+                  Tab(
+                    height: 44,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Icon(Icons.receipt_long_outlined, size: 18),
+                        const SizedBox(width: 6),
+                        Text(invoiceLabel),
+                      ],
+                    ),
+                  ),
+                  Tab(
+                    height: 44,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Icon(Icons.sms_outlined, size: 18),
+                        const SizedBox(width: 6),
+                        Text(smsLabel),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 class _InvoiceOcrTab extends StatelessWidget {
   final bool loading;
   final String? previewPath;
@@ -447,66 +531,92 @@ class _InvoiceOcrTab extends StatelessWidget {
     final l10n = AppLocalizations.of(context)!;
 
     return ListView(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.fromLTRB(20, 4, 20, 28),
       children: [
-        Text(
-          l10n.smartImportInvoiceHint,
-          style: TextStyle(
-            color: AppColors.textColor.withValues(alpha: 0.7),
-            height: 1.4,
+        Container(
+          width: double.infinity,
+          padding: const EdgeInsets.all(18),
+          decoration: AppDecorations.card(
+            borderColor: AppColors.primary.withValues(alpha: 0.2),
+          ),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: AppColors.primary.withValues(alpha: 0.12),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: const Icon(
+                  Icons.document_scanner_outlined,
+                  color: AppColors.primary,
+                  size: 24,
+                ),
+              ),
+              const SizedBox(width: 14),
+              Expanded(
+                child: Text(
+                  l10n.smartImportInvoiceHint,
+                  style: TextStyle(
+                    color: AppColors.textColor.withValues(alpha: 0.72),
+                    height: 1.45,
+                    fontSize: 14,
+                  ),
+                ),
+              ),
+            ],
           ),
         ),
-        const SizedBox(height: 20),
-        Row(
-          children: [
-            Expanded(
-              child: _ActionButton(
-                icon: Icons.photo_camera_outlined,
-                label: l10n.smartImportScanCamera,
-                color: AppColors.expense,
-                onTap: loading ? null : onScanCamera,
-              ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: _ActionButton(
-                icon: Icons.photo_library_outlined,
-                label: l10n.smartImportScanGallery,
-                color: AppColors.primary,
-                onTap: loading ? null : onScanGallery,
-              ),
-            ),
-          ],
+        const SizedBox(height: 16),
+        _ActionButton(
+          icon: Icons.photo_camera_outlined,
+          label: l10n.smartImportScanCamera,
+          color: AppColors.expense,
+          onTap: loading ? null : onScanCamera,
+        ),
+        const SizedBox(height: 10),
+        _ActionButton(
+          icon: Icons.photo_library_outlined,
+          label: l10n.smartImportScanGallery,
+          color: AppColors.primary,
+          onTap: loading ? null : onScanGallery,
         ),
         if (loading) ...[
-          const SizedBox(height: 32),
-          const Center(
-            child: CircularProgressIndicator(color: AppColors.primary),
-          ),
-          const SizedBox(height: 12),
-          Center(
-            child: Text(
-              l10n.smartImportOcrProcessing,
-              style: TextStyle(
-                color: AppColors.textColor.withValues(alpha: 0.6),
-              ),
+          const SizedBox(height: 28),
+          Container(
+            padding: const EdgeInsets.symmetric(vertical: 28),
+            decoration: AppDecorations.card(),
+            child: Column(
+              children: [
+                const CircularProgressIndicator(color: AppColors.primary),
+                const SizedBox(height: 14),
+                Text(
+                  l10n.smartImportOcrProcessing,
+                  style: TextStyle(
+                    color: AppColors.textColor.withValues(alpha: 0.6),
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ],
             ),
           ),
         ],
         if (previewPath != null && !loading) ...[
-          const SizedBox(height: 24),
-          ClipRRect(
-            borderRadius: BorderRadius.circular(16),
+          const SizedBox(height: 20),
+          Container(
+            decoration: AppDecorations.card(),
+            clipBehavior: Clip.antiAlias,
             child: Image.file(
               File(previewPath!),
-              height: 180,
+              height: 200,
               width: double.infinity,
               fit: BoxFit.cover,
             ),
           ),
         ],
         if (result != null && result!.hasUsableData && !loading) ...[
-          const SizedBox(height: 24),
+          const SizedBox(height: 20),
           _ParsedEntryCard(entry: result!, onAdd: () => onAddEntry(result!)),
         ],
       ],
@@ -525,7 +635,12 @@ class _SmsImportTab extends StatefulWidget {
   final VoidCallback onRefresh;
   final VoidCallback onLoadMore;
   final Future<void> Function(SmsMessageItem item, {bool reimport}) onAddEntry;
-  final Future<void> Function(List<SmsMessageItem> items) onBulkImport;
+  final Future<void> Function(
+    List<SmsMessageItem> items, {
+    String? expenseCategory,
+    String? incomeSource,
+  })
+  onBulkImport;
   final VoidCallback onClearAllAdded;
 
   const _SmsImportTab({
@@ -639,8 +754,28 @@ class _SmsImportTabState extends State<_SmsImportTab> {
   void _clearSelection() => setState(_selectedIds.clear);
 
   Future<void> _runBulk(List<SmsMessageItem> items) async {
-    if (widget.bulkImporting) return;
-    await widget.onBulkImport(items);
+    if (widget.bulkImporting || items.isEmpty) return;
+
+    final hasExpense = items.any(
+      (m) => m.parsed.type == FinancialEntryType.expense,
+    );
+    final hasIncome = items.any(
+      (m) => m.parsed.type == FinancialEntryType.income,
+    );
+    if (!hasExpense && !hasIncome) return;
+
+    final categories = await showSmartImportBulkCategorySheet(
+      context,
+      needsExpenseCategory: hasExpense,
+      needsIncomeSource: hasIncome,
+    );
+    if (categories == null || !mounted) return;
+
+    await widget.onBulkImport(
+      items,
+      expenseCategory: categories.expenseCategory,
+      incomeSource: categories.incomeSource,
+    );
     if (mounted) setState(_selectedIds.clear);
   }
 
@@ -656,100 +791,308 @@ class _SmsImportTabState extends State<_SmsImportTab> {
       );
     }
 
-    if (widget.loading && widget.messages.isEmpty) {
-      return const Center(
-        child: CircularProgressIndicator(color: AppColors.primary),
+    final isInitialLoading = widget.loading && widget.messages.isEmpty;
+    final isRefreshing = widget.loading && widget.messages.isNotEmpty;
+
+    Widget body;
+    if (isInitialLoading) {
+      body = _SmsLoadingList(message: l10n.smartImportSmsLoading);
+    } else if (widget.messages.isEmpty) {
+      body = ListView(
+        physics: const AlwaysScrollableScrollPhysics(),
+        padding: const EdgeInsets.fromLTRB(16, 24, 16, 32),
+        children: [
+          _CenterMessage(
+            icon: Icons.sms_failed_outlined,
+            message: widget.error ?? l10n.smartImportSmsEmpty,
+            actionLabel: l10n.smartImportReloadSms,
+            onAction: widget.onRefresh,
+          ),
+        ],
+      );
+    } else {
+      body = ListenableBuilder(
+        listenable: _importedRegistry,
+        builder: (context, _) {
+          return CustomScrollView(
+            controller: _scrollController,
+            physics: const AlwaysScrollableScrollPhysics(),
+            slivers: [
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
+                  child: Container(
+                    padding: const EdgeInsets.all(14),
+                    decoration: AppDecorations.card(
+                      borderColor: AppColors.border,
+                    ),
+                    child: _SmsBulkActionsBar(
+                      disabled: disabled,
+                      importedCount: _importedRegistry.importedCount,
+                      expenseCount: _expenseItems.length,
+                      incomeCount: _incomeItems.length,
+                      selectedCount: _selectedItems.length,
+                      hasSelection: _selectedIds.isNotEmpty,
+                      onAddAllExpenses: () => _runBulk(_expenseItems),
+                      onAddAllIncomes: () => _runBulk(_incomeItems),
+                      onAddSelected: () => _runBulk(_selectedItems),
+                      onSelectAll: _selectAllImportable,
+                      onClearSelection: _clearSelection,
+                      onClearAllAdded: widget.onClearAllAdded,
+                    ),
+                  ),
+                ),
+              ),
+              SliverPadding(
+                padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
+                sliver: SliverList.separated(
+                  itemCount: widget.messages.length,
+                  separatorBuilder: (_, _) => const SizedBox(height: 10),
+                  itemBuilder: (context, index) {
+                    final item = widget.messages[index];
+                    final isImported = _importedRegistry.isImported(item.id);
+                    final canImport = _bulkImportService.canImport(item);
+                    final canReimport =
+                        isImported && _bulkImportService.canReimport(item);
+                    return _SmsListTile(
+                      item: item,
+                      isImported: isImported,
+                      canImport: canImport,
+                      canReimport: canReimport,
+                      selected: _selectedIds.contains(item.id),
+                      disabled: disabled,
+                      onToggleSelect:
+                          canImport ? () => _toggleSelection(item) : null,
+                      onAdd: () => widget.onAddEntry(item),
+                      onAddAgain: canReimport
+                          ? () => widget.onAddEntry(item, reimport: true)
+                          : null,
+                    );
+                  },
+                ),
+              ),
+              if (widget.hasMore || widget.loadingMore)
+                SliverToBoxAdapter(
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
+                    child: _SmsPaginationFooter(
+                      loading: widget.loadingMore,
+                      onLoadMore: widget.onLoadMore,
+                    ),
+                  ),
+                ),
+            ],
+          );
+        },
       );
     }
 
-    return RefreshIndicator(
-      color: AppColors.primary,
-      onRefresh: disabled ? () async {} : () async => widget.onRefresh(),
-      child: widget.messages.isEmpty
-          ? ListView(
-              physics: const AlwaysScrollableScrollPhysics(),
+    return Stack(
+      children: [
+        TabRefreshOverlay(
+          isRefreshing: isRefreshing,
+          indicatorColor: AppColors.primary,
+          child: RefreshIndicator(
+            color: AppColors.primary,
+            onRefresh: disabled
+                ? () async {}
+                : () async {
+                    widget.onRefresh();
+                  },
+            child: body,
+          ),
+        ),
+        if (widget.bulkImporting)
+          Positioned.fill(
+            child: ColoredBox(
+              color: AppColors.scaffold.withValues(alpha: 0.85),
+              child: Center(
+                child: _BulkImportProgressCard(
+                  message: l10n.smartImportBulkImporting,
+                ),
+              ),
+            ),
+          ),
+      ],
+    );
+  }
+}
+
+class _BulkImportProgressCard extends StatelessWidget {
+  final String message;
+
+  const _BulkImportProgressCard({required this.message});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 32),
+      padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 28),
+      decoration: AppDecorations.card(borderColor: AppColors.primary),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(14),
+            decoration: BoxDecoration(
+              color: AppColors.primary.withValues(alpha: 0.12),
+              shape: BoxShape.circle,
+            ),
+            child: const SizedBox(
+              width: 32,
+              height: 32,
+              child: CircularProgressIndicator(
+                strokeWidth: 2.5,
+                color: AppColors.primary,
+              ),
+            ),
+          ),
+          const SizedBox(height: 18),
+          Text(
+            message,
+            textAlign: TextAlign.center,
+            style: const TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w600,
+              color: AppColors.textColor,
+              height: 1.35,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _SmsLoadingList extends StatelessWidget {
+  final String message;
+
+  const _SmsLoadingList({required this.message});
+
+  @override
+  Widget build(BuildContext context) {
+    return CustomScrollView(
+      physics: const AlwaysScrollableScrollPhysics(),
+      slivers: [
+        SliverToBoxAdapter(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(16, 16, 16, 12),
+            child: Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(20),
+              decoration: AppDecorations.card(
+                borderColor: AppColors.primary.withValues(alpha: 0.2),
+              ),
+              child: Column(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: AppColors.primary.withValues(alpha: 0.1),
+                      shape: BoxShape.circle,
+                    ),
+                    child: const SizedBox(
+                      width: 28,
+                      height: 28,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2.5,
+                        color: AppColors.primary,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 14),
+                  Text(
+                    message,
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.textColor.withValues(alpha: 0.75),
+                      height: 1.35,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+        SliverPadding(
+          padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
+          sliver: SliverList.separated(
+            itemCount: 4,
+            separatorBuilder: (_, _) => const SizedBox(height: 10),
+            itemBuilder: (_, _) => const _SmsSkeletonTile(),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _SmsSkeletonTile extends StatelessWidget {
+  const _SmsSkeletonTile();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(14),
+      decoration: AppDecorations.card(borderColor: AppColors.border),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            width: 22,
+            height: 22,
+            decoration: BoxDecoration(
+              color: AppColors.surface,
+              borderRadius: BorderRadius.circular(4),
+            ),
+          ),
+          const SizedBox(width: 12),
+          Container(
+            width: 36,
+            height: 36,
+            decoration: BoxDecoration(
+              color: AppColors.surface,
+              borderRadius: BorderRadius.circular(10),
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                SizedBox(height: MediaQuery.sizeOf(context).height * 0.2),
-                _CenterMessage(
-                  icon: Icons.sms_failed_outlined,
-                  message: widget.error ?? l10n.smartImportSmsEmpty,
-                  actionLabel: l10n.smartImportReloadSms,
-                  onAction: widget.onRefresh,
+                Container(
+                  height: 14,
+                  width: double.infinity,
+                  decoration: BoxDecoration(
+                    color: AppColors.surface,
+                    borderRadius: BorderRadius.circular(6),
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Container(
+                  height: 12,
+                  width: 120,
+                  decoration: BoxDecoration(
+                    color: AppColors.surface,
+                    borderRadius: BorderRadius.circular(6),
+                  ),
                 ),
               ],
-            )
-          : ListenableBuilder(
-              listenable: _importedRegistry,
-              builder: (context, _) {
-                return CustomScrollView(
-                  controller: _scrollController,
-                  physics: const AlwaysScrollableScrollPhysics(),
-                  slivers: [
-                    SliverToBoxAdapter(
-                      child: Padding(
-                        padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-                        child: _SmsBulkActionsBar(
-                          disabled: disabled,
-                          importedCount: _importedRegistry.importedCount,
-                          expenseCount: _expenseItems.length,
-                          incomeCount: _incomeItems.length,
-                          selectedCount: _selectedItems.length,
-                          hasSelection: _selectedIds.isNotEmpty,
-                          onAddAllExpenses: () => _runBulk(_expenseItems),
-                          onAddAllIncomes: () => _runBulk(_incomeItems),
-                          onAddSelected: () => _runBulk(_selectedItems),
-                          onSelectAll: _selectAllImportable,
-                          onClearSelection: _clearSelection,
-                          onClearAllAdded: widget.onClearAllAdded,
-                        ),
-                      ),
-                    ),
-                    SliverPadding(
-                      padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
-                      sliver: SliverList.separated(
-                        itemCount: widget.messages.length,
-                        separatorBuilder: (_, _) =>
-                            const SizedBox(height: 10),
-                        itemBuilder: (context, index) {
-                          final item = widget.messages[index];
-                          final isImported =
-                              _importedRegistry.isImported(item.id);
-                          final canImport =
-                              _bulkImportService.canImport(item);
-                          final canReimport =
-                              isImported && _bulkImportService.canReimport(item);
-                          return _SmsListTile(
-                            item: item,
-                            isImported: isImported,
-                            canImport: canImport,
-                            canReimport: canReimport,
-                            selected: _selectedIds.contains(item.id),
-                            disabled: disabled,
-                            onToggleSelect: canImport
-                                ? () => _toggleSelection(item)
-                                : null,
-                            onAdd: () => widget.onAddEntry(item),
-                            onAddAgain: canReimport
-                                ? () => widget.onAddEntry(item, reimport: true)
-                                : null,
-                          );
-                        },
-                      ),
-                    ),
-                    if (widget.hasMore || widget.loadingMore)
-                      SliverToBoxAdapter(
-                        child: Padding(
-                          padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
-                          child: _SmsPaginationFooter(
-                            loading: widget.loadingMore,
-                            onLoadMore: widget.onLoadMore,
-                          ),
-                        ),
-                      ),
-                  ],
-                );
-              },
             ),
+          ),
+          const SizedBox(width: 12),
+          Container(
+            width: 56,
+            height: 16,
+            decoration: BoxDecoration(
+              color: AppColors.surface,
+              borderRadius: BorderRadius.circular(6),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -758,27 +1101,36 @@ class _SmsPaginationFooter extends StatelessWidget {
   final bool loading;
   final VoidCallback onLoadMore;
 
-  const _SmsPaginationFooter({
-    required this.loading,
-    required this.onLoadMore,
-  });
+  const _SmsPaginationFooter({required this.loading, required this.onLoadMore});
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
 
     if (loading) {
-      return const Padding(
-        padding: EdgeInsets.symmetric(vertical: 16),
-        child: Center(
-          child: SizedBox(
-            width: 28,
-            height: 28,
-            child: CircularProgressIndicator(
-              strokeWidth: 2.5,
-              color: AppColors.primary,
+      return Padding(
+        padding: const EdgeInsets.symmetric(vertical: 12),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const SizedBox(
+              width: 20,
+              height: 20,
+              child: CircularProgressIndicator(
+                strokeWidth: 2,
+                color: AppColors.primary,
+              ),
             ),
-          ),
+            const SizedBox(width: 10),
+            Text(
+              l10n.smartImportSmsLoadingMore,
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+                color: AppColors.textColor.withValues(alpha: 0.6),
+              ),
+            ),
+          ],
         ),
       );
     }
@@ -858,9 +1210,7 @@ class _SmsBulkActionsBar extends StatelessWidget {
               onPressed: disabled ? null : onClearAllAdded,
               icon: const Icon(Icons.clear_all_rounded, size: 18),
               label: Text(l10n.smartImportSmsClearAllAdded),
-              style: TextButton.styleFrom(
-                foregroundColor: AppColors.expense,
-              ),
+              style: TextButton.styleFrom(foregroundColor: AppColors.expense),
             ),
           ),
         ],
@@ -978,29 +1328,28 @@ class _SmsListTile extends StatelessWidget {
     final parsed = item.parsed;
     final isExpense = parsed.type == FinancialEntryType.expense;
 
+    final accent = isExpense ? AppColors.expense : AppColors.income;
+
     return Material(
-      color: isImported
-          ? AppColors.surface
-          : selected
-              ? AppColors.primary.withValues(alpha: 0.06)
-              : AppColors.card,
-      borderRadius: BorderRadius.circular(16),
+      color: Colors.transparent,
       child: InkWell(
         onTap: disabled || isImported ? null : (onToggleSelect ?? onAdd),
         onLongPress: disabled || !canImport || isImported ? null : onAdd,
         borderRadius: BorderRadius.circular(16),
         child: Container(
-          padding: const EdgeInsets.all(12),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(
-              color: isImported
-                  ? AppColors.border
-                  : selected
-                      ? AppColors.primary
-                      : AppColors.border,
-              width: selected && !isImported ? 1.5 : 1,
-            ),
+          padding: const EdgeInsets.all(14),
+          decoration: AppDecorations.card(
+            borderColor: isImported
+                ? AppColors.border
+                : selected
+                    ? AppColors.primary
+                    : accent.withValues(alpha: 0.18),
+          ).copyWith(
+            color: isImported
+                ? AppColors.surface
+                : selected
+                    ? AppColors.primary.withValues(alpha: 0.05)
+                    : AppColors.card,
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -1023,14 +1372,13 @@ class _SmsListTile extends StatelessWidget {
                   Container(
                     padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
-                      color: (isExpense ? AppColors.expense : AppColors.income)
-                          .withValues(alpha: 0.12),
+                      color: accent.withValues(alpha: 0.12),
                       borderRadius: BorderRadius.circular(10),
                     ),
                     child: Icon(
                       Icons.sms_outlined,
                       size: 20,
-                      color: isExpense ? AppColors.expense : AppColors.income,
+                      color: accent,
                     ),
                   ),
                   const SizedBox(width: 12),
@@ -1058,7 +1406,9 @@ class _SmsListTile extends StatelessWidget {
                             item.displaySubtitle!,
                             style: TextStyle(
                               fontSize: 12,
-                              color: AppColors.textColor.withValues(alpha: 0.45),
+                              color: AppColors.textColor.withValues(
+                                alpha: 0.45,
+                              ),
                             ),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
@@ -1066,9 +1416,9 @@ class _SmsListTile extends StatelessWidget {
                         ],
                         const SizedBox(height: 4),
                         Text(
-                          DateFormat.yMMMd(locale)
-                              .add_jm()
-                              .format(parsed.date ?? item.date),
+                          DateFormat.yMMMd(
+                            locale,
+                          ).add_jm().format(parsed.date ?? item.date),
                           style: TextStyle(
                             fontSize: 12,
                             color: AppColors.textColor.withValues(alpha: 0.5),
@@ -1085,8 +1435,7 @@ class _SmsListTile extends StatelessWidget {
                         style: TextStyle(
                           fontSize: 15,
                           fontWeight: FontWeight.bold,
-                          color:
-                              isExpense ? AppColors.expense : AppColors.income,
+                          color: accent,
                         ),
                       ),
                     ),
@@ -1115,7 +1464,7 @@ class _SmsListTile extends StatelessWidget {
                           ? Icons.north_east_rounded
                           : Icons.south_west_rounded,
                       size: 14,
-                      color: isExpense ? AppColors.expense : AppColors.income,
+                      color: accent,
                     ),
                     const SizedBox(width: 4),
                     Text(
@@ -1220,28 +1569,40 @@ class _ParsedEntryCard extends StatelessWidget {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: AppColors.card,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: AppColors.border),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.04),
-            blurRadius: 12,
-            offset: const Offset(0, 4),
-          ),
-        ],
+      decoration: AppDecorations.card(
+        borderColor: (isExpense ? AppColors.expense : AppColors.income)
+            .withValues(alpha: 0.25),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            l10n.smartImportExtractedData,
-            style: const TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-              color: AppColors.textColor,
-            ),
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: (isExpense ? AppColors.expense : AppColors.income)
+                      .withValues(alpha: 0.12),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Icon(
+                  isExpense
+                      ? Icons.north_east_rounded
+                      : Icons.south_west_rounded,
+                  size: 18,
+                  color: isExpense ? AppColors.expense : AppColors.income,
+                ),
+              ),
+              const SizedBox(width: 10),
+              Text(
+                l10n.smartImportExtractedData,
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.textColor,
+                ),
+              ),
+            ],
           ),
           const SizedBox(height: 16),
           _InfoRow(
@@ -1273,10 +1634,12 @@ class _ParsedEntryCard extends StatelessWidget {
               icon: const Icon(Icons.add_rounded),
               label: Text(l10n.smartImportAddToApp),
               style: FilledButton.styleFrom(
-                backgroundColor: isExpense
-                    ? AppColors.expense
-                    : AppColors.income,
+                backgroundColor:
+                    isExpense ? AppColors.expense : AppColors.income,
                 padding: const EdgeInsets.symmetric(vertical: 14),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(14),
+                ),
               ),
             ),
           ),
@@ -1340,25 +1703,39 @@ class _ActionButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: color.withValues(alpha: 0.12),
-      borderRadius: BorderRadius.circular(16),
+      color: Colors.transparent,
       child: InkWell(
         onTap: onTap,
         borderRadius: BorderRadius.circular(16),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 12),
-          child: Column(
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+          decoration: AppDecorations.card(
+            borderColor: color.withValues(alpha: 0.35),
+          ),
+          child: Row(
             children: [
-              Icon(icon, color: color, size: 28),
-              const SizedBox(height: 8),
-              Text(
-                label,
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontWeight: FontWeight.w600,
-                  color: color,
-                  fontSize: 13,
+              Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: color.withValues(alpha: 0.12),
+                  borderRadius: BorderRadius.circular(12),
                 ),
+                child: Icon(icon, color: color, size: 24),
+              ),
+              const SizedBox(width: 14),
+              Expanded(
+                child: Text(
+                  label,
+                  style: TextStyle(
+                    fontWeight: FontWeight.w700,
+                    color: color,
+                    fontSize: 15,
+                  ),
+                ),
+              ),
+              Icon(
+                Icons.chevron_right_rounded,
+                color: color.withValues(alpha: 0.7),
               ),
             ],
           ),
@@ -1384,29 +1761,51 @@ class _CenterMessage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.all(32),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(
-            icon,
-            size: 48,
-            color: AppColors.textColor.withValues(alpha: 0.35),
-          ),
-          const SizedBox(height: 16),
-          Text(
-            message,
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              color: AppColors.textColor.withValues(alpha: 0.65),
-              height: 1.4,
+      padding: const EdgeInsets.symmetric(horizontal: 24),
+      child: Container(
+        padding: const EdgeInsets.all(28),
+        decoration: AppDecorations.card(),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(14),
+              decoration: BoxDecoration(
+                color: AppColors.surface,
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                icon,
+                size: 40,
+                color: AppColors.textColor.withValues(alpha: 0.4),
+              ),
             ),
-          ),
-          if (actionLabel != null && onAction != null) ...[
             const SizedBox(height: 16),
-            TextButton(onPressed: onAction, child: Text(actionLabel!)),
+            Text(
+              message,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: AppColors.textColor.withValues(alpha: 0.65),
+                height: 1.45,
+                fontSize: 14,
+              ),
+            ),
+            if (actionLabel != null && onAction != null) ...[
+              const SizedBox(height: 18),
+              FilledButton(
+                onPressed: onAction,
+                style: FilledButton.styleFrom(
+                  backgroundColor: AppColors.primary,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 24,
+                    vertical: 12,
+                  ),
+                ),
+                child: Text(actionLabel!),
+              ),
+            ],
           ],
-        ],
+        ),
       ),
     );
   }

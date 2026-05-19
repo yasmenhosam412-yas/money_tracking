@@ -24,7 +24,10 @@ class IncomeListTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    final cat = localizeIncomeCategory(l10n, income.category);
+    final source = localizeIncomeCategory(l10n, income.category);
+    final title = localizeDemoTitle(l10n, income.title);
+    final showTitleSubtitle =
+        title.trim().toLowerCase() != source.trim().toLowerCase();
     return Material(
       color: Colors.transparent,
       child: InkWell(
@@ -57,7 +60,7 @@ class IncomeListTile extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      localizeDemoTitle(l10n, income.title),
+                      source,
                       style: const TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w600,
@@ -66,7 +69,9 @@ class IncomeListTile extends StatelessWidget {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      '$cat · ${_formatDate(context, income.date)}',
+                      showTitleSubtitle
+                          ? '$title · ${_formatDate(context, income.date)}'
+                          : _formatDate(context, income.date),
                       style: TextStyle(
                         fontSize: 13,
                         color: AppColors.textColor.withValues(alpha: 0.55),

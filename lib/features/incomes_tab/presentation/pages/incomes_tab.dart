@@ -5,6 +5,7 @@ import 'package:imrpo/core/services/home_date_filter.dart';
 import 'package:imrpo/core/services/service_locator.dart';
 import 'package:imrpo/core/theme/app_decorations.dart';
 import 'package:imrpo/core/utils/app_colors.dart';
+import 'package:imrpo/core/widgets/tab_centered_scroll.dart';
 import 'package:imrpo/core/widgets/tab_refresh_overlay.dart';
 import 'package:imrpo/core/utils/money_format.dart';
 import 'package:imrpo/features/incomes_tab/domain/entities/income.dart';
@@ -22,8 +23,15 @@ class IncomesTab extends StatefulWidget {
 
 class _IncomesTabState extends State<IncomesTab>
     with AutomaticKeepAliveClientMixin {
+  String? _selectedSource;
+
   @override
   bool get wantKeepAlive => true;
+
+  static String _sourceKey(Income income) {
+    final category = income.category.trim();
+    return category.isEmpty ? 'Other' : category;
+  }
 
   @override
   void initState() {
@@ -36,7 +44,7 @@ class _IncomesTabState extends State<IncomesTab>
     super.build(context);
     final l10n = AppLocalizations.of(context)!;
     return Scaffold(
-      backgroundColor: AppColors.scaffold,
+      backgroundColor: Colors.transparent,
       floatingActionButton: FloatingActionButton.extended(
         heroTag: 'fab-incomes',
         onPressed: _openAddSheet,
@@ -81,8 +89,8 @@ class _IncomesTabState extends State<IncomesTab>
         builder: (context, state) {
           if (state.incomes.isEmpty &&
               state.status == IncomesTabStatus.loadingAll) {
-            return const Center(
-              child: CircularProgressIndicator(color: AppColors.income),
+            return tabCenteredScroll(
+              const CircularProgressIndicator(color: AppColors.income),
             );
           }
 
@@ -98,13 +106,29 @@ class _IncomesTabState extends State<IncomesTab>
             listenable: getIt<HomeDateFilter>(),
             builder: (context, _) {
               final dateFilter = getIt<HomeDateFilter>();
-              final filtered = sorted
+              final dateFiltered = sorted
                   .where((income) => dateFilter.matches(income.date))
                   .toList();
+              final availableSources = dateFiltered
+                  .map(_sourceKey)
+                  .toSet()
+                  .toList()
+                ..sort();
+              final activeSource =
+                  _selectedSource != null &&
+                      availableSources.contains(_selectedSource)
+                  ? _selectedSource
+                  : null;
+              final filtered = activeSource == null
+                  ? dateFiltered
+                  : dateFiltered
+                        .where((income) => _sourceKey(income) == activeSource)
+                        .toList();
               final periodTotal = filtered.fold<double>(
                 0,
                 (sum, income) => sum + income.amount,
               );
+              final sourceTotals = _totalsBySource(dateFiltered);
 
               return Stack(
             children: [
@@ -126,9 +150,46 @@ class _IncomesTabState extends State<IncomesTab>
                   child: _SummaryCard(
                     total: periodTotal,
                     periodLabel: dateFilter.summaryPeriodLabel(context),
+                    sourceLabel: activeSource == null
+                        ? null
+                        : localizeIncomeCategory(
+                            l10n,
+                            activeSource,
+                          ),
                   ),
                 ),
               ),
+
+              if (availableSources.length > 1)
+                SliverToBoxAdapter(
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(20, 12, 20, 0),
+                    child: _SourceFilterBar(
+                      sources: availableSources,
+                      selectedSource: activeSource,
+                      onSelected: (source) {
+                        setState(() => _selectedSource = source);
+                      },
+                    ),
+                  ),
+                ),
+
+              if (sourceTotals.isNotEmpty)
+                SliverToBoxAdapter(
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(20, 8, 20, 0),
+                    child: _SourceBreakdown(
+                      sourceTotals: sourceTotals,
+                      selectedSource: activeSource,
+                      onSourceSelected: (source) {
+                        setState(() {
+                          _selectedSource =
+                              activeSource == source ? null : source;
+                        });
+                      },
+                    ),
+                  ),
+                ),
 
               SliverToBoxAdapter(
                 child: Padding(
@@ -176,7 +237,14 @@ class _IncomesTabState extends State<IncomesTab>
                   hasScrollBody: false,
                   child: sorted.isEmpty
                       ? _EmptyState(onAdd: _openAddSheet)
-                      : _FilteredEmptyState(message: l10n.homeFilterNoEntries),
+                      : _FilteredEmptyState(
+                          message: activeSource != null
+                              ? l10n.incomeFilterNoSourceEntries
+                              : l10n.homeFilterNoEntries,
+                          onClearFilter: activeSource != null
+                              ? () => setState(() => _selectedSource = null)
+                              : null,
+                        ),
                 )
               else
                 SliverPadding(
@@ -249,6 +317,17 @@ class _IncomesTabState extends State<IncomesTab>
   void _openEditSheet(Income income) =>
       _showIncomeSheet(AddIncomeSheet(income: income));
 
+  static Map<String, double> _totalsBySource(List<Income> incomes) {
+    final totals = <String, double>{};
+    for (final income in incomes) {
+      final key = _sourceKey(income);
+      totals[key] = (totals[key] ?? 0) + income.amount;
+    }
+    final entries = totals.entries.toList()
+      ..sort((a, b) => b.value.compareTo(a.value));
+    return Map.fromEntries(entries);
+  }
+
   Future<void> _showIncomeSheet(Widget sheet) async {
     final l10n = AppLocalizations.of(context)!;
     final result = await showModalBottomSheet<String>(
@@ -291,13 +370,191 @@ class _IncomesTabState extends State<IncomesTab>
   }
 }
 
+class _SourceFilterBar extends StatelessWidget {
+  final List<String> sources;
+  final String? selectedSource;
+  final ValueChanged<String?> onSelected;
+
+  const _SourceFilterBar({
+    required this.sources,
+    required this.selectedSource,
+    required this.onSelected,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          l10n.incomeSourceField,
+          style: TextStyle(
+            fontSize: 13,
+            fontWeight: FontWeight.w600,
+            color: AppColors.textColor.withValues(alpha: 0.65),
+          ),
+        ),
+        const SizedBox(height: 8),
+        SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: Row(
+            children: [
+              FilterChip(
+                label: Text(l10n.incomeFilterAllSources),
+                selected: selectedSource == null,
+                onSelected: (_) => onSelected(null),
+                selectedColor: AppColors.income,
+                checkmarkColor: Colors.white,
+                labelStyle: TextStyle(
+                  color: selectedSource == null
+                      ? Colors.white
+                      : AppColors.textColor,
+                  fontWeight: FontWeight.w500,
+                ),
+                backgroundColor: AppColors.surface,
+                side: BorderSide.none,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20),
+                ),
+              ),
+              const SizedBox(width: 8),
+              ...sources.map((source) {
+                final selected = selectedSource == source;
+                final label = localizeIncomeCategory(l10n, source);
+                return Padding(
+                  padding: const EdgeInsets.only(right: 8),
+                  child: FilterChip(
+                    label: Text(label),
+                    selected: selected,
+                    onSelected: (_) => onSelected(source),
+                    selectedColor: AppColors.income,
+                    checkmarkColor: Colors.white,
+                    labelStyle: TextStyle(
+                      color: selected ? Colors.white : AppColors.textColor,
+                      fontWeight: FontWeight.w500,
+                    ),
+                    backgroundColor: AppColors.surface,
+                    side: BorderSide.none,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                  ),
+                );
+              }),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _SourceBreakdown extends StatelessWidget {
+  final Map<String, double> sourceTotals;
+  final String? selectedSource;
+  final ValueChanged<String> onSourceSelected;
+
+  const _SourceBreakdown({
+    required this.sourceTotals,
+    required this.selectedSource,
+    required this.onSourceSelected,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          l10n.incomeBySource,
+          style: const TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.bold,
+            color: AppColors.textColor,
+          ),
+        ),
+        const SizedBox(height: 10),
+        ...sourceTotals.entries.map((entry) {
+          final label = localizeIncomeCategory(l10n, entry.key);
+          final isSelected = selectedSource == entry.key;
+          return Material(
+            color: Colors.transparent,
+            child: InkWell(
+              onTap: () => onSourceSelected(entry.key),
+              borderRadius: BorderRadius.circular(16),
+              child: Container(
+                margin: const EdgeInsets.only(bottom: 8),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                decoration: AppDecorations.card(
+                  borderColor: isSelected
+                      ? AppColors.income
+                      : AppColors.income.withValues(alpha: 0.12),
+                ).copyWith(
+                  color: isSelected ? AppColors.incomeLight : null,
+                ),
+                child: Row(
+                  children: [
+                    Container(
+                      height: 36,
+                      width: 36,
+                      decoration: BoxDecoration(
+                        color: isSelected
+                            ? AppColors.income.withValues(alpha: 0.15)
+                            : AppColors.incomeLight,
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Icon(
+                        isSelected
+                            ? Icons.filter_alt_rounded
+                            : Icons.payments_outlined,
+                        color: AppColors.income,
+                        size: 18,
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Text(
+                        label,
+                        style: TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w600,
+                          color: isSelected
+                              ? AppColors.incomeDark
+                              : AppColors.textColor,
+                        ),
+                      ),
+                    ),
+                    Text(
+                      Money.format(entry.value),
+                      style: const TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w700,
+                        color: AppColors.income,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          );
+        }),
+      ],
+    );
+  }
+}
+
 class _SummaryCard extends StatelessWidget {
   final double total;
   final String periodLabel;
+  final String? sourceLabel;
 
   const _SummaryCard({
     required this.total,
     required this.periodLabel,
+    this.sourceLabel,
   });
 
   @override
@@ -349,6 +606,24 @@ class _SummaryCard extends StatelessWidget {
               ),
             ],
           ),
+          if (sourceLabel != null) ...[
+            const SizedBox(height: 12),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              decoration: BoxDecoration(
+                color: Colors.white.withValues(alpha: 0.2),
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: Text(
+                sourceLabel!,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+          ],
           const SizedBox(height: 20),
           Text(
             l10n.totalIncome,
@@ -375,11 +650,16 @@ class _SummaryCard extends StatelessWidget {
 
 class _FilteredEmptyState extends StatelessWidget {
   final String message;
+  final VoidCallback? onClearFilter;
 
-  const _FilteredEmptyState({required this.message});
+  const _FilteredEmptyState({
+    required this.message,
+    this.onClearFilter,
+  });
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(40),
@@ -400,6 +680,14 @@ class _FilteredEmptyState extends StatelessWidget {
                 color: AppColors.textColor.withValues(alpha: 0.6),
               ),
             ),
+            if (onClearFilter != null) ...[
+              const SizedBox(height: 16),
+              TextButton(
+                onPressed: onClearFilter,
+                style: TextButton.styleFrom(foregroundColor: AppColors.income),
+                child: Text(l10n.incomeFilterAllSources),
+              ),
+            ],
           ],
         ),
       ),

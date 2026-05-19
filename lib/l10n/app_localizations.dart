@@ -215,6 +215,18 @@ abstract class AppLocalizations {
   /// **'Language'**
   String get settingsLanguage;
 
+  /// No description provided for @settingsCalculator.
+  ///
+  /// In en, this message translates to:
+  /// **'Calculator'**
+  String get settingsCalculator;
+
+  /// No description provided for @calculatorTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Calculator'**
+  String get calculatorTitle;
+
   /// No description provided for @languageEnglish.
   ///
   /// In en, this message translates to:
@@ -626,14 +638,266 @@ abstract class AppLocalizations {
   /// No description provided for @hintIncomeTitle.
   ///
   /// In en, this message translates to:
-  /// **'e.g. Salary'**
+  /// **'e.g. March payment'**
   String get hintIncomeTitle;
+
+  /// No description provided for @incomeSourceField.
+  ///
+  /// In en, this message translates to:
+  /// **'Source'**
+  String get incomeSourceField;
+
+  /// No description provided for @hintIncomeSource.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. Visa card, Rents, Salary'**
+  String get hintIncomeSource;
+
+  /// No description provided for @incomeBySource.
+  ///
+  /// In en, this message translates to:
+  /// **'By source'**
+  String get incomeBySource;
+
+  /// No description provided for @incomeFilterAllSources.
+  ///
+  /// In en, this message translates to:
+  /// **'All sources'**
+  String get incomeFilterAllSources;
+
+  /// No description provided for @incomeFilterNoSourceEntries.
+  ///
+  /// In en, this message translates to:
+  /// **'No incomes for this source in the selected period'**
+  String get incomeFilterNoSourceEntries;
+
+  /// No description provided for @incomeSourceRents.
+  ///
+  /// In en, this message translates to:
+  /// **'Rents'**
+  String get incomeSourceRents;
+
+  /// No description provided for @incomeSourceVisaCard.
+  ///
+  /// In en, this message translates to:
+  /// **'Visa card'**
+  String get incomeSourceVisaCard;
+
+  /// No description provided for @incomeSourceCash.
+  ///
+  /// In en, this message translates to:
+  /// **'Cash'**
+  String get incomeSourceCash;
 
   /// No description provided for @amountField.
   ///
   /// In en, this message translates to:
   /// **'Amount'**
   String get amountField;
+
+  /// No description provided for @expenseByCategory.
+  ///
+  /// In en, this message translates to:
+  /// **'By category'**
+  String get expenseByCategory;
+
+  /// No description provided for @expenseCategoryEdit.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit category'**
+  String get expenseCategoryEdit;
+
+  /// No description provided for @expenseCategoryRemove.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove category'**
+  String get expenseCategoryRemove;
+
+  /// No description provided for @expenseCategoryRenameTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Rename category'**
+  String get expenseCategoryRenameTitle;
+
+  /// No description provided for @expenseCategoryRenameHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Updates all expenses in \"{name}\".'**
+  String expenseCategoryRenameHint(String name);
+
+  /// No description provided for @expenseCategoryNameTaken.
+  ///
+  /// In en, this message translates to:
+  /// **'That category name is already in use'**
+  String get expenseCategoryNameTaken;
+
+  /// No description provided for @expenseCategoryUpdatedSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Category updated'**
+  String get expenseCategoryUpdatedSuccess;
+
+  /// No description provided for @expenseCategoryRemoveTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove category'**
+  String get expenseCategoryRemoveTitle;
+
+  /// No description provided for @expenseCategoryRemoveMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'What should happen to {count} expense(s) in \"{name}\"?'**
+  String expenseCategoryRemoveMessage(int count, String name);
+
+  /// No description provided for @expenseCategoryMoveToOther.
+  ///
+  /// In en, this message translates to:
+  /// **'Move all to Other'**
+  String get expenseCategoryMoveToOther;
+
+  /// No description provided for @expenseCategoryDeleteAll.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete all expenses in this category'**
+  String get expenseCategoryDeleteAll;
+
+  /// No description provided for @expenseCategoryDeleteConfirmTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete expenses?'**
+  String get expenseCategoryDeleteConfirmTitle;
+
+  /// No description provided for @expenseCategoryDeleteConfirmMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'This permanently deletes {count} expense(s). This cannot be undone.'**
+  String expenseCategoryDeleteConfirmMessage(int count);
+
+  /// No description provided for @expenseCategoryDeleteConfirmAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get expenseCategoryDeleteConfirmAction;
+
+  /// No description provided for @expenseFilterAllCategories.
+  ///
+  /// In en, this message translates to:
+  /// **'All categories'**
+  String get expenseFilterAllCategories;
+
+  /// No description provided for @expenseFilterNoCategoryEntries.
+  ///
+  /// In en, this message translates to:
+  /// **'No expenses for this category in the selected period'**
+  String get expenseFilterNoCategoryEntries;
+
+  /// No description provided for @budgetMonthlyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Monthly budgets'**
+  String get budgetMonthlyTitle;
+
+  /// No description provided for @budgetSetAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Set budget'**
+  String get budgetSetAction;
+
+  /// No description provided for @budgetSetTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Set monthly budget'**
+  String get budgetSetTitle;
+
+  /// No description provided for @budgetSetHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick a category and set how much you plan to spend this month.'**
+  String get budgetSetHint;
+
+  /// No description provided for @budgetCustomCategory.
+  ///
+  /// In en, this message translates to:
+  /// **'Category name'**
+  String get budgetCustomCategory;
+
+  /// No description provided for @budgetMonthlyLimit.
+  ///
+  /// In en, this message translates to:
+  /// **'Monthly limit'**
+  String get budgetMonthlyLimit;
+
+  /// No description provided for @budgetSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Save budget'**
+  String get budgetSave;
+
+  /// No description provided for @budgetEmptyHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Set a limit per category to see how much of your budget you\'ve used.'**
+  String get budgetEmptyHint;
+
+  /// No description provided for @budgetSetFirst.
+  ///
+  /// In en, this message translates to:
+  /// **'Create first budget'**
+  String get budgetSetFirst;
+
+  /// No description provided for @budgetTotalSpent.
+  ///
+  /// In en, this message translates to:
+  /// **'Total spent'**
+  String get budgetTotalSpent;
+
+  /// No description provided for @budgetRemaining.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} left'**
+  String budgetRemaining(String amount);
+
+  /// No description provided for @budgetOverBy.
+  ///
+  /// In en, this message translates to:
+  /// **'Over by {amount}'**
+  String budgetOverBy(String amount);
+
+  /// No description provided for @budgetDeleteTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove budget?'**
+  String get budgetDeleteTitle;
+
+  /// No description provided for @budgetDeleteMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove the budget for {category}?'**
+  String budgetDeleteMessage(String category);
+
+  /// No description provided for @budgetDeleteConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove'**
+  String get budgetDeleteConfirm;
+
+  /// No description provided for @budgetAlertNear.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} category near the limit'**
+  String budgetAlertNear(int count);
+
+  /// No description provided for @budgetAlertOver.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} category over budget'**
+  String budgetAlertOver(int count);
+
+  /// No description provided for @budgetAlertOverAndNear.
+  ///
+  /// In en, this message translates to:
+  /// **'{over} over budget, {near} near limit'**
+  String budgetAlertOverAndNear(int over, int near);
 
   /// No description provided for @categoryField.
   ///
@@ -1085,6 +1349,30 @@ abstract class AppLocalizations {
   /// **'Income vs Expenses'**
   String get balanceIncomeVsExpenses;
 
+  /// No description provided for @balanceFilterAll.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get balanceFilterAll;
+
+  /// No description provided for @balanceFilterIncome.
+  ///
+  /// In en, this message translates to:
+  /// **'Income'**
+  String get balanceFilterIncome;
+
+  /// No description provided for @balanceFilterExpense.
+  ///
+  /// In en, this message translates to:
+  /// **'Expenses'**
+  String get balanceFilterExpense;
+
+  /// No description provided for @balanceNoFilteredActivity.
+  ///
+  /// In en, this message translates to:
+  /// **'No activity matches this filter'**
+  String get balanceNoFilteredActivity;
+
   /// No description provided for @activityIncome.
   ///
   /// In en, this message translates to:
@@ -1433,6 +1721,12 @@ abstract class AppLocalizations {
   /// **'Load more messages'**
   String get smartImportSmsLoadMore;
 
+  /// No description provided for @smartImportSmsLoading.
+  ///
+  /// In en, this message translates to:
+  /// **'Reading your SMS messages…'**
+  String get smartImportSmsLoading;
+
   /// No description provided for @smartImportSmsLoadingMore.
   ///
   /// In en, this message translates to:
@@ -1493,6 +1787,36 @@ abstract class AppLocalizations {
   /// **'Clear'**
   String get smartImportClearSelection;
 
+  /// No description provided for @smartImportBulkCategorySheetTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Category for import'**
+  String get smartImportBulkCategorySheetTitle;
+
+  /// No description provided for @smartImportBulkCategorySheetHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Apply the same category or source to all selected messages.'**
+  String get smartImportBulkCategorySheetHint;
+
+  /// No description provided for @smartImportBulkExpenseCategory.
+  ///
+  /// In en, this message translates to:
+  /// **'Expense category'**
+  String get smartImportBulkExpenseCategory;
+
+  /// No description provided for @smartImportBulkIncomeSource.
+  ///
+  /// In en, this message translates to:
+  /// **'Income source'**
+  String get smartImportBulkIncomeSource;
+
+  /// No description provided for @smartImportBulkApplyAndImport.
+  ///
+  /// In en, this message translates to:
+  /// **'Import'**
+  String get smartImportBulkApplyAndImport;
+
   /// No description provided for @smartImportBulkImporting.
   ///
   /// In en, this message translates to:
@@ -1516,6 +1840,222 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{failed} message(s) could not be imported.'**
   String smartImportBulkPartialFail(int failed);
+
+  /// No description provided for @settingsAppLock.
+  ///
+  /// In en, this message translates to:
+  /// **'App lock'**
+  String get settingsAppLock;
+
+  /// No description provided for @settingsAppLockBiometric.
+  ///
+  /// In en, this message translates to:
+  /// **'Face ID / fingerprint'**
+  String get settingsAppLockBiometric;
+
+  /// No description provided for @settingsAppLockChangePin.
+  ///
+  /// In en, this message translates to:
+  /// **'Change PIN'**
+  String get settingsAppLockChangePin;
+
+  /// No description provided for @appLockTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Unlock Pocketly'**
+  String get appLockTitle;
+
+  /// No description provided for @appLockSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your PIN to continue'**
+  String get appLockSubtitle;
+
+  /// No description provided for @appLockWrongPin.
+  ///
+  /// In en, this message translates to:
+  /// **'Incorrect PIN. Try again.'**
+  String get appLockWrongPin;
+
+  /// No description provided for @appLockBiometricReason.
+  ///
+  /// In en, this message translates to:
+  /// **'Unlock your finances'**
+  String get appLockBiometricReason;
+
+  /// No description provided for @appLockEnterPinTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your PIN'**
+  String get appLockEnterPinTitle;
+
+  /// No description provided for @appLockEnterPinSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm to continue'**
+  String get appLockEnterPinSubtitle;
+
+  /// No description provided for @appLockCreatePinTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Create a PIN'**
+  String get appLockCreatePinTitle;
+
+  /// No description provided for @appLockCreatePinSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Use 4 digits you will remember'**
+  String get appLockCreatePinSubtitle;
+
+  /// No description provided for @appLockConfirmPinTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm your PIN'**
+  String get appLockConfirmPinTitle;
+
+  /// No description provided for @appLockConfirmPinSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter the same PIN again'**
+  String get appLockConfirmPinSubtitle;
+
+  /// No description provided for @appLockPinMismatch.
+  ///
+  /// In en, this message translates to:
+  /// **'PINs do not match'**
+  String get appLockPinMismatch;
+
+  /// No description provided for @appLockEnabledSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'App lock is on'**
+  String get appLockEnabledSuccess;
+
+  /// No description provided for @appLockDisabledSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'App lock is off'**
+  String get appLockDisabledSuccess;
+
+  /// No description provided for @appLockEnableFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not enable app lock'**
+  String get appLockEnableFailed;
+
+  /// No description provided for @appLockBiometricPromptTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Use biometrics?'**
+  String get appLockBiometricPromptTitle;
+
+  /// No description provided for @appLockBiometricPromptMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Unlock faster with Face ID or fingerprint on this device.'**
+  String get appLockBiometricPromptMessage;
+
+  /// No description provided for @appLockBiometricFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Biometrics could not be enabled'**
+  String get appLockBiometricFailed;
+
+  /// No description provided for @appLockChangePinSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'PIN updated'**
+  String get appLockChangePinSuccess;
+
+  /// No description provided for @appLockChangePinFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not update PIN'**
+  String get appLockChangePinFailed;
+
+  /// No description provided for @notNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Not now'**
+  String get notNow;
+
+  /// No description provided for @enable.
+  ///
+  /// In en, this message translates to:
+  /// **'Enable'**
+  String get enable;
+
+  /// No description provided for @monthlyReportTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Monthly report'**
+  String get monthlyReportTitle;
+
+  /// No description provided for @monthlyReportShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Report'**
+  String get monthlyReportShort;
+
+  /// No description provided for @monthlyReportVsLastMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'Compared to last month'**
+  String get monthlyReportVsLastMonth;
+
+  /// No description provided for @monthlyReportBudgetTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Budget vs actual'**
+  String get monthlyReportBudgetTitle;
+
+  /// No description provided for @monthlyReportNoBudgets.
+  ///
+  /// In en, this message translates to:
+  /// **'No budgets set for this month. Add limits on the Expenses tab to track spending here.'**
+  String get monthlyReportNoBudgets;
+
+  /// No description provided for @monthlyReportEntrySummary.
+  ///
+  /// In en, this message translates to:
+  /// **'{incomeCount} income sources · {expenseCount} expense categories'**
+  String monthlyReportEntrySummary(int incomeCount, int expenseCount);
+
+  /// No description provided for @globalSearchTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Search'**
+  String get globalSearchTitle;
+
+  /// No description provided for @globalSearchHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Title, category, source, amount…'**
+  String get globalSearchHint;
+
+  /// No description provided for @globalSearchAll.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get globalSearchAll;
+
+  /// No description provided for @globalSearchNoResults.
+  ///
+  /// In en, this message translates to:
+  /// **'No matching entries'**
+  String get globalSearchNoResults;
+
+  /// No description provided for @globalSearchAllTime.
+  ///
+  /// In en, this message translates to:
+  /// **'All time'**
+  String get globalSearchAllTime;
+
+  /// No description provided for @globalSearchCurrentPeriod.
+  ///
+  /// In en, this message translates to:
+  /// **'This period'**
+  String get globalSearchCurrentPeriod;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

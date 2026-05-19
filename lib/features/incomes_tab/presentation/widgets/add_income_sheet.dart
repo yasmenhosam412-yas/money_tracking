@@ -32,13 +32,20 @@ class AddIncomeSheet extends StatefulWidget {
 
 class _AddIncomeSheetState extends State<AddIncomeSheet> {
   final _titleController = TextEditingController();
+  final _sourceController = TextEditingController();
   final _amountController = TextEditingController();
-  final _otherCategoryController = TextEditingController();
-  String _category = 'Work';
   late String _currencyCode;
   DateTime _date = DateTime.now();
 
-  static const _otherCategory = 'Other';
+  static const _suggestedSources = [
+    'Salary',
+    'Rents',
+    'Visa Card',
+    'Cash',
+    'Freelance',
+    'Business',
+    'Investment',
+  ];
 
   bool get _isEditing => widget.income != null;
 
@@ -49,14 +56,9 @@ class _AddIncomeSheetState extends State<AddIncomeSheet> {
     final income = widget.income;
     if (income != null) {
       _titleController.text = income.title;
+      _sourceController.text = income.category;
       _amountController.text = _formatDisplayAmount(income.amount);
       _date = income.date;
-      if (_categories.contains(income.category)) {
-        _category = income.category;
-      } else {
-        _category = _otherCategory;
-        _otherCategoryController.text = income.category;
-      }
     } else {
       if (widget.initialTitle != null) {
         _titleController.text = widget.initialTitle!;
@@ -69,16 +71,6 @@ class _AddIncomeSheetState extends State<AddIncomeSheet> {
       }
     }
   }
-
-  static const _categories = [
-    'Work',
-    'Freelance',
-    'Business',
-    'Investment',
-    _otherCategory,
-  ];
-
-  bool get _isOtherCategory => _category == _otherCategory;
 
   bool _didPop = false;
 
@@ -99,9 +91,20 @@ class _AddIncomeSheetState extends State<AddIncomeSheet> {
   @override
   void dispose() {
     _titleController.dispose();
+    _sourceController.dispose();
     _amountController.dispose();
-    _otherCategoryController.dispose();
     super.dispose();
+  }
+
+  List<String> _sourceSuggestions(IncomesTabState state) {
+    final recent = state.incomes
+        .map((i) => i.category.trim())
+        .where((c) => c.isNotEmpty)
+        .toSet()
+        .toList()
+      ..sort();
+    final combined = <String>{..._suggestedSources, ...recent};
+    return combined.toList();
   }
 
   @override
@@ -130,178 +133,173 @@ class _AddIncomeSheetState extends State<AddIncomeSheet> {
       },
       child: BlocBuilder<IncomesTabBloc, IncomesTabState>(
         buildWhen: (previous, current) =>
-            _isSubmitting(previous) != _isSubmitting(current),
+            _isSubmitting(previous) != _isSubmitting(current) ||
+            previous.incomes.length != current.incomes.length,
         builder: (context, state) {
+          final suggestions = _sourceSuggestions(state);
+
           return PopScope(
             canPop: !_isSubmitting(state),
             child: ConstrainedBox(
-      constraints: BoxConstraints(maxHeight: maxHeight),
-      child: SingleChildScrollView(
-        padding: const EdgeInsets.all(24),
-        keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Center(
-              child: Container(
-                width: 40,
-                height: 4,
-                decoration: BoxDecoration(
-                  color: Colors.grey.shade300,
-                  borderRadius: BorderRadius.circular(2),
-                ),
-              ),
-            ),
-            const SizedBox(height: 20),
-            Text(
-              _isEditing ? l10n.editIncome : l10n.addIncome,
-              style: const TextStyle(
-                fontSize: 22,
-                fontWeight: FontWeight.bold,
-                color: AppColors.textColor,
-              ),
-            ),
-            const SizedBox(height: 24),
-            CustomFormField(
-              label: l10n.titleField,
-              hint: l10n.hintIncomeTitle,
-              controller: _titleController,
-              obscure: false,
-              icon: Icons.label_outline_rounded,
-            ),
-            const SizedBox(height: 16),
-            CurrencyAmountField(
-              label: l10n.amountField,
-              controller: _amountController,
-              accentColor: AppColors.income,
-              initialCurrencyCode: _currencyCode,
-              onCurrencyChanged: (c) => _currencyCode = c.code,
-            ),
-            const SizedBox(height: 16),
-            Text(
-              l10n.categoryField,
-              style: TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
-                color: AppColors.textColor.withValues(alpha: 0.8),
-              ),
-            ),
-            const SizedBox(height: 10),
-            Wrap(
-              spacing: 8,
-              runSpacing: 8,
-              children: _categories.map((cat) {
-                final selected = _category == cat;
-                return ChoiceChip(
-                  label: Text(localizeIncomeCategory(l10n, cat)),
-                  selected: selected,
-                  onSelected: (_) => setState(() => _category = cat),
-                  selectedColor: AppColors.income,
-                  labelStyle: TextStyle(
-                    color: selected ? Colors.white : AppColors.textColor,
-                    fontWeight: FontWeight.w500,
-                  ),
-                  backgroundColor: AppColors.surface,
-                  side: BorderSide.none,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                );
-              }).toList(),
-            ),
-            if (_isOtherCategory) ...[
-              const SizedBox(height: 16),
-              CustomFormField(
-                label: l10n.otherCategoryField,
-                hint: l10n.otherCategoryHint,
-                controller: _otherCategoryController,
-                obscure: false,
-                icon: Icons.category_outlined,
-              ),
-            ],
-            const SizedBox(height: 16),
-            InkWell(
-              onTap: _pickDate,
-              borderRadius: BorderRadius.circular(16),
-              child: Container(
-                width: double.infinity,
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 16,
-                ),
-                decoration: BoxDecoration(
-                  color: Colors.grey.shade100,
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                child: Row(
+              constraints: BoxConstraints(maxHeight: maxHeight),
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.all(24),
+                keyboardDismissBehavior:
+                    ScrollViewKeyboardDismissBehavior.onDrag,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Icon(
-                      Icons.calendar_today_outlined,
-                      color: AppColors.income.withValues(alpha: 0.8),
-                      size: 22,
+                    Center(
+                      child: Container(
+                        width: 40,
+                        height: 4,
+                        decoration: BoxDecoration(
+                          color: Colors.grey.shade300,
+                          borderRadius: BorderRadius.circular(2),
+                        ),
+                      ),
                     ),
-                    const SizedBox(width: 12),
+                    const SizedBox(height: 20),
                     Text(
-                      _formatDate(context, _date),
+                      _isEditing ? l10n.editIncome : l10n.addIncome,
                       style: const TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w500,
+                        fontSize: 22,
+                        fontWeight: FontWeight.bold,
                         color: AppColors.textColor,
                       ),
                     ),
-                    const Spacer(),
-                    Icon(
-                      Icons.chevron_right_rounded,
-                      color: AppColors.textColor.withValues(alpha: 0.4),
+                    const SizedBox(height: 24),
+                    CustomFormField(
+                      label: l10n.incomeSourceField,
+                      hint: l10n.hintIncomeSource,
+                      controller: _sourceController,
+                      obscure: false,
+                      icon: Icons.account_balance_wallet_outlined,
+                    ),
+                    const SizedBox(height: 12),
+                    Wrap(
+                      spacing: 8,
+                      runSpacing: 8,
+                      children: suggestions.map((source) {
+                        final selected =
+                            _sourceController.text.trim() == source;
+                        return ActionChip(
+                          label: Text(
+                            localizeIncomeCategory(l10n, source),
+                          ),
+                          onPressed: () {
+                            setState(() => _sourceController.text = source);
+                          },
+                          backgroundColor: selected
+                              ? AppColors.income
+                              : AppColors.surface,
+                          labelStyle: TextStyle(
+                            color: selected
+                                ? Colors.white
+                                : AppColors.textColor,
+                            fontWeight: FontWeight.w500,
+                          ),
+                          side: BorderSide.none,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                        );
+                      }).toList(),
+                    ),
+                    const SizedBox(height: 16),
+                    CustomFormField(
+                      label: l10n.titleField,
+                      hint: l10n.hintIncomeTitle,
+                      controller: _titleController,
+                      obscure: false,
+                      icon: Icons.label_outline_rounded,
+                    ),
+                    const SizedBox(height: 16),
+                    CurrencyAmountField(
+                      label: l10n.amountField,
+                      controller: _amountController,
+                      accentColor: AppColors.income,
+                      initialCurrencyCode: _currencyCode,
+                      onCurrencyChanged: (c) => _currencyCode = c.code,
+                    ),
+                    const SizedBox(height: 16),
+                    InkWell(
+                      onTap: _pickDate,
+                      borderRadius: BorderRadius.circular(16),
+                      child: Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 16,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Colors.grey.shade100,
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        child: Row(
+                          children: [
+                            Icon(
+                              Icons.calendar_today_outlined,
+                              color: AppColors.income.withValues(alpha: 0.8),
+                              size: 22,
+                            ),
+                            const SizedBox(width: 12),
+                            Text(
+                              _formatDate(context, _date),
+                              style: const TextStyle(
+                                fontSize: 15,
+                                fontWeight: FontWeight.w500,
+                                color: AppColors.textColor,
+                              ),
+                            ),
+                            const Spacer(),
+                            Icon(
+                              Icons.chevron_right_rounded,
+                              color: AppColors.textColor.withValues(alpha: 0.4),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 28),
+                    SizedBox(
+                      width: double.infinity,
+                      height: 54,
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.income,
+                          elevation: 0,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                        ),
+                        onPressed:
+                            _isSubmitting(state) ? null : _submit,
+                        child: _isSubmitting(state)
+                            ? const SizedBox(
+                                width: 24,
+                                height: 24,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2.5,
+                                  color: Colors.white,
+                                ),
+                              )
+                            : Text(
+                                _isEditing
+                                    ? l10n.updateIncome
+                                    : l10n.saveIncome,
+                                style: const TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w600,
+                                  color: Colors.white,
+                                ),
+                              ),
+                      ),
                     ),
                   ],
                 ),
               ),
-            ),
-            const SizedBox(height: 28),
-            BlocBuilder<IncomesTabBloc, IncomesTabState>(
-              builder: (context, state) {
-                final isSubmitting =
-                    state.status == IncomesTabStatus.loadingAdd ||
-                    state.status == IncomesTabStatus.loadingUpdate;
-
-                return SizedBox(
-                  width: double.infinity,
-                  height: 54,
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.income,
-                      elevation: 0,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                    ),
-                    onPressed: isSubmitting ? null : _submit,
-                    child: isSubmitting
-                        ? const SizedBox(
-                            width: 24,
-                            height: 24,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2.5,
-                              color: Colors.white,
-                            ),
-                          )
-                        : Text(
-                            _isEditing ? l10n.updateIncome : l10n.saveIncome,
-                            style: const TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w600,
-                              color: Colors.white,
-                            ),
-                          ),
-                  ),
-                );
-              },
-            ),
-          ],
-        ),
-      ),
             ),
           );
         },
@@ -335,20 +333,25 @@ class _AddIncomeSheetState extends State<AddIncomeSheet> {
   }
 
   void _submit() {
+    final source = _sourceController.text.trim();
     final title = _titleController.text.trim();
     final amount = double.tryParse(_amountController.text.trim());
+    final l10n = AppLocalizations.of(context)!;
 
+    if (source.isEmpty) {
+      _showError(l10n.errorEnterCategoryName);
+      return;
+    }
     if (title.isEmpty) {
-      _showError(AppLocalizations.of(context)!.errorEnterTitle);
+      _showError(l10n.errorEnterTitle);
       return;
     }
     if (amount == null || amount <= 0) {
-      _showError(AppLocalizations.of(context)!.errorEnterValidAmount);
+      _showError(l10n.errorEnterValidAmount);
       return;
     }
 
     final baseAmount = CurrencyConverter.toBase(amount, _currencyCode);
-    final category = _resolvedCategory();
 
     final bloc = context.read<IncomesTabBloc>();
     if (_isEditing) {
@@ -356,7 +359,7 @@ class _AddIncomeSheetState extends State<AddIncomeSheet> {
         UpdateIncomeEvent(
           id: widget.income!.id,
           title: title,
-          category: category ?? 'Other',
+          category: source,
           amount: baseAmount,
           date: _date,
         ),
@@ -365,7 +368,7 @@ class _AddIncomeSheetState extends State<AddIncomeSheet> {
       bloc.add(
         AddIncomeEvent(
           title: title,
-          category: category ?? 'Other',
+          category: source,
           amount: baseAmount,
           date: _date,
         ),
@@ -382,13 +385,6 @@ class _AddIncomeSheetState extends State<AddIncomeSheet> {
     return amount == amount.roundToDouble()
         ? amount.toInt().toString()
         : amount.toStringAsFixed(2);
-  }
-
-  String? _resolvedCategory() {
-    if (!_isOtherCategory) return _category;
-    final custom = _otherCategoryController.text.trim();
-    if (custom.isEmpty) return null;
-    return custom;
   }
 
   void _showError(String message) {

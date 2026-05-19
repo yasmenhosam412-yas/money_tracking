@@ -9,6 +9,8 @@ import 'package:imrpo/features/auth/presentation/widgets/auth_footer_link.dart';
 import 'package:imrpo/features/auth/presentation/widgets/auth_primary_button.dart';
 import 'package:imrpo/features/auth/presentation/widgets/auth_screen_layout.dart';
 import 'package:imrpo/features/auth/presentation/widgets/custom_text_field.dart';
+import 'package:imrpo/core/services/app_lock_service.dart';
+import 'package:imrpo/core/services/service_locator.dart';
 import 'package:imrpo/core/session/user_session.dart';
 import 'package:imrpo/features/home/presentation/pages/home_screen.dart';
 import 'package:imrpo/l10n/app_localizations.dart';
@@ -68,6 +70,7 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
             );
           } else if (state.status == AuthStatus.successLogin) {
+            getIt<AppLockService>().onAuthenticated();
             UserSession.loadAll(context);
             Navigator.pushAndRemoveUntil(
               context,

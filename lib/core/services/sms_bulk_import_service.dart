@@ -55,14 +55,25 @@ class SmsBulkImportService {
   Future<SmsBulkImportResult> importAll(
     List<SmsMessageItem> items, {
     bool reimport = false,
+    String? expenseCategory,
+    String? incomeSource,
   }) async {
-    return _import(items, reimport: reimport);
+    return _import(
+      items,
+      reimport: reimport,
+      expenseCategory: expenseCategory,
+      incomeSource: incomeSource,
+    );
   }
 
   Future<SmsBulkImportResult> _import(
     List<SmsMessageItem> items, {
     bool reimport = false,
+    String? expenseCategory,
+    String? incomeSource,
   }) async {
+    final resolvedExpenseCategory = expenseCategory ?? _expenseCategory;
+    final resolvedIncomeSource = incomeSource ?? _incomeCategory;
     var expenseCount = 0;
     var incomeCount = 0;
     var failed = 0;
@@ -87,7 +98,7 @@ class SmsBulkImportService {
       if (item.parsed.type == FinancialEntryType.expense) {
         final result = await _addExpense(
           title,
-          _expenseCategory,
+          resolvedExpenseCategory,
           baseAmount,
           date,
         );
@@ -100,7 +111,7 @@ class SmsBulkImportService {
           title,
           baseAmount,
           date,
-          _incomeCategory,
+          resolvedIncomeSource,
         );
         result.fold((_) => failed++, (_) {
           incomeCount++;

@@ -4,6 +4,7 @@ import 'package:imrpo/core/l10n/l10n_entity_strings.dart';
 import 'package:imrpo/core/theme/app_decorations.dart';
 import 'package:imrpo/core/utils/app_colors.dart';
 import 'package:imrpo/core/utils/money_format.dart';
+import 'package:imrpo/core/widgets/tab_centered_scroll.dart';
 import 'package:imrpo/core/widgets/tab_refresh_overlay.dart';
 import 'package:imrpo/features/plans_tab/domain/entities/plan.dart';
 import 'package:imrpo/features/plans_tab/presentation/bloc/plans_tab_bloc.dart';
@@ -34,7 +35,7 @@ class _PlansTabState extends State<PlansTab> with AutomaticKeepAliveClientMixin 
     super.build(context);
     final l10n = AppLocalizations.of(context)!;
     return Scaffold(
-      backgroundColor: AppColors.scaffold,
+      backgroundColor: Colors.transparent,
       floatingActionButton: FloatingActionButton.extended(
         heroTag: 'fab-plans',
         onPressed: _openAddSheet,
@@ -77,8 +78,8 @@ class _PlansTabState extends State<PlansTab> with AutomaticKeepAliveClientMixin 
         },
         builder: (context, state) {
           if (state is! PlansTabLoaded) {
-            return const Center(
-              child: CircularProgressIndicator(color: AppColors.plans),
+            return tabCenteredScroll(
+              const CircularProgressIndicator(color: AppColors.plans),
             );
           }
 
@@ -86,14 +87,14 @@ class _PlansTabState extends State<PlansTab> with AutomaticKeepAliveClientMixin 
               state.status == PlansTabStatus.loading && state.hasData;
 
           if (!state.hasData && state.status == PlansTabStatus.loading) {
-            return const Center(
-              child: CircularProgressIndicator(color: AppColors.plans),
+            return tabCenteredScroll(
+              const CircularProgressIndicator(color: AppColors.plans),
             );
           }
 
           if (!state.hasData && state.status == PlansTabStatus.error) {
-            return Center(
-              child: Padding(
+            return tabCenteredScroll(
+              Padding(
                 padding: const EdgeInsets.all(24),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,

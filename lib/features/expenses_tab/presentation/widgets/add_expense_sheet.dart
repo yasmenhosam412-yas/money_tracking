@@ -8,6 +8,7 @@ import 'package:imrpo/core/services/service_locator.dart';
 import 'package:imrpo/core/utils/app_colors.dart';
 import 'package:imrpo/core/widgets/currency_amount_field.dart';
 import 'package:imrpo/features/auth/presentation/widgets/custom_text_field.dart';
+import 'package:imrpo/features/expenses_tab/domain/expense_categories.dart';
 import 'package:imrpo/features/expenses_tab/presentation/bloc/expenses_tab_bloc.dart';
 import 'package:imrpo/core/l10n/l10n_entity_strings.dart';
 import 'package:imrpo/l10n/app_localizations.dart';
@@ -42,16 +43,9 @@ class _AddExpenseSheetState extends State<AddExpenseSheet> {
 
   bool get _isEditing => widget.expense != null;
 
-  static const _otherCategory = 'Other';
+  static const _otherCategory = ExpenseCategories.other;
 
-  static const _categories = [
-    'Food',
-    'Rent',
-    'Transport',
-    'Shopping',
-    'Bills',
-    _otherCategory,
-  ];
+  static const _categories = ExpenseCategories.presets;
 
   bool get _isOtherCategory => _category == _otherCategory;
 

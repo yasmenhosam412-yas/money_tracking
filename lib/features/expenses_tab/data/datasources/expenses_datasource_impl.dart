@@ -74,4 +74,30 @@ class ExpensesDatasourceImpl extends ExpensesDatasource {
         })
         .eq("expense_id", expenseId);
   }
+
+  @override
+  Future<int> renameCategory(String fromCategory, String toCategory) async {
+    final userId = SupabaseAuthHelper.requireUserId();
+    final updated = await supabaseClient
+        .from('expenses')
+        .update({'category': toCategory})
+        .eq('user_id', userId)
+        .eq('category', fromCategory)
+        .select('expense_id');
+
+    return (updated as List).length;
+  }
+
+  @override
+  Future<int> deleteByCategory(String category) async {
+    final userId = SupabaseAuthHelper.requireUserId();
+    final deleted = await supabaseClient
+        .from('expenses')
+        .delete()
+        .eq('user_id', userId)
+        .eq('category', category)
+        .select('expense_id');
+
+    return (deleted as List).length;
+  }
 }

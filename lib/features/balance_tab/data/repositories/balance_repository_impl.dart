@@ -71,6 +71,7 @@ class BalanceRepositoryImpl implements BalanceRepository {
         (income) => BalanceActivity(
           id: 'income_${income.id}',
           title: income.title,
+          category: income.category,
           amount: income.amount,
           date: income.date,
           type: BalanceActivityType.income,
@@ -80,6 +81,7 @@ class BalanceRepositoryImpl implements BalanceRepository {
         (expense) => BalanceActivity(
           id: 'expense_${expense.id}',
           title: expense.title,
+          category: expense.category,
           amount: expense.amount,
           date: expense.date,
           type: BalanceActivityType.expense,

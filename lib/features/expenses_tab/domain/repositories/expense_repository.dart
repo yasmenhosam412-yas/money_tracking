@@ -8,5 +8,9 @@ abstract class ExpenseRepository {
   Future<Either<Failure, void>> deleteExpense(String expenseId);
   Future<Either<Failure, void>> deleteAllExpenses();
   Future<Either<Failure, List<ExpenseModel>>> getExpenses();
-
+  Future<Either<Failure, int>> renameCategory(
+    String fromCategory,
+    String toCategory,
+  );
+  Future<Either<Failure, int>> deleteByCategory(String category);
 }

@@ -194,6 +194,123 @@ void main() {
       expect(r.title, 'Mohamed S Amer');
     });
 
+    test('Instant outgoing transfer تم تحويل لحظى — expense', () {
+      const bodyMultiline =
+          'تم تحويل لحظى بمبلغ 200 إلى  رقم مرجعى B\n'
+          'EC93BC فى 17/05/2026 04:54 للمزيد اتصل ب 19123';
+      final rMulti = TransactionTextParser.parseSms(
+        bodyMultiline,
+        smsReceivedAt: DateTime(2026, 5, 17, 5, 0),
+        sender: '19123',
+      );
+      expect(rMulti, isNotNull);
+      expect(rMulti!.type, FinancialEntryType.expense);
+      expect(rMulti.amount, 200);
+      expect(rMulti.title, 'Ref B EC93BC');
+
+      const body =
+          'تم تحويل لحظى بمبلغ 200 إلى  رقم مرجعى BEC93BC في 17/05/2026 04:54 للمزيد اتصل ب 19123';
+      final r = TransactionTextParser.parseSms(
+        body,
+        smsReceivedAt: DateTime(2026, 5, 17, 5, 0),
+        sender: '19123',
+      );
+      expect(r, isNotNull);
+      expect(r!.type, FinancialEntryType.expense);
+      expect(r.amount, 200);
+      expect(r.title, 'Ref BEC93BC');
+      expect(r.date!.year, 2026);
+      expect(r.date!.month, 5);
+      expect(r.date!.day, 17);
+      expect(r.date!.hour, 4);
+      expect(r.date!.minute, 54);
+    });
+
+    test('Etisalat Cash income — same pipeline as Vodafone', () {
+      const body =
+          'تم استلام مبلغ 1200 جنيه من رقم 01112345678 المسجل باسم Ali Hassan على محفظة اتصالات كاش. '
+          'رصيدك الحالي 3500 جنيه';
+      final r = TransactionTextParser.parseSms(
+        body,
+        sender: 'Etisalat',
+      );
+      expect(r, isNotNull);
+      expect(r!.type, FinancialEntryType.income);
+      expect(r.amount, 1200);
+      expect(r.title, 'Ali Hassan');
+
+      const eAnd =
+          'You have received EGP 75.00 in your e& money wallet from 01198765432';
+      final rEn = TransactionTextParser.parseSms(eAnd, sender: 'e&');
+      expect(rEn!.type, FinancialEntryType.income);
+      expect(rEn.amount, 75);
+      expect(rEn.title, 'Etisalat Cash');
+    });
+
+    test('CIB ATM withdrawal — expense', () {
+      const bodyAr =
+          'تم سحب مبلغ 1500 جنيه من الصراف الآلي لحسابكم. المتاح 12000 جنيه يوم 10/05/2026 14:30';
+      final rAr = TransactionTextParser.parseSms(
+        bodyAr,
+        smsReceivedAt: DateTime(2026, 5, 10, 15, 0),
+        sender: 'CIB',
+      );
+      expect(rAr, isNotNull);
+      expect(rAr!.type, FinancialEntryType.expense);
+      expect(rAr.amount, 1500);
+      expect(rAr.title, 'ATM withdrawal');
+
+      const bodyEn =
+          'Cash withdrawal of EGP 500.00 from your account at ATM CIB Branch';
+      final rEn = TransactionTextParser.parseSms(bodyEn, sender: 'CIB');
+      expect(rEn!.type, FinancialEntryType.expense);
+      expect(rEn.amount, 500);
+    });
+
+    test('Bill payment سداد فاتورة — expense', () {
+      const body =
+          'تم سداد فاتورة كهرباء بمبلغ 420 جنيه من حسابكم. الرصيد المتاح 8000 جنيه';
+      final r = TransactionTextParser.parseSms(body, sender: 'CIB');
+      expect(r, isNotNull);
+      expect(r!.type, FinancialEntryType.expense);
+      expect(r.amount, 420);
+      expect(r.title, 'كهرباء');
+
+      const bodyEn =
+          'Bill payment of EGP 199.50 for internet was debited from your account';
+      final rEn = TransactionTextParser.parseSms(bodyEn);
+      expect(rEn!.type, FinancialEntryType.expense);
+      expect(rEn.amount, 199.50);
+    });
+
+    test('Cash deposit — income', () {
+      const body =
+          'Cash deposit of EGP 3000.00 has been credited to your saving account. Available balance EGP 15000';
+      final r = TransactionTextParser.parseSms(body, sender: 'CIB');
+      expect(r, isNotNull);
+      expect(r!.type, FinancialEntryType.income);
+      expect(r.amount, 3000);
+
+      const bodyAr =
+          'تم ايداع نقدي بمبلغ 2500 جنيه على حسابكم رقم #4455 يوم 08/05/2026 09:15';
+      final rAr = TransactionTextParser.parseSms(
+        bodyAr,
+        smsReceivedAt: DateTime(2026, 5, 8, 10, 0),
+      );
+      expect(rAr!.type, FinancialEntryType.income);
+      expect(rAr.amount, 2500);
+    });
+
+    test('CIB card debit at merchant — expense', () {
+      const body =
+          'Your account was debited with EGP 850.00 at CARREFOUR on 12/05/2026 18:40';
+      final r = TransactionTextParser.parseSms(body, sender: 'CIB');
+      expect(r, isNotNull);
+      expect(r!.type, FinancialEntryType.expense);
+      expect(r.amount, 850);
+      expect(r.title, 'CARREFOUR');
+    });
+
     test('Hotline sender is not used as title', () {
       expect(TransactionTextParser.isPhoneOrHotline('19123'), isTrue);
       expect(TransactionTextParser.isPhoneOrHotline('01024193022'), isTrue);
