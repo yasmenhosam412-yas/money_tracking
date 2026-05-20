@@ -74,4 +74,30 @@ class IncomeDatasourceImpl extends IncomeDatasource {
         })
         .eq('income_id', incomeId);
   }
+
+  @override
+  Future<int> renameCategory(String fromCategory, String toCategory) async {
+    final userId = SupabaseAuthHelper.requireUserId();
+    final updated = await supabaseClient
+        .from('incomes')
+        .update({'category': toCategory})
+        .eq('user_id', userId)
+        .eq('category', fromCategory)
+        .select('income_id');
+
+    return (updated as List).length;
+  }
+
+  @override
+  Future<int> deleteByCategory(String category) async {
+    final userId = SupabaseAuthHelper.requireUserId();
+    final deleted = await supabaseClient
+        .from('incomes')
+        .delete()
+        .eq('user_id', userId)
+        .eq('category', category)
+        .select('income_id');
+
+    return (deleted as List).length;
+  }
 }

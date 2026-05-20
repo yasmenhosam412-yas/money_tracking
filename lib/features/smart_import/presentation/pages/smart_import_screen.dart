@@ -1,12 +1,13 @@
-import 'dart:io';
-
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:imrpo/core/models/parsed_financial_entry.dart';
 import 'package:imrpo/core/services/currency_preferences.dart';
-import 'package:imrpo/core/services/invoice_ocr_service.dart';
 import 'package:imrpo/core/services/service_locator.dart';
+import 'package:imrpo/core/services/smart_import_draft_store.dart';
+import 'package:imrpo/core/services/shared_text_import_store.dart';
+import 'package:imrpo/core/services/transaction_text_parser.dart';
 import 'package:imrpo/core/services/sms_bulk_import_service.dart';
 import 'package:imrpo/core/services/sms_import_service.dart';
 import 'package:imrpo/core/services/sms_imported_registry.dart';
@@ -19,10 +20,9 @@ import 'package:imrpo/features/expenses_tab/presentation/widgets/add_expense_she
 import 'package:imrpo/features/incomes_tab/presentation/bloc/incomes_tab_bloc.dart';
 import 'package:imrpo/features/incomes_tab/presentation/widgets/add_income_sheet.dart';
 import 'package:imrpo/features/smart_import/presentation/widgets/smart_import_bulk_category_sheet.dart';
+import 'package:imrpo/features/smart_import/presentation/widgets/smart_import_quick_add_tab.dart';
 import 'package:imrpo/l10n/app_localizations.dart';
 import 'package:intl/intl.dart';
-import 'package:permission_handler/permission_handler.dart';
-
 class SmartImportScreen extends StatefulWidget {
   const SmartImportScreen({super.key});
 
@@ -33,14 +33,16 @@ class SmartImportScreen extends StatefulWidget {
 class _SmartImportScreenState extends State<SmartImportScreen>
     with SingleTickerProviderStateMixin {
   late final TabController _tabController;
-  final _ocrService = getIt<InvoiceOcrService>();
+  final _pasteController = TextEditingController();
   final _smsService = getIt<SmsImportService>();
   final _bulkImportService = getIt<SmsBulkImportService>();
-  final _imagePicker = ImagePicker();
 
-  bool _ocrLoading = false;
-  ParsedFinancialEntry? _ocrResult;
-  String? _ocrPreviewPath;
+  bool _pasteParsing = false;
+  bool _pasteBulkImporting = false;
+  List<ParsedFinancialEntry> _pasteResults = [];
+  final Set<int> _pasteSelectedIndices = {};
+  bool _quickAddSaving = false;
+  int _quickAddVersion = 0;
 
   bool _smsLoading = false;
   bool _smsLoadingMore = false;
@@ -50,16 +52,43 @@ class _SmartImportScreenState extends State<SmartImportScreen>
   List<SmsMessageItem> _smsMessages = [];
   String? _smsError;
 
+  late final SharedTextImportStore _sharedTextStore;
+
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 2, vsync: this);
+    _tabController = TabController(length: 3, vsync: this);
+    _sharedTextStore = getIt<SharedTextImportStore>();
+    _sharedTextStore.smartImportScreenOpen = true;
+    _sharedTextStore.addListener(_onSharedTextPending);
+    WidgetsBinding.instance.addPostFrameCallback((_) => _applySharedTextIfAny());
   }
 
   @override
   void dispose() {
+    _sharedTextStore.removeListener(_onSharedTextPending);
+    _sharedTextStore.smartImportScreenOpen = false;
     _tabController.dispose();
+    _pasteController.dispose();
     super.dispose();
+  }
+
+  void _onSharedTextPending() => _applySharedTextIfAny();
+
+  void _applySharedTextIfAny() {
+    if (!mounted) return;
+    final text = _sharedTextStore.consumePending();
+    if (text == null || text.isEmpty) return;
+
+    final l10n = AppLocalizations.of(context)!;
+    setState(() {
+      _tabController.index = 0;
+      _pasteController.text = text;
+      _pasteResults = [];
+      _pasteSelectedIndices.clear();
+    });
+    _parsePastedText();
+    _showSnack(l10n.smartImportSharedTextReady);
   }
 
   @override
@@ -75,20 +104,38 @@ class _SmartImportScreenState extends State<SmartImportScreen>
             _SmartImportHeader(
               title: l10n.smartImportTitle,
               tabController: _tabController,
-              invoiceLabel: l10n.smartImportInvoiceTab,
+              pasteLabel: l10n.smartImportPasteTab,
+              quickLabel: l10n.smartImportQuickTab,
               smsLabel: l10n.smartImportSmsTab,
             ),
             Expanded(
               child: TabBarView(
                 controller: _tabController,
                 children: [
-                  _InvoiceOcrTab(
-                    loading: _ocrLoading,
-                    previewPath: _ocrPreviewPath,
-                    result: _ocrResult,
-                    onScanCamera: () => _scanInvoice(ImageSource.camera),
-                    onScanGallery: () => _scanInvoice(ImageSource.gallery),
-                    onAddEntry: _openPrefilledSheet,
+                  _PasteParseTab(
+                    controller: _pasteController,
+                    parsing: _pasteParsing,
+                    bulkImporting: _pasteBulkImporting,
+                    results: _pasteResults,
+                    selectedIndices: _pasteSelectedIndices,
+                    onPasteFromClipboard: _pasteFromClipboard,
+                    onParse: _parsePastedText,
+                    onClear: _clearPasteForm,
+                    onAddEntry: _addFromPaste,
+                    onSwapType: _swapPasteResultType,
+                    onToggleSelect: _togglePasteSelection,
+                    onSelectAll: _selectAllPasteResults,
+                    onClearSelection: _clearPasteSelection,
+                    onAddSelected: () => _bulkAddFromPaste(_selectedPasteResults),
+                    onAddAllExpenses: () => _bulkAddFromPaste(_pasteExpenseResults),
+                    onAddAllIncomes: () => _bulkAddFromPaste(_pasteIncomeResults),
+                    onTextChanged: _onPasteTextChanged,
+                  ),
+                  SmartImportQuickAddTab(
+                    key: ValueKey(_quickAddVersion),
+                    saving: _quickAddSaving,
+                    onAddNow: _quickAddNow,
+                    onOpenFullForm: _quickAddOpenForm,
                   ),
                   _SmsImportTab(
                     loading: _smsLoading,
@@ -113,42 +160,282 @@ class _SmartImportScreenState extends State<SmartImportScreen>
     );
   }
 
-  Future<void> _scanInvoice(ImageSource source) async {
-    final l10n = AppLocalizations.of(context)!;
+  List<ParsedFinancialEntry> get _selectedPasteResults => [
+        for (var i = 0; i < _pasteResults.length; i++)
+          if (_pasteSelectedIndices.contains(i)) _pasteResults[i],
+      ];
 
-    if (source == ImageSource.camera) {
-      final camera = await Permission.camera.request();
-      if (!camera.isGranted) {
-        _showSnack(l10n.smartImportCameraDenied, isError: true);
-        return;
+  List<ParsedFinancialEntry> get _pasteExpenseResults => _pasteResults
+      .where((e) => e.type == FinancialEntryType.expense)
+      .toList();
+
+  List<ParsedFinancialEntry> get _pasteIncomeResults =>
+      _pasteResults.where((e) => e.type == FinancialEntryType.income).toList();
+
+  void _onPasteTextChanged() {
+    setState(() {
+      _pasteResults = [];
+      _pasteSelectedIndices.clear();
+    });
+  }
+
+  void _clearPasteForm() {
+    setState(() {
+      _pasteController.clear();
+      _pasteResults = [];
+      _pasteSelectedIndices.clear();
+    });
+  }
+
+  void _togglePasteSelection(int index) {
+    setState(() {
+      if (_pasteSelectedIndices.contains(index)) {
+        _pasteSelectedIndices.remove(index);
+      } else {
+        _pasteSelectedIndices.add(index);
       }
+    });
+  }
+
+  void _selectAllPasteResults() {
+    setState(() {
+      _pasteSelectedIndices
+        ..clear()
+        ..addAll(List.generate(_pasteResults.length, (i) => i));
+    });
+  }
+
+  void _clearPasteSelection() => setState(_pasteSelectedIndices.clear);
+
+  Future<void> _pasteFromClipboard() async {
+    final l10n = AppLocalizations.of(context)!;
+    final data = await Clipboard.getData(Clipboard.kTextPlain);
+    if (!mounted) return;
+    final text = data?.text?.trim();
+    if (text == null || text.isEmpty) {
+      _showSnack(l10n.smartImportPasteClipboardEmpty, isError: true);
+      return;
+    }
+    setState(() {
+      _pasteController.text = text;
+      _pasteResults = [];
+      _pasteSelectedIndices.clear();
+    });
+    _parsePastedText();
+  }
+
+  void _swapPasteResultType(int index) {
+    if (index < 0 || index >= _pasteResults.length) return;
+    final current = _pasteResults[index];
+    if (!current.hasUsableData) return;
+    final swapped = current.copyWith(
+      type: current.type == FinancialEntryType.expense
+          ? FinancialEntryType.income
+          : FinancialEntryType.expense,
+    );
+    setState(() => _pasteResults[index] = swapped);
+    getIt<SmartImportDraftStore>().save(swapped);
+  }
+
+  void _reindexPasteSelectionAfterRemove(int removedIndex) {
+    final next = <int>{};
+    for (final i in _pasteSelectedIndices) {
+      if (i == removedIndex) continue;
+      next.add(i > removedIndex ? i - 1 : i);
+    }
+    _pasteSelectedIndices
+      ..clear()
+      ..addAll(next);
+  }
+
+  Future<void> _addFromPaste(ParsedFinancialEntry entry, int index) async {
+    final l10n = AppLocalizations.of(context)!;
+    final rawTitle = entry.title?.trim();
+    final sheetResult = await _showEntrySheet(
+      type: entry.type,
+      title: (rawTitle != null && rawTitle.isNotEmpty)
+          ? rawTitle
+          : l10n.smartImportDefaultBillTitle,
+      amountInBase: entry.amountInBase,
+      date: entry.date,
+    );
+
+    if (!mounted) return;
+    if (sheetResult == 'added' || sheetResult == 'updated') {
+      setState(() {
+        if (index >= 0 && index < _pasteResults.length) {
+          _pasteResults.removeAt(index);
+          _reindexPasteSelectionAfterRemove(index);
+        }
+        if (_pasteResults.isEmpty) {
+          _pasteController.clear();
+          _pasteSelectedIndices.clear();
+        }
+      });
+      _showSnack(
+        _pasteResults.isEmpty
+            ? l10n.smartImportPasteAddedSuccess
+            : l10n.smartImportPasteAddedOneRemaining(_pasteResults.length),
+      );
+    }
+  }
+
+  Future<void> _bulkAddFromPaste(List<ParsedFinancialEntry> entries) async {
+    final l10n = AppLocalizations.of(context)!;
+    final importable =
+        entries.where((e) => (e.amountInBase ?? 0) > 0).toList();
+    if (importable.isEmpty) {
+      _showSnack(l10n.smartImportBulkNothingToAdd, isError: true);
+      return;
     }
 
-    final picked = await _imagePicker.pickImage(
-      source: source,
-      imageQuality: 85,
+    final hasExpense = importable.any(
+      (e) => e.type == FinancialEntryType.expense,
     );
-    if (picked == null || !mounted) return;
+    final hasIncome = importable.any(
+      (e) => e.type == FinancialEntryType.income,
+    );
 
-    setState(() {
-      _ocrLoading = true;
-      _ocrPreviewPath = picked.path;
-      _ocrResult = null;
-    });
+    final categories = await showSmartImportBulkCategorySheet(
+      context,
+      needsExpenseCategory: hasExpense,
+      needsIncomeSource: hasIncome,
+    );
+    if (categories == null || !mounted) return;
+
+    setState(() => _pasteBulkImporting = true);
 
     try {
-      final parsed = await _ocrService.scanImage(picked.path);
+      final result = await _bulkImportService.importParsedEntries(
+        importable,
+        expenseCategory: categories.expenseCategory,
+        incomeSource: categories.incomeSource,
+        expensePaidFrom: categories.expensePaidFrom,
+      );
       if (!mounted) return;
-      setState(() => _ocrResult = parsed);
 
-      if (!parsed.hasUsableData) {
-        _showSnack(l10n.smartImportOcrNoData, isError: true);
+      context.read<ExpensesTabBloc>().add(const LoadExpensesEvent(force: true));
+      context.read<IncomesTabBloc>().add(const LoadIncomesEvent(force: true));
+
+      if (result.hasAny) {
+        _clearPasteForm();
+        _showSnack(
+          l10n.smartImportBulkResult(
+            result.incomeCount,
+            result.expenseCount,
+          ),
+        );
+      } else {
+        _showSnack(l10n.smartImportBulkNothingToAdd, isError: true);
+      }
+
+      if (result.failed > 0) {
+        _showSnack(
+          l10n.smartImportBulkPartialFail(result.failed),
+          isError: true,
+        );
       }
     } catch (_) {
-      if (!mounted) return;
-      _showSnack(l10n.smartImportOcrFailed, isError: true);
+      if (mounted) {
+        _showSnack(l10n.smartImportSmsFailed, isError: true);
+      }
     } finally {
-      if (mounted) setState(() => _ocrLoading = false);
+      if (mounted) setState(() => _pasteBulkImporting = false);
+    }
+  }
+
+  ParsedFinancialEntry _entryFromQuickAdd(QuickAddPayload payload) {
+    final displayCode = getIt<CurrencyPreferences>().displayCode;
+    final displayAmount =
+        getIt<CurrencyPreferences>().displayAmount(payload.amountInBase);
+    return ParsedFinancialEntry(
+      title: payload.title,
+      amount: displayAmount,
+      currencyCode: displayCode,
+      date: payload.date,
+      type: payload.type,
+      rawText: 'quick-add',
+    );
+  }
+
+  Future<void> _quickAddNow(QuickAddPayload payload) async {
+    final l10n = AppLocalizations.of(context)!;
+    setState(() => _quickAddSaving = true);
+    try {
+      final result = await _bulkImportService.importParsedEntries(
+        [_entryFromQuickAdd(payload)],
+        expenseCategory: payload.expenseCategory,
+        incomeSource: payload.incomeSource,
+        expensePaidFrom: payload.expensePaidFrom,
+      );
+      if (!mounted) return;
+
+      context.read<ExpensesTabBloc>().add(const LoadExpensesEvent(force: true));
+      context.read<IncomesTabBloc>().add(const LoadIncomesEvent(force: true));
+
+      if (result.hasAny) {
+        setState(() => _quickAddVersion++);
+        _showSnack(l10n.smartImportQuickAdded);
+      } else {
+        _showSnack(l10n.smartImportBulkNothingToAdd, isError: true);
+      }
+    } catch (_) {
+      if (mounted) {
+        _showSnack(l10n.smartImportSmsFailed, isError: true);
+      }
+    } finally {
+      if (mounted) setState(() => _quickAddSaving = false);
+    }
+  }
+
+  Future<void> _quickAddOpenForm(QuickAddPayload payload) async {
+    final l10n = AppLocalizations.of(context)!;
+    final rawTitle = payload.title?.trim();
+    final sheetResult = await _showEntrySheet(
+      type: payload.type,
+      title: (rawTitle != null && rawTitle.isNotEmpty)
+          ? rawTitle
+          : l10n.smartImportDefaultBillTitle,
+      amountInBase: payload.amountInBase,
+      date: payload.date,
+    );
+
+    if (!mounted) return;
+    if (sheetResult == 'added' || sheetResult == 'updated') {
+      setState(() => _quickAddVersion++);
+      _showSnack(l10n.smartImportQuickAdded);
+    }
+  }
+
+  void _parsePastedText() {
+    final l10n = AppLocalizations.of(context)!;
+    final text = _pasteController.text.trim();
+    if (text.isEmpty) {
+      _showSnack(l10n.smartImportPasteEmpty, isError: true);
+      return;
+    }
+
+    setState(() => _pasteParsing = true);
+
+    final displayCode = getIt<CurrencyPreferences>().displayCode;
+    final parsed = TransactionTextParser.parseMultiplePasted(
+      text,
+      defaultCurrencyCode: displayCode,
+    );
+
+    if (!mounted) return;
+    setState(() {
+      _pasteParsing = false;
+      _pasteResults = parsed;
+      _pasteSelectedIndices
+        ..clear()
+        ..addAll(List.generate(parsed.length, (i) => i));
+    });
+
+    if (parsed.isNotEmpty) {
+      getIt<SmartImportDraftStore>().save(parsed.first);
+    } else {
+      _showSnack(l10n.smartImportPasteNoData, isError: true);
     }
   }
 
@@ -226,20 +513,12 @@ class _SmartImportScreenState extends State<SmartImportScreen>
     }
   }
 
-  Future<void> _openPrefilledSheet(ParsedFinancialEntry entry) async {
-    final l10n = AppLocalizations.of(context)!;
-    await _showEntrySheet(
-      type: entry.type,
-      title: l10n.smartImportDefaultBillTitle,
-      amountInBase: entry.amountInBase,
-      date: entry.date,
-    );
-  }
 
   Future<void> _bulkImport(
     List<SmsMessageItem> items, {
     String? expenseCategory,
     String? incomeSource,
+    String? expensePaidFrom,
   }) async {
     final l10n = AppLocalizations.of(context)!;
     final importable = items.where(_bulkImportService.canImport).toList();
@@ -256,6 +535,7 @@ class _SmartImportScreenState extends State<SmartImportScreen>
         importable,
         expenseCategory: expenseCategory,
         incomeSource: incomeSource,
+        expensePaidFrom: expensePaidFrom,
       );
       if (!mounted) return;
 
@@ -409,13 +689,15 @@ class _SmartImportScreenState extends State<SmartImportScreen>
 class _SmartImportHeader extends StatelessWidget {
   final String title;
   final TabController tabController;
-  final String invoiceLabel;
+  final String pasteLabel;
+  final String quickLabel;
   final String smsLabel;
 
   const _SmartImportHeader({
     required this.title,
     required this.tabController,
-    required this.invoiceLabel,
+    required this.pasteLabel,
+    required this.quickLabel,
     required this.smsLabel,
   });
 
@@ -456,6 +738,7 @@ class _SmartImportHeader extends StatelessWidget {
               ),
               child: TabBar(
                 controller: tabController,
+                tabAlignment: TabAlignment.fill,
                 indicator: BoxDecoration(
                   color: AppColors.card,
                   borderRadius: BorderRadius.circular(10),
@@ -470,11 +753,11 @@ class _SmartImportHeader extends StatelessWidget {
                 unselectedLabelColor: AppColors.textMuted,
                 labelStyle: const TextStyle(
                   fontWeight: FontWeight.w700,
-                  fontSize: 13,
+                  fontSize: 12,
                 ),
                 unselectedLabelStyle: const TextStyle(
                   fontWeight: FontWeight.w600,
-                  fontSize: 13,
+                  fontSize: 12,
                 ),
                 tabs: [
                   Tab(
@@ -482,9 +765,15 @@ class _SmartImportHeader extends StatelessWidget {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        const Icon(Icons.receipt_long_outlined, size: 18),
-                        const SizedBox(width: 6),
-                        Text(invoiceLabel),
+                        const Icon(Icons.content_paste_go_rounded, size: 17),
+                        const SizedBox(width: 4),
+                        Flexible(
+                          child: Text(
+                            pasteLabel,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
                       ],
                     ),
                   ),
@@ -493,9 +782,32 @@ class _SmartImportHeader extends StatelessWidget {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        const Icon(Icons.sms_outlined, size: 18),
-                        const SizedBox(width: 6),
-                        Text(smsLabel),
+                        const Icon(Icons.bolt_rounded, size: 17),
+                        const SizedBox(width: 4),
+                        Flexible(
+                          child: Text(
+                            quickLabel,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Tab(
+                    height: 44,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Icon(Icons.sms_outlined, size: 17),
+                        const SizedBox(width: 4),
+                        Flexible(
+                          child: Text(
+                            smsLabel,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
                       ],
                     ),
                   ),
@@ -509,26 +821,54 @@ class _SmartImportHeader extends StatelessWidget {
   }
 }
 
-class _InvoiceOcrTab extends StatelessWidget {
-  final bool loading;
-  final String? previewPath;
-  final ParsedFinancialEntry? result;
-  final VoidCallback onScanCamera;
-  final VoidCallback onScanGallery;
-  final ValueChanged<ParsedFinancialEntry> onAddEntry;
+class _PasteParseTab extends StatelessWidget {
+  final TextEditingController controller;
+  final bool parsing;
+  final bool bulkImporting;
+  final List<ParsedFinancialEntry> results;
+  final Set<int> selectedIndices;
+  final VoidCallback onPasteFromClipboard;
+  final VoidCallback onParse;
+  final VoidCallback onClear;
+  final void Function(ParsedFinancialEntry entry, int index) onAddEntry;
+  final ValueChanged<int> onSwapType;
+  final ValueChanged<int> onToggleSelect;
+  final VoidCallback onSelectAll;
+  final VoidCallback onClearSelection;
+  final VoidCallback onAddSelected;
+  final VoidCallback onAddAllExpenses;
+  final VoidCallback onAddAllIncomes;
+  final VoidCallback onTextChanged;
 
-  const _InvoiceOcrTab({
-    required this.loading,
-    required this.previewPath,
-    required this.result,
-    required this.onScanCamera,
-    required this.onScanGallery,
+  const _PasteParseTab({
+    required this.controller,
+    required this.parsing,
+    required this.bulkImporting,
+    required this.results,
+    required this.selectedIndices,
+    required this.onPasteFromClipboard,
+    required this.onParse,
+    required this.onClear,
     required this.onAddEntry,
+    required this.onSwapType,
+    required this.onToggleSelect,
+    required this.onSelectAll,
+    required this.onClearSelection,
+    required this.onAddSelected,
+    required this.onAddAllExpenses,
+    required this.onAddAllIncomes,
+    required this.onTextChanged,
   });
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
+    final disabled = parsing || bulkImporting;
+    final expenseCount =
+        results.where((e) => e.type == FinancialEntryType.expense).length;
+    final incomeCount =
+        results.where((e) => e.type == FinancialEntryType.income).length;
+    final selectedCount = selectedIndices.length;
 
     return ListView(
       padding: const EdgeInsets.fromLTRB(20, 4, 20, 28),
@@ -549,7 +889,7 @@ class _InvoiceOcrTab extends StatelessWidget {
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: const Icon(
-                  Icons.document_scanner_outlined,
+                  Icons.content_paste_search_rounded,
                   color: AppColors.primary,
                   size: 24,
                 ),
@@ -557,7 +897,7 @@ class _InvoiceOcrTab extends StatelessWidget {
               const SizedBox(width: 14),
               Expanded(
                 child: Text(
-                  l10n.smartImportInvoiceHint,
+                  l10n.smartImportPasteHint,
                   style: TextStyle(
                     color: AppColors.textColor.withValues(alpha: 0.72),
                     height: 1.45,
@@ -568,21 +908,148 @@ class _InvoiceOcrTab extends StatelessWidget {
             ],
           ),
         ),
+        if (!kIsWeb && defaultTargetPlatform == TargetPlatform.android) ...[
+          const SizedBox(height: 10),
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+            decoration: BoxDecoration(
+              color: AppColors.primary.withValues(alpha: 0.08),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(
+                color: AppColors.primary.withValues(alpha: 0.2),
+              ),
+            ),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Icon(
+                  Icons.ios_share_rounded,
+                  size: 18,
+                  color: AppColors.primary.withValues(alpha: 0.85),
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Text(
+                    l10n.smartImportPasteShareTip,
+                    style: TextStyle(
+                      fontSize: 13,
+                      height: 1.4,
+                      color: AppColors.textColor.withValues(alpha: 0.72),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
         const SizedBox(height: 16),
-        _ActionButton(
-          icon: Icons.photo_camera_outlined,
-          label: l10n.smartImportScanCamera,
-          color: AppColors.expense,
-          onTap: loading ? null : onScanCamera,
+        Text(
+          l10n.smartImportPasteFieldLabel,
+          style: const TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.w600,
+            color: AppColors.textColor,
+          ),
         ),
-        const SizedBox(height: 10),
-        _ActionButton(
-          icon: Icons.photo_library_outlined,
-          label: l10n.smartImportScanGallery,
-          color: AppColors.primary,
-          onTap: loading ? null : onScanGallery,
+        const SizedBox(height: 8),
+        ListenableBuilder(
+          listenable: controller,
+          builder: (context, _) {
+            final hasText = controller.text.trim().isNotEmpty;
+            return TextField(
+              controller: controller,
+              onChanged: (_) => onTextChanged(),
+              maxLines: 12,
+              minLines: 5,
+              style: const TextStyle(
+                color: AppColors.textColor,
+                fontSize: 15,
+                height: 1.4,
+              ),
+              decoration: InputDecoration(
+                hintText: l10n.smartImportPasteFieldHint,
+                hintStyle: TextStyle(
+                  color: AppColors.textColor.withValues(alpha: 0.45),
+                ),
+                filled: true,
+                fillColor: Colors.white,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(16),
+                  borderSide: BorderSide.none,
+                ),
+                contentPadding: const EdgeInsets.all(16),
+                suffixIcon: hasText
+                    ? IconButton(
+                        onPressed: disabled ? null : onClear,
+                        tooltip: l10n.smartImportPasteClear,
+                        icon: Icon(
+                          Icons.close_rounded,
+                          color: AppColors.textColor.withValues(alpha: 0.4),
+                        ),
+                      )
+                    : null,
+              ),
+            );
+          },
         ),
-        if (loading) ...[
+        const SizedBox(height: 12),
+        Row(
+          children: [
+            Expanded(
+              child: OutlinedButton.icon(
+                onPressed: disabled ? null : onPasteFromClipboard,
+                icon: const Icon(Icons.content_paste_rounded, size: 18),
+                label: Text(
+                  l10n.smartImportPasteFromClipboard,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: AppColors.primary,
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: FilledButton.icon(
+                onPressed: disabled ? null : onParse,
+                icon: const Icon(Icons.auto_fix_high_rounded, size: 18),
+                label: Text(
+                  l10n.smartImportParseMessages,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                style: FilledButton.styleFrom(
+                  backgroundColor: AppColors.expense,
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 8),
+        SizedBox(
+          width: double.infinity,
+          child: OutlinedButton.icon(
+            onPressed: disabled ? null : onClear,
+            icon: const Icon(Icons.delete_outline_rounded, size: 18),
+            label: Text(l10n.smartImportPasteClear),
+            style: OutlinedButton.styleFrom(
+              foregroundColor: AppColors.textColor.withValues(alpha: 0.7),
+              padding: const EdgeInsets.symmetric(vertical: 12),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+            ),
+          ),
+        ),
+        if (parsing) ...[
           const SizedBox(height: 28),
           Container(
             padding: const EdgeInsets.symmetric(vertical: 28),
@@ -592,7 +1059,7 @@ class _InvoiceOcrTab extends StatelessWidget {
                 const CircularProgressIndicator(color: AppColors.primary),
                 const SizedBox(height: 14),
                 Text(
-                  l10n.smartImportOcrProcessing,
+                  l10n.smartImportPasteProcessing,
                   style: TextStyle(
                     color: AppColors.textColor.withValues(alpha: 0.6),
                     fontWeight: FontWeight.w500,
@@ -602,24 +1069,221 @@ class _InvoiceOcrTab extends StatelessWidget {
             ),
           ),
         ],
-        if (previewPath != null && !loading) ...[
+        if (results.isNotEmpty && !parsing) ...[
           const SizedBox(height: 20),
-          Container(
-            decoration: AppDecorations.card(),
-            clipBehavior: Clip.antiAlias,
-            child: Image.file(
-              File(previewPath!),
-              height: 200,
-              width: double.infinity,
-              fit: BoxFit.cover,
+          Text(
+            l10n.smartImportPasteFoundCount(results.length),
+            style: const TextStyle(
+              fontSize: 15,
+              fontWeight: FontWeight.w700,
+              color: AppColors.textColor,
+            ),
+          ),
+          const SizedBox(height: 10),
+          if (results.length > 1) ...[
+            Container(
+              padding: const EdgeInsets.all(14),
+              decoration: AppDecorations.card(borderColor: AppColors.border),
+              child: _SmsBulkActionsBar(
+                disabled: disabled,
+                importedCount: 0,
+                expenseCount: expenseCount,
+                incomeCount: incomeCount,
+                selectedCount: selectedCount,
+                hasSelection: selectedIndices.isNotEmpty,
+                onAddAllExpenses: onAddAllExpenses,
+                onAddAllIncomes: onAddAllIncomes,
+                onAddSelected: onAddSelected,
+                onSelectAll: onSelectAll,
+                onClearSelection: onClearSelection,
+                onClearAllAdded: () {},
+              ),
+            ),
+            const SizedBox(height: 12),
+          ],
+          ...List.generate(results.length, (index) {
+            final entry = results[index];
+            final compact = results.length > 1;
+            if (compact) {
+              return Padding(
+                padding: EdgeInsets.only(
+                  bottom: index < results.length - 1 ? 10 : 0,
+                ),
+                child: _PasteResultListTile(
+                  entry: entry,
+                  index: index,
+                  selected: selectedIndices.contains(index),
+                  disabled: disabled,
+                  onToggleSelect: () => onToggleSelect(index),
+                  onAdd: () => onAddEntry(entry, index),
+                  onSwapType: () => onSwapType(index),
+                ),
+              );
+            }
+            return _ParsedEntryCard(
+              entry: entry,
+              onAdd: () => onAddEntry(entry, index),
+              onClear: onClear,
+              onSwapType: () => onSwapType(index),
+            );
+          }),
+        ],
+        if (bulkImporting) ...[
+          const SizedBox(height: 16),
+          Center(
+            child: Text(
+              l10n.smartImportBulkImporting,
+              style: TextStyle(
+                color: AppColors.textColor.withValues(alpha: 0.6),
+                fontWeight: FontWeight.w500,
+              ),
             ),
           ),
         ],
-        if (result != null && result!.hasUsableData && !loading) ...[
-          const SizedBox(height: 20),
-          _ParsedEntryCard(entry: result!, onAdd: () => onAddEntry(result!)),
-        ],
       ],
+    );
+  }
+}
+
+class _PasteResultListTile extends StatelessWidget {
+  final ParsedFinancialEntry entry;
+  final int index;
+  final bool selected;
+  final bool disabled;
+  final VoidCallback onToggleSelect;
+  final VoidCallback onAdd;
+  final VoidCallback onSwapType;
+
+  const _PasteResultListTile({
+    required this.entry,
+    required this.index,
+    required this.selected,
+    required this.disabled,
+    required this.onToggleSelect,
+    required this.onAdd,
+    required this.onSwapType,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    final locale = Localizations.localeOf(context).toString();
+    final isExpense = entry.type == FinancialEntryType.expense;
+    final accent = isExpense ? AppColors.expense : AppColors.income;
+    final rawTitle = entry.title?.trim();
+    final title = (rawTitle != null && rawTitle.isNotEmpty)
+        ? rawTitle
+        : l10n.smartImportDefaultBillTitle;
+
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: disabled ? null : onToggleSelect,
+        borderRadius: BorderRadius.circular(16),
+        child: Container(
+          padding: const EdgeInsets.all(14),
+          decoration: AppDecorations.card(
+            borderColor: selected
+                ? AppColors.primary.withValues(alpha: 0.45)
+                : accent.withValues(alpha: 0.2),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Checkbox(
+                    value: selected,
+                    onChanged: disabled ? null : (_) => onToggleSelect(),
+                    activeColor: AppColors.primary,
+                    materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  ),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          title,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                            fontWeight: FontWeight.w700,
+                            color: AppColors.textColor,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        if (entry.amountInBase != null)
+                          ListenableBuilder(
+                            listenable: getIt<CurrencyPreferences>(),
+                            builder: (context, _) => Text(
+                              Money.format(entry.amountInBase!),
+                              style: TextStyle(
+                                color: accent,
+                                fontWeight: FontWeight.w800,
+                                fontSize: 16,
+                              ),
+                            ),
+                          ),
+                        const SizedBox(height: 2),
+                        Text(
+                          isExpense ? l10n.tabExpenses : l10n.tabIncomes,
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: AppColors.textColor.withValues(alpha: 0.55),
+                          ),
+                        ),
+                        if (entry.date != null)
+                          Text(
+                            DateFormat.yMMMd(locale).format(entry.date!),
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: AppColors.textColor.withValues(alpha: 0.45),
+                            ),
+                          ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 10),
+              Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton.icon(
+                      onPressed: disabled ? null : onSwapType,
+                      icon: const Icon(Icons.swap_horiz_rounded, size: 16),
+                      label: Text(
+                        isExpense
+                            ? l10n.smartImportPasteMarkIncome
+                            : l10n.smartImportPasteMarkExpense,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor:
+                            isExpense ? AppColors.income : AppColors.expense,
+                        padding: const EdgeInsets.symmetric(vertical: 10),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: FilledButton.icon(
+                      onPressed: disabled ? null : onAdd,
+                      icon: const Icon(Icons.add_rounded, size: 18),
+                      label: Text(l10n.smartImportAddToApp),
+                      style: FilledButton.styleFrom(
+                        backgroundColor: accent,
+                        padding: const EdgeInsets.symmetric(vertical: 10),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }
@@ -639,6 +1303,7 @@ class _SmsImportTab extends StatefulWidget {
     List<SmsMessageItem> items, {
     String? expenseCategory,
     String? incomeSource,
+    String? expensePaidFrom,
   })
   onBulkImport;
   final VoidCallback onClearAllAdded;
@@ -775,6 +1440,7 @@ class _SmsImportTabState extends State<_SmsImportTab> {
       items,
       expenseCategory: categories.expenseCategory,
       incomeSource: categories.incomeSource,
+      expensePaidFrom: categories.expensePaidFrom,
     );
     if (mounted) setState(_selectedIds.clear);
   }
@@ -1557,8 +2223,15 @@ class _SmsListTile extends StatelessWidget {
 class _ParsedEntryCard extends StatelessWidget {
   final ParsedFinancialEntry entry;
   final VoidCallback onAdd;
+  final VoidCallback? onClear;
+  final VoidCallback? onSwapType;
 
-  const _ParsedEntryCard({required this.entry, required this.onAdd});
+  const _ParsedEntryCard({
+    required this.entry,
+    required this.onAdd,
+    this.onClear,
+    this.onSwapType,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -1607,7 +2280,11 @@ class _ParsedEntryCard extends StatelessWidget {
           const SizedBox(height: 16),
           _InfoRow(
             label: l10n.titleField,
-            value: l10n.smartImportDefaultBillTitle,
+            value: () {
+              final t = entry.title?.trim();
+              if (t != null && t.isNotEmpty) return t;
+              return l10n.smartImportDefaultBillTitle;
+            }(),
           ),
           if (entry.amountInBase != null)
             ListenableBuilder(
@@ -1643,6 +2320,49 @@ class _ParsedEntryCard extends StatelessWidget {
               ),
             ),
           ),
+          if (onSwapType != null || onClear != null) ...[
+            const SizedBox(height: 10),
+            Row(
+              children: [
+                if (onSwapType != null)
+                  Expanded(
+                    child: OutlinedButton.icon(
+                      onPressed: onSwapType,
+                      icon: const Icon(Icons.swap_horiz_rounded, size: 18),
+                      label: Text(
+                        isExpense
+                            ? l10n.smartImportPasteMarkIncome
+                            : l10n.smartImportPasteMarkExpense,
+                      ),
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor:
+                            isExpense ? AppColors.income : AppColors.expense,
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                    ),
+                  ),
+                if (onSwapType != null && onClear != null)
+                  const SizedBox(width: 8),
+                if (onClear != null)
+                  Expanded(
+                    child: OutlinedButton.icon(
+                      onPressed: onClear,
+                      icon: const Icon(Icons.refresh_rounded, size: 18),
+                      label: Text(l10n.smartImportPasteParseAnother),
+                      style: OutlinedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+          ],
         ],
       ),
     );
@@ -1687,17 +2407,16 @@ class _InfoRow extends StatelessWidget {
   }
 }
 
+// ignore: unused_element
 class _ActionButton extends StatelessWidget {
   final IconData icon;
   final String label;
   final Color color;
-  final VoidCallback? onTap;
 
   const _ActionButton({
     required this.icon,
     required this.label,
     required this.color,
-    this.onTap,
   });
 
   @override
@@ -1705,7 +2424,6 @@ class _ActionButton extends StatelessWidget {
     return Material(
       color: Colors.transparent,
       child: InkWell(
-        onTap: onTap,
         borderRadius: BorderRadius.circular(16),
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),

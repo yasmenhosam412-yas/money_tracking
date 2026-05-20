@@ -32,7 +32,10 @@ class AppRouter {
       case AppRoutes.search:
         return MaterialPageRoute(builder: (_) => const GlobalSearchScreen());
       case AppRoutes.smartImport:
-        return MaterialPageRoute(builder: (_) => const SmartImportScreen());
+        return MaterialPageRoute(
+          settings: const RouteSettings(name: AppRoutes.smartImport),
+          builder: (_) => const SmartImportScreen(),
+        );
       case AppRoutes.calculator:
         return MaterialPageRoute(builder: (_) => const CalculatorScreen());
       case AppRoutes.monthlyReport:

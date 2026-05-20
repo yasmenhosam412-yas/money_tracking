@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:skeletonizer/skeletonizer.dart';
 import 'package:imrpo/features/home/domain/entities/user_profile.dart';
 import 'package:imrpo/features/home/presentation/bloc/home_bloc.dart';
 import 'package:imrpo/features/home/presentation/widgets/user_settings_sheet.dart';
@@ -107,43 +108,45 @@ class _HomeTabBodyState extends State<_HomeTabBody> {
       builder: (context, _) {
         return Scaffold(
           backgroundColor: AppColors.scaffold,
-          body: Column(
-            children: [
-              _HomeHeader(selectedTab: selectedTab),
-              Padding(
-                padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-                child: Row(
-                  children: List.generate(tabs.length, (index) {
-                    final tab = tabs[index];
-                    final isSelected = selected == index;
-                    return Expanded(
-                      child: Padding(
-                        padding: EdgeInsets.only(
-                          left: index == 0 ? 0 : 4,
-                          right: index == tabs.length - 1 ? 0 : 4,
-                        ),
-                        child: _TabChip(
-                          tab: tab,
-                          isSelected: isSelected,
-                          onTap: () => widget.tabController.animateTo(index),
-                        ),
-                      ),
-                    );
-                  }),
-                ),
+          body: NestedScrollView(
+            headerSliverBuilder: (context, innerBoxIsScrolled) => [
+              SliverToBoxAdapter(
+                child: _HomeHeader(selectedTab: selectedTab),
               ),
-              Expanded(
-                child: TabBarView(
-                  controller: widget.tabController,
-                  children: const [
-                    IncomesTab(),
-                    ExpensesTab(),
-                    BalanceTab(),
-                    PlansTab(),
-                  ],
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+                  child: Row(
+                    children: List.generate(tabs.length, (index) {
+                      final tab = tabs[index];
+                      final isSelected = selected == index;
+                      return Expanded(
+                        child: Padding(
+                          padding: EdgeInsets.only(
+                            left: index == 0 ? 0 : 4,
+                            right: index == tabs.length - 1 ? 0 : 4,
+                          ),
+                          child: _TabChip(
+                            tab: tab,
+                            isSelected: isSelected,
+                            onTap: () => widget.tabController.animateTo(index),
+                          ),
+                        ),
+                      );
+                    }),
+                  ),
                 ),
               ),
             ],
+            body: TabBarView(
+              controller: widget.tabController,
+              children: const [
+                IncomesTab(),
+                ExpensesTab(),
+                BalanceTab(),
+                PlansTab(),
+              ],
+            ),
           ),
         );
       },
@@ -548,11 +551,18 @@ class _UserAvatar extends StatelessWidget {
         border: Border.all(color: Colors.white.withValues(alpha: 0.25)),
       ),
       child: isInitialLoading
-          ? Padding(
-              padding: const EdgeInsets.all(14),
-              child: CircularProgressIndicator(
-                strokeWidth: 2,
-                color: Colors.white.withValues(alpha: 0.9),
+          ? Skeletonizer(
+              enabled: true,
+              ignoreContainers: true,
+              child: Center(
+                child: Text(
+                  initial ?? '?',
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 22,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
               ),
             )
           : Stack(
@@ -578,11 +588,11 @@ class _UserAvatar extends StatelessWidget {
                   Positioned(
                     right: 4,
                     bottom: 4,
-                    child: SizedBox(
-                      width: 14,
-                      height: 14,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2,
+                    child: Skeletonizer(
+                      enabled: true,
+                      child: Icon(
+                        Icons.sync_rounded,
+                        size: 14,
                         color: Colors.white.withValues(alpha: 0.95),
                       ),
                     ),

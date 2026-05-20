@@ -7,9 +7,11 @@ import 'package:imrpo/core/services/currency_preferences.dart';
 import 'package:imrpo/core/services/service_locator.dart';
 import 'package:imrpo/core/utils/app_colors.dart';
 import 'package:imrpo/core/widgets/currency_amount_field.dart';
+import 'package:imrpo/core/widgets/payment_method_chips_section.dart';
 import 'package:imrpo/features/auth/presentation/widgets/custom_text_field.dart';
 import 'package:imrpo/features/expenses_tab/domain/expense_categories.dart';
 import 'package:imrpo/features/expenses_tab/presentation/bloc/expenses_tab_bloc.dart';
+import 'package:imrpo/features/incomes_tab/presentation/bloc/incomes_tab_bloc.dart';
 import 'package:imrpo/core/l10n/l10n_entity_strings.dart';
 import 'package:imrpo/l10n/app_localizations.dart';
 
@@ -40,6 +42,7 @@ class _AddExpenseSheetState extends State<AddExpenseSheet> {
   String _category = 'Food';
   late String _currencyCode;
   DateTime _date = DateTime.now();
+  String? _paidFromSource;
 
   bool get _isEditing => widget.expense != null;
 
@@ -91,6 +94,8 @@ class _AddExpenseSheetState extends State<AddExpenseSheet> {
         _category = _otherCategory;
         _otherCategoryController.text = expense.category;
       }
+      final src = expense.incomeSource?.trim();
+      _paidFromSource = (src == null || src.isEmpty) ? null : src;
     } else {
       if (widget.initialTitle != null) {
         _titleController.text = widget.initialTitle!;
@@ -102,6 +107,10 @@ class _AddExpenseSheetState extends State<AddExpenseSheet> {
         _date = widget.initialDate!;
       }
     }
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      context.read<IncomesTabBloc>().add(const LoadIncomesEvent());
+    });
   }
 
   @override
@@ -238,6 +247,16 @@ class _AddExpenseSheetState extends State<AddExpenseSheet> {
                         icon: Icons.category_outlined,
                       ),
                     ],
+                    PaymentMethodChipsSection(
+                      label: l10n.expensePaidFromField,
+                      selected: _paidFromSource ?? '',
+                      allowNone: true,
+                      onClearSelection: () =>
+                          setState(() => _paidFromSource = null),
+                      onSelected: (src) =>
+                          setState(() => _paidFromSource = src),
+                      accentColor: _expenseColor,
+                    ),
                     const SizedBox(height: 16),
                     InkWell(
                       onTap: _pickDate,
@@ -385,6 +404,7 @@ class _AddExpenseSheetState extends State<AddExpenseSheet> {
           category: category,
           amount: baseAmount,
           date: _date,
+          incomeSource: _paidFromSource,
         ),
       );
     } else {
@@ -394,6 +414,7 @@ class _AddExpenseSheetState extends State<AddExpenseSheet> {
           category: category,
           amount: baseAmount,
           date: _date,
+          incomeSource: _paidFromSource,
         ),
       );
     }

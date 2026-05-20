@@ -10,8 +10,15 @@ class AddExpenseUsecase {
     String title,
     String category,
     double amount,
-    DateTime date,
-  ) async {
-    return await expenseRepository.addExpense(title, category, amount, date);
+    DateTime date, {
+    String? incomeSource,
+  }) async {
+    return await expenseRepository.addExpense(
+      title,
+      category,
+      amount,
+      date,
+      incomeSource: incomeSource,
+    );
   }
 }

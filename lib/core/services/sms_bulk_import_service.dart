@@ -57,13 +57,72 @@ class SmsBulkImportService {
     bool reimport = false,
     String? expenseCategory,
     String? incomeSource,
+    String? expensePaidFrom,
   }) async {
     return _import(
       items,
       reimport: reimport,
       expenseCategory: expenseCategory,
       incomeSource: incomeSource,
+      expensePaidFrom: expensePaidFrom,
     );
+  }
+
+  Future<SmsBulkImportResult> importParsedEntries(
+    List<ParsedFinancialEntry> entries, {
+    String? expenseCategory,
+    String? incomeSource,
+    String? expensePaidFrom,
+  }) async {
+    final resolvedExpenseCategory = expenseCategory ?? _expenseCategory;
+    final resolvedIncomeSource = incomeSource ?? _incomeCategory;
+    var expenseCount = 0;
+    var incomeCount = 0;
+    var failed = 0;
+
+    for (final entry in entries) {
+      final baseAmount = entry.amountInBase;
+      if (baseAmount == null || baseAmount <= 0) {
+        failed++;
+        continue;
+      }
+
+      final title = _resolveParsedTitle(entry);
+      final date = entry.date ?? DateTime.now();
+
+      if (entry.type == FinancialEntryType.expense) {
+        final result = await _addExpense(
+          title,
+          resolvedExpenseCategory,
+          baseAmount,
+          date,
+          incomeSource: expensePaidFrom,
+        );
+        result.fold((_) => failed++, (_) => expenseCount++);
+      } else {
+        final result = await _addIncome(
+          title,
+          baseAmount,
+          date,
+          resolvedIncomeSource,
+        );
+        result.fold((_) => failed++, (_) => incomeCount++);
+      }
+    }
+
+    return SmsBulkImportResult(
+      expenseCount: expenseCount,
+      incomeCount: incomeCount,
+      failed: failed,
+    );
+  }
+
+  String _resolveParsedTitle(ParsedFinancialEntry entry) {
+    final t = entry.title?.trim();
+    if (t != null && t.isNotEmpty) return t;
+    return entry.type == FinancialEntryType.expense
+        ? 'Bank expense'
+        : 'Bank income';
   }
 
   Future<SmsBulkImportResult> _import(
@@ -71,6 +130,7 @@ class SmsBulkImportService {
     bool reimport = false,
     String? expenseCategory,
     String? incomeSource,
+    String? expensePaidFrom,
   }) async {
     final resolvedExpenseCategory = expenseCategory ?? _expenseCategory;
     final resolvedIncomeSource = incomeSource ?? _incomeCategory;
@@ -101,6 +161,7 @@ class SmsBulkImportService {
           resolvedExpenseCategory,
           baseAmount,
           date,
+          incomeSource: expensePaidFrom,
         );
         result.fold((_) => failed++, (_) {
           expenseCount++;

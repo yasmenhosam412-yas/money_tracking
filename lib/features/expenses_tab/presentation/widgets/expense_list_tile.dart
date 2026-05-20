@@ -6,8 +6,10 @@ import 'package:intl/intl.dart';
 import 'package:imrpo/core/theme/app_decorations.dart';
 import 'package:imrpo/core/utils/app_colors.dart';
 import 'package:imrpo/core/utils/money_format.dart';
+import 'package:imrpo/features/budgets/domain/services/budget_calculator.dart';
 import 'package:imrpo/core/l10n/l10n_entity_strings.dart';
 import 'package:imrpo/l10n/app_localizations.dart';
+import 'package:skeletonizer/skeletonizer.dart';
 
 class ExpenseListTile extends StatelessWidget {
   final ExpenseModel expense;
@@ -30,6 +32,20 @@ class ExpenseListTile extends StatelessWidget {
     final title = localizeDemoTitle(l10n, expense.title);
     final showTitleSubtitle =
         title.trim().toLowerCase() != category.trim().toLowerCase();
+    final paidFromRaw = expense.incomeSource?.trim();
+    final paidFrom = paidFromRaw != null && paidFromRaw.isNotEmpty
+        ? localizeIncomeCategory(
+            l10n,
+            BudgetCalculator.categoryKey(paidFromRaw),
+          )
+        : null;
+    final metaStyle = TextStyle(
+      fontSize: 12.5,
+      height: 1.25,
+      fontWeight: FontWeight.w500,
+      color: AppColors.textColor.withValues(alpha: 0.55),
+    );
+    final iconMetaColor = AppColors.textColor.withValues(alpha: 0.45);
     return Material(
       color: Colors.transparent,
       child: InkWell(
@@ -42,6 +58,7 @@ class ExpenseListTile extends StatelessWidget {
             borderColor: AppColors.expense.withValues(alpha: 0.15),
           ),
           child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Container(
                 height: 48,
@@ -67,54 +84,118 @@ class ExpenseListTile extends StatelessWidget {
                         fontSize: 16,
                         fontWeight: FontWeight.w600,
                         color: AppColors.textColor,
+                        height: 1.2,
                       ),
                     ),
-                    const SizedBox(height: 4),
-                    Text(
-                      showTitleSubtitle
-                          ? '$title · ${_formatDate(context, expense.date)}'
-                          : _formatDate(context, expense.date),
-                      style: TextStyle(
-                        fontSize: 13,
-                        color: AppColors.textColor.withValues(alpha: 0.55),
+                    if (showTitleSubtitle) ...[
+                      const SizedBox(height: 6),
+                      Text(
+                        title,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                          height: 1.25,
+                          color: AppColors.textColor.withValues(alpha: 0.72),
+                        ),
                       ),
+                    ],
+                    const SizedBox(height: 8),
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.only(top: 1),
+                          child: Icon(
+                            Icons.calendar_today_outlined,
+                            size: 14,
+                            color: iconMetaColor,
+                          ),
+                        ),
+                        const SizedBox(width: 6),
+                        Expanded(
+                          child: Text(
+                            _formatDate(context, expense.date),
+                            style: metaStyle,
+                          ),
+                        ),
+                      ],
                     ),
+                    if (paidFrom != null) ...[
+                      const SizedBox(height: 4),
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.only(top: 1),
+                            child: Icon(
+                              Icons.payments_outlined,
+                              size: 14,
+                              color: iconMetaColor,
+                            ),
+                          ),
+                          const SizedBox(width: 6),
+                          Expanded(
+                            child: Text.rich(
+                              TextSpan(
+                                style: metaStyle,
+                                children: [
+                                  TextSpan(
+                                    text: '${l10n.expensePaidFromField}: ',
+                                    style: TextStyle(
+                                      color: AppColors.textColor.withValues(
+                                        alpha: 0.5,
+                                      ),
+                                    ),
+                                  ),
+                                  TextSpan(text: paidFrom),
+                                ],
+                              ),
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
                   ],
                 ),
               ),
-              Text(
-                '-${Money.format(expense.amount)}',
-                style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w700,
-                  color: _expenseColor,
+              Padding(
+                padding: const EdgeInsets.only(top: 1),
+                child: Text(
+                  '-${Money.format(expense.amount)}',
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w700,
+                    color: _expenseColor,
+                    height: 1.2,
+                  ),
                 ),
               ),
               if (onDelete != null) ...[
                 const SizedBox(width: 4),
-                BlocConsumer<ExpensesTabBloc, ExpensesTabState>(
-                  listener: (context, state) {},
+                BlocBuilder<ExpensesTabBloc, ExpensesTabState>(
+                  buildWhen: (previous, current) =>
+                      previous.deletingExpenseId != current.deletingExpenseId ||
+                      previous.status != current.status,
                   builder: (context, state) {
                     final isDeleting =
                         state.status == ExpensesTabStatus.loadingDelete &&
                         state.deletingExpenseId == expense.id;
                     return IconButton(
                       onPressed: isDeleting ? null : onDelete,
-                      icon: isDeleting
-                          ? SizedBox(
-                              width: 20,
-                              height: 20,
-                              child: CircularProgressIndicator(
-                                color: _expenseColor,
-                              ),
-                            )
-                          : Icon(
-                              Icons.close_rounded,
-                              size: 20,
-                              color: AppColors.textColor.withValues(
-                                alpha: 0.35,
-                              ),
-                            ),
+                      icon: Skeletonizer(
+                        enabled: isDeleting,
+                        child: Icon(
+                          Icons.close_rounded,
+                          size: 20,
+                          color: AppColors.textColor.withValues(
+                            alpha: 0.35,
+                          ),
+                        ),
+                      ),
                       visualDensity: VisualDensity.compact,
                       padding: EdgeInsets.zero,
                       constraints: const BoxConstraints(

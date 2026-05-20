@@ -18,10 +18,17 @@ class ExpenseRepositroyImpl extends ExpenseRepository {
     String title,
     String category,
     double amount,
-    DateTime date,
-  ) async {
+    DateTime date, {
+    String? incomeSource,
+  }) async {
     try {
-      await expensesDatasource.addExpense(title, amount, category, date);
+      await expensesDatasource.addExpense(
+        title,
+        amount,
+        category,
+        date,
+        incomeSource: incomeSource,
+      );
       return Right(null);
     } catch (e) {
       return Left(ErrorHelper.handle(e));
@@ -64,8 +71,9 @@ class ExpenseRepositroyImpl extends ExpenseRepository {
     String category,
     double amount,
     DateTime date,
-    String expenseId,
-  ) async {
+    String expenseId, {
+    String? incomeSource,
+  }) async {
     try {
       await expensesDatasource.updateExpense(
         expenseId,
@@ -73,6 +81,7 @@ class ExpenseRepositroyImpl extends ExpenseRepository {
         amount,
         category,
         date,
+        incomeSource: incomeSource,
       );
       return Right(null);
     } catch (e) {

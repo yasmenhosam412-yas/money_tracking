@@ -4,10 +4,12 @@ import 'package:imrpo/core/l10n/l10n_entity_strings.dart';
 import 'package:imrpo/core/theme/app_decorations.dart';
 import 'package:imrpo/core/utils/app_colors.dart';
 import 'package:imrpo/core/utils/money_format.dart';
+import 'package:imrpo/core/widgets/plans_balance_tab_loading_skeleton.dart';
 import 'package:imrpo/core/widgets/tab_centered_scroll.dart';
 import 'package:imrpo/core/widgets/tab_refresh_overlay.dart';
 import 'package:imrpo/features/plans_tab/domain/entities/plan.dart';
 import 'package:imrpo/features/plans_tab/presentation/bloc/plans_tab_bloc.dart';
+import 'package:imrpo/features/incomes_tab/presentation/bloc/incomes_tab_bloc.dart';
 import 'package:imrpo/features/plans_tab/presentation/widgets/add_plan_sheet.dart';
 import 'package:imrpo/features/plans_tab/presentation/widgets/plan_list_tile.dart';
 import 'package:imrpo/l10n/app_localizations.dart';
@@ -76,20 +78,15 @@ class _PlansTabState extends State<PlansTab> with AutomaticKeepAliveClientMixin 
             );
           }
         },
-        builder: (context, state) {
-          if (state is! PlansTabLoaded) {
-            return tabCenteredScroll(
-              const CircularProgressIndicator(color: AppColors.plans),
-            );
+        builder: (context, blocState) {
+          if (blocState is! PlansTabLoaded) {
+            return const PlansTabLoadingSkeleton();
           }
 
-          final isRefreshing =
-              state.status == PlansTabStatus.loading && state.hasData;
+          final state = blocState;
 
           if (!state.hasData && state.status == PlansTabStatus.loading) {
-            return tabCenteredScroll(
-              const CircularProgressIndicator(color: AppColors.plans),
-            );
+            return const PlansTabLoadingSkeleton();
           }
 
           if (!state.hasData && state.status == PlansTabStatus.error) {
@@ -127,6 +124,9 @@ class _PlansTabState extends State<PlansTab> with AutomaticKeepAliveClientMixin 
               ),
             );
           }
+
+          final isRefreshing =
+              state.status == PlansTabStatus.loading && state.hasData;
 
           final sorted = List.of(state.plans)
             ..sort((a, b) => b.progress.compareTo(a.progress));
@@ -299,8 +299,11 @@ class _PlansTabState extends State<PlansTab> with AutomaticKeepAliveClientMixin 
         ),
         duration: const Duration(milliseconds: 150),
         curve: Curves.easeOut,
-        child: BlocProvider.value(
-          value: context.read<PlansTabBloc>(),
+        child: MultiBlocProvider(
+          providers: [
+            BlocProvider.value(value: context.read<PlansTabBloc>()),
+            BlocProvider.value(value: context.read<IncomesTabBloc>()),
+          ],
           child: sheet,
         ),
       ),

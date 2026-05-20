@@ -1,3 +1,4 @@
+import 'package:imrpo/core/helpers/network_error_classifier.dart';
 import 'package:imrpo/core/l10n/l10n_error_tokens.dart';
 import 'package:imrpo/l10n/app_localizations.dart';
 
@@ -22,6 +23,8 @@ String localizeExpenseCategory(AppLocalizations l10n, String stored) {
 
 String localizeIncomeCategory(AppLocalizations l10n, String stored) {
   switch (stored) {
+    case '__unassigned__':
+      return l10n.incomeUnassignedSpending;
     case 'Work':
       return l10n.incomeCatWork;
     case 'Freelance':
@@ -106,6 +109,9 @@ String localizeApiError(AppLocalizations l10n, String? message) {
   }
   if (message == l10nDeleteAccountRpcRequiredToken) {
     return l10n.errorDeleteAccountRpcRequired;
+  }
+  if (messageIndicatesNoInternet(message)) {
+    return l10n.noInternetConnection;
   }
   return message;
 }

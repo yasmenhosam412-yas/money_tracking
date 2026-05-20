@@ -659,6 +659,72 @@ abstract class AppLocalizations {
   /// **'By source'**
   String get incomeBySource;
 
+  /// No description provided for @balanceRemainingBySource.
+  ///
+  /// In en, this message translates to:
+  /// **'Remaining by source'**
+  String get balanceRemainingBySource;
+
+  /// No description provided for @paymentMethodAddChip.
+  ///
+  /// In en, this message translates to:
+  /// **'+ Add method'**
+  String get paymentMethodAddChip;
+
+  /// No description provided for @paymentMethodAddCancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get paymentMethodAddCancel;
+
+  /// No description provided for @paymentMethodNewLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'New method name'**
+  String get paymentMethodNewLabel;
+
+  /// No description provided for @paymentMethodNewHint.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. Vodafone Cash, InstaPay, Fawry'**
+  String get paymentMethodNewHint;
+
+  /// No description provided for @paymentMethodSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Save method'**
+  String get paymentMethodSave;
+
+  /// No description provided for @paymentMethodNameEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a name for the payment method.'**
+  String get paymentMethodNameEmpty;
+
+  /// No description provided for @paymentMethodAdded.
+  ///
+  /// In en, this message translates to:
+  /// **'Added \"{name}\" to your methods.'**
+  String paymentMethodAdded(String name);
+
+  /// No description provided for @expensePaidFromField.
+  ///
+  /// In en, this message translates to:
+  /// **'Paid from'**
+  String get expensePaidFromField;
+
+  /// No description provided for @expensePaidFromNone.
+  ///
+  /// In en, this message translates to:
+  /// **'Not set'**
+  String get expensePaidFromNone;
+
+  /// No description provided for @incomeUnassignedSpending.
+  ///
+  /// In en, this message translates to:
+  /// **'Unassigned spending'**
+  String get incomeUnassignedSpending;
+
   /// No description provided for @incomeFilterAllSources.
   ///
   /// In en, this message translates to:
@@ -670,6 +736,84 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'No incomes for this source in the selected period'**
   String get incomeFilterNoSourceEntries;
+
+  /// No description provided for @incomeSourceManageEdit.
+  ///
+  /// In en, this message translates to:
+  /// **'Rename source'**
+  String get incomeSourceManageEdit;
+
+  /// No description provided for @incomeSourceManageRemove.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove source'**
+  String get incomeSourceManageRemove;
+
+  /// No description provided for @incomeSourceRenameTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Rename source'**
+  String get incomeSourceRenameTitle;
+
+  /// No description provided for @incomeSourceRenameHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Updates all incomes with source \"{name}\".'**
+  String incomeSourceRenameHint(String name);
+
+  /// No description provided for @incomeSourceNameTaken.
+  ///
+  /// In en, this message translates to:
+  /// **'That source name is already in use'**
+  String get incomeSourceNameTaken;
+
+  /// No description provided for @incomeSourceUpdatedSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Sources updated'**
+  String get incomeSourceUpdatedSuccess;
+
+  /// No description provided for @incomeSourceRemoveTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove source'**
+  String get incomeSourceRemoveTitle;
+
+  /// No description provided for @incomeSourceRemoveMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'What should happen to {count} income(s) with source \"{name}\"?'**
+  String incomeSourceRemoveMessage(int count, String name);
+
+  /// No description provided for @incomeSourceMoveToOther.
+  ///
+  /// In en, this message translates to:
+  /// **'Move all to Other'**
+  String get incomeSourceMoveToOther;
+
+  /// No description provided for @incomeSourceDeleteAll.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete all incomes with this source'**
+  String get incomeSourceDeleteAll;
+
+  /// No description provided for @incomeSourceDeleteConfirmTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete incomes?'**
+  String get incomeSourceDeleteConfirmTitle;
+
+  /// No description provided for @incomeSourceDeleteConfirmMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'This permanently deletes {count} income(s). This cannot be undone.'**
+  String incomeSourceDeleteConfirmMessage(int count);
+
+  /// No description provided for @incomeSourceDeleteConfirmAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get incomeSourceDeleteConfirmAction;
 
   /// No description provided for @incomeSourceRents.
   ///
@@ -694,6 +838,162 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Amount'**
   String get amountField;
+
+  /// No description provided for @expenseAmountShortcuts.
+  ///
+  /// In en, this message translates to:
+  /// **'Quick amounts'**
+  String get expenseAmountShortcuts;
+
+  /// No description provided for @expenseShortcutTransport.
+  ///
+  /// In en, this message translates to:
+  /// **'Transport'**
+  String get expenseShortcutTransport;
+
+  /// No description provided for @expenseShortcutCoffee.
+  ///
+  /// In en, this message translates to:
+  /// **'Coffee'**
+  String get expenseShortcutCoffee;
+
+  /// No description provided for @expenseShortcutSnack.
+  ///
+  /// In en, this message translates to:
+  /// **'Snack'**
+  String get expenseShortcutSnack;
+
+  /// No description provided for @expenseFabMenuTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'New expense'**
+  String get expenseFabMenuTitle;
+
+  /// No description provided for @expenseFabBlankOption.
+  ///
+  /// In en, this message translates to:
+  /// **'Blank form'**
+  String get expenseFabBlankOption;
+
+  /// No description provided for @expenseFabFromLastPaste.
+  ///
+  /// In en, this message translates to:
+  /// **'From last parsed message'**
+  String get expenseFabFromLastPaste;
+
+  /// No description provided for @expenseFabFromLastPasteSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Uses the last bank or wallet message you parsed in Smart import'**
+  String get expenseFabFromLastPasteSubtitle;
+
+  /// No description provided for @expenseLastPasteNotExpense.
+  ///
+  /// In en, this message translates to:
+  /// **'Last parsed message looks like income. Add it from the Incomes tab.'**
+  String get expenseLastPasteNotExpense;
+
+  /// No description provided for @expenseShortcutsSectionTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'One-tap expenses'**
+  String get expenseShortcutsSectionTitle;
+
+  /// No description provided for @expenseShortcutsEmptyCta.
+  ///
+  /// In en, this message translates to:
+  /// **'Set up one-tap shortcuts'**
+  String get expenseShortcutsEmptyCta;
+
+  /// No description provided for @expenseShortcutsManageTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Expense shortcuts'**
+  String get expenseShortcutsManageTitle;
+
+  /// No description provided for @expenseShortcutsManageSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Save a label, title, category, paid-from, and amount. Tap the chip on the Expenses tab to log instantly.'**
+  String get expenseShortcutsManageSubtitle;
+
+  /// No description provided for @expenseShortcutsEmptyBody.
+  ///
+  /// In en, this message translates to:
+  /// **'No shortcuts yet. Add your first coffee, transport, or other repeat purchase.'**
+  String get expenseShortcutsEmptyBody;
+
+  /// No description provided for @expenseShortcutAddTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'New shortcut'**
+  String get expenseShortcutAddTitle;
+
+  /// No description provided for @expenseShortcutEditTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit shortcut'**
+  String get expenseShortcutEditTitle;
+
+  /// No description provided for @expenseShortcutChipLabelField.
+  ///
+  /// In en, this message translates to:
+  /// **'Chip label'**
+  String get expenseShortcutChipLabelField;
+
+  /// No description provided for @expenseShortcutChipLabelHint.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. Coffee'**
+  String get expenseShortcutChipLabelHint;
+
+  /// No description provided for @expenseShortcutExpenseTitleField.
+  ///
+  /// In en, this message translates to:
+  /// **'Expense title'**
+  String get expenseShortcutExpenseTitleField;
+
+  /// No description provided for @expenseShortcutFormHint.
+  ///
+  /// In en, this message translates to:
+  /// **'The chip logs this expense for today with one tap — no form.'**
+  String get expenseShortcutFormHint;
+
+  /// No description provided for @expenseShortcutSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Save shortcut'**
+  String get expenseShortcutSave;
+
+  /// No description provided for @expenseShortcutDelete.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get expenseShortcutDelete;
+
+  /// No description provided for @expenseShortcutDeleteConfirmTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete shortcut?'**
+  String get expenseShortcutDeleteConfirmTitle;
+
+  /// No description provided for @expenseShortcutDeleteConfirmMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove \"{name}\"?'**
+  String expenseShortcutDeleteConfirmMessage(String name);
+
+  /// No description provided for @expenseShortcutLogged.
+  ///
+  /// In en, this message translates to:
+  /// **'Logged: {name}'**
+  String expenseShortcutLogged(String name);
+
+  /// No description provided for @expenseShortcutErrorLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a chip label'**
+  String get expenseShortcutErrorLabel;
 
   /// No description provided for @expenseByCategory.
   ///
@@ -808,6 +1108,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Set monthly budget'**
   String get budgetSetTitle;
+
+  /// No description provided for @budgetEditTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit monthly budget'**
+  String get budgetEditTitle;
 
   /// No description provided for @budgetSetHint.
   ///
@@ -1265,6 +1571,18 @@ abstract class AppLocalizations {
   /// **'Amount added to your savings goal'**
   String get balanceAddToPlanSuccess;
 
+  /// No description provided for @balancePlanAllocationPaidFromHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose which source this allocation is paid from (shown on Balance, not unassigned).'**
+  String get balancePlanAllocationPaidFromHint;
+
+  /// No description provided for @planAllocationSelectPaidFrom.
+  ///
+  /// In en, this message translates to:
+  /// **'Select paid from for this goal allocation'**
+  String get planAllocationSelectPaidFrom;
+
   /// No description provided for @balancePlanAllocationExpenseTitle.
   ///
   /// In en, this message translates to:
@@ -1562,14 +1880,20 @@ abstract class AppLocalizations {
   /// No description provided for @smartImportShort.
   ///
   /// In en, this message translates to:
-  /// **'Scan / SMS'**
+  /// **'Import'**
   String get smartImportShort;
 
-  /// No description provided for @smartImportInvoiceTab.
+  /// No description provided for @smartImportPasteTab.
   ///
   /// In en, this message translates to:
-  /// **'Invoice OCR'**
-  String get smartImportInvoiceTab;
+  /// **'Paste'**
+  String get smartImportPasteTab;
+
+  /// No description provided for @smartImportQuickTab.
+  ///
+  /// In en, this message translates to:
+  /// **'Quick'**
+  String get smartImportQuickTab;
 
   /// No description provided for @smartImportSmsTab.
   ///
@@ -1577,53 +1901,167 @@ abstract class AppLocalizations {
   /// **'SMS'**
   String get smartImportSmsTab;
 
-  /// No description provided for @smartImportInvoiceHint.
+  /// No description provided for @smartImportQuickHint.
   ///
   /// In en, this message translates to:
-  /// **'Take a photo of a receipt or invoice. We\'ll read the amount and date automatically.'**
-  String get smartImportInvoiceHint;
+  /// **'No SMS to paste? Enter the amount, pick expense or income, choose category and source — add in one tap.'**
+  String get smartImportQuickHint;
+
+  /// No description provided for @smartImportQuickTypeLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Transaction type'**
+  String get smartImportQuickTypeLabel;
+
+  /// No description provided for @smartImportQuickAmountLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Amount'**
+  String get smartImportQuickAmountLabel;
+
+  /// No description provided for @smartImportQuickTitleHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Coffee, rent, salary… (optional)'**
+  String get smartImportQuickTitleHint;
+
+  /// No description provided for @smartImportQuickAddNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Add now'**
+  String get smartImportQuickAddNow;
+
+  /// No description provided for @smartImportQuickReview.
+  ///
+  /// In en, this message translates to:
+  /// **'Review in full form'**
+  String get smartImportQuickReview;
+
+  /// No description provided for @smartImportQuickAdded.
+  ///
+  /// In en, this message translates to:
+  /// **'Transaction added.'**
+  String get smartImportQuickAdded;
+
+  /// No description provided for @smartImportPasteHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Paste one or more bank or wallet messages. Put a blank line between messages, or paste several SMS in a row. We detect amounts and income vs expense for each.'**
+  String get smartImportPasteHint;
+
+  /// No description provided for @smartImportPasteShareTip.
+  ///
+  /// In en, this message translates to:
+  /// **'Tip: In your SMS app, open a message → Share → Import to Pocketly. No copy-paste needed.'**
+  String get smartImportPasteShareTip;
+
+  /// No description provided for @smartImportSharedTextReady.
+  ///
+  /// In en, this message translates to:
+  /// **'Shared message loaded. Review below and add.'**
+  String get smartImportSharedTextReady;
+
+  /// No description provided for @smartImportPasteFieldLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Message text'**
+  String get smartImportPasteFieldLabel;
+
+  /// No description provided for @smartImportPasteFieldHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Paste one or more messages (blank line between each)'**
+  String get smartImportPasteFieldHint;
+
+  /// No description provided for @smartImportPasteFromClipboard.
+  ///
+  /// In en, this message translates to:
+  /// **'Paste from clipboard'**
+  String get smartImportPasteFromClipboard;
+
+  /// No description provided for @smartImportParseMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Parse message'**
+  String get smartImportParseMessage;
+
+  /// No description provided for @smartImportParseMessages.
+  ///
+  /// In en, this message translates to:
+  /// **'Parse messages'**
+  String get smartImportParseMessages;
+
+  /// No description provided for @smartImportPasteFoundCount.
+  ///
+  /// In en, this message translates to:
+  /// **'Found {count} messages'**
+  String smartImportPasteFoundCount(int count);
+
+  /// No description provided for @smartImportPasteAddedOneRemaining.
+  ///
+  /// In en, this message translates to:
+  /// **'Added. {count} more ready to import.'**
+  String smartImportPasteAddedOneRemaining(int count);
+
+  /// No description provided for @smartImportPasteProcessing.
+  ///
+  /// In en, this message translates to:
+  /// **'Reading message…'**
+  String get smartImportPasteProcessing;
+
+  /// No description provided for @smartImportPasteNoData.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not find an amount in this text. Try the full bank message.'**
+  String get smartImportPasteNoData;
+
+  /// No description provided for @smartImportPasteEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'Paste a message first.'**
+  String get smartImportPasteEmpty;
+
+  /// No description provided for @smartImportPasteClipboardEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'Clipboard is empty. Copy a bank or wallet message first.'**
+  String get smartImportPasteClipboardEmpty;
+
+  /// No description provided for @smartImportPasteClear.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear'**
+  String get smartImportPasteClear;
+
+  /// No description provided for @smartImportPasteAddedSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Added. Paste another message anytime.'**
+  String get smartImportPasteAddedSuccess;
+
+  /// No description provided for @smartImportPasteParseAnother.
+  ///
+  /// In en, this message translates to:
+  /// **'Parse another'**
+  String get smartImportPasteParseAnother;
+
+  /// No description provided for @smartImportPasteMarkExpense.
+  ///
+  /// In en, this message translates to:
+  /// **'Mark as expense'**
+  String get smartImportPasteMarkExpense;
+
+  /// No description provided for @smartImportPasteMarkIncome.
+  ///
+  /// In en, this message translates to:
+  /// **'Mark as income'**
+  String get smartImportPasteMarkIncome;
 
   /// No description provided for @smartImportDefaultBillTitle.
   ///
   /// In en, this message translates to:
   /// **'Bill'**
   String get smartImportDefaultBillTitle;
-
-  /// No description provided for @smartImportScanCamera.
-  ///
-  /// In en, this message translates to:
-  /// **'Camera'**
-  String get smartImportScanCamera;
-
-  /// No description provided for @smartImportScanGallery.
-  ///
-  /// In en, this message translates to:
-  /// **'Gallery'**
-  String get smartImportScanGallery;
-
-  /// No description provided for @smartImportOcrProcessing.
-  ///
-  /// In en, this message translates to:
-  /// **'Reading invoice…'**
-  String get smartImportOcrProcessing;
-
-  /// No description provided for @smartImportOcrNoData.
-  ///
-  /// In en, this message translates to:
-  /// **'Could not find amount or details on this image.'**
-  String get smartImportOcrNoData;
-
-  /// No description provided for @smartImportOcrFailed.
-  ///
-  /// In en, this message translates to:
-  /// **'Failed to read the invoice. Try a clearer photo.'**
-  String get smartImportOcrFailed;
-
-  /// No description provided for @smartImportCameraDenied.
-  ///
-  /// In en, this message translates to:
-  /// **'Camera permission is required to scan invoices.'**
-  String get smartImportCameraDenied;
 
   /// No description provided for @smartImportExtractedData.
   ///
@@ -1796,8 +2234,32 @@ abstract class AppLocalizations {
   /// No description provided for @smartImportBulkCategorySheetHint.
   ///
   /// In en, this message translates to:
-  /// **'Apply the same category or source to all selected messages.'**
+  /// **'Choose category and source here. SMS text is only used for titles, not for income source or paid-from.'**
   String get smartImportBulkCategorySheetHint;
+
+  /// No description provided for @smartImportBulkExpensePaidFromHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap a source for imported expenses (not read from SMS).'**
+  String get smartImportBulkExpensePaidFromHint;
+
+  /// No description provided for @smartImportBulkIncomeSourceHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap a source for imported incomes (not read from SMS).'**
+  String get smartImportBulkIncomeSourceHint;
+
+  /// No description provided for @smartImportBulkSelectPaidFrom.
+  ///
+  /// In en, this message translates to:
+  /// **'Select paid from'**
+  String get smartImportBulkSelectPaidFrom;
+
+  /// No description provided for @smartImportBulkSelectIncomeSource.
+  ///
+  /// In en, this message translates to:
+  /// **'Select income source'**
+  String get smartImportBulkSelectIncomeSource;
 
   /// No description provided for @smartImportBulkExpenseCategory.
   ///
@@ -1840,6 +2302,54 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{failed} message(s) could not be imported.'**
   String smartImportBulkPartialFail(int failed);
+
+  /// No description provided for @settingsAutoSmsImport.
+  ///
+  /// In en, this message translates to:
+  /// **'Auto-import from SMS'**
+  String get settingsAutoSmsImport;
+
+  /// No description provided for @settingsAutoSmsImportSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'When the app opens, new bank SMS are detected and added as income or expense using your chosen category and source.'**
+  String get settingsAutoSmsImportSubtitle;
+
+  /// No description provided for @settingsAutoSmsImportDefaults.
+  ///
+  /// In en, this message translates to:
+  /// **'Auto-import categories'**
+  String get settingsAutoSmsImportDefaults;
+
+  /// No description provided for @settingsAutoSmsImportDefaultsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Defaults for auto-import'**
+  String get settingsAutoSmsImportDefaultsTitle;
+
+  /// No description provided for @settingsAutoSmsImportDefaultsHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Used for every automatic import. SMS text is only used for titles.'**
+  String get settingsAutoSmsImportDefaultsHint;
+
+  /// No description provided for @settingsAutoSmsImportPermissionDenied.
+  ///
+  /// In en, this message translates to:
+  /// **'SMS permission is required for auto-import.'**
+  String get settingsAutoSmsImportPermissionDenied;
+
+  /// No description provided for @settingsAutoSmsImportEnabled.
+  ///
+  /// In en, this message translates to:
+  /// **'Auto-import is on. New financial SMS will be added when you open the app.'**
+  String get settingsAutoSmsImportEnabled;
+
+  /// No description provided for @autoSmsImportAddedSnack.
+  ///
+  /// In en, this message translates to:
+  /// **'Auto-imported {incomes} incomes and {expenses} expenses.'**
+  String autoSmsImportAddedSnack(int incomes, int expenses);
 
   /// No description provided for @settingsAppLock.
   ///

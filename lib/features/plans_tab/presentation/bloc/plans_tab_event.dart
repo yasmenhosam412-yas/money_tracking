@@ -26,6 +26,9 @@ class AddPlanEvent extends PlansTabEvent {
   final double targetAmount;
   final double savedAmount;
   final DateTime? deadline;
+  /// Required when [savedAmount] > 0 — records expense paid-from for balance.
+  final String? expensePaidFrom;
+  final String? expenseTitle;
 
   const AddPlanEvent({
     required this.title,
@@ -33,6 +36,8 @@ class AddPlanEvent extends PlansTabEvent {
     required this.targetAmount,
     required this.savedAmount,
     this.deadline,
+    this.expensePaidFrom,
+    this.expenseTitle,
   });
 
   @override
@@ -42,6 +47,8 @@ class AddPlanEvent extends PlansTabEvent {
     targetAmount,
     savedAmount,
     deadline ?? '',
+    expensePaidFrom ?? '',
+    expenseTitle ?? '',
   ];
 }
 
@@ -52,6 +59,9 @@ class UpdatePlanEvent extends PlansTabEvent {
   final double targetAmount;
   final double savedAmount;
   final DateTime? deadline;
+  /// Required when [savedAmount] increases vs current plan — expense paid-from.
+  final String? expensePaidFrom;
+  final String? expenseTitle;
 
   const UpdatePlanEvent({
     required this.id,
@@ -60,6 +70,8 @@ class UpdatePlanEvent extends PlansTabEvent {
     required this.targetAmount,
     required this.savedAmount,
     this.deadline,
+    this.expensePaidFrom,
+    this.expenseTitle,
   });
 
   @override
@@ -70,6 +82,8 @@ class UpdatePlanEvent extends PlansTabEvent {
     targetAmount,
     savedAmount,
     deadline ?? '',
+    expensePaidFrom ?? '',
+    expenseTitle ?? '',
   ];
 }
 
@@ -91,15 +105,18 @@ class AddAmountToPlanEvent extends PlansTabEvent {
   final String id;
   final double amountToAdd;
   final String expenseTitle;
+  /// Expense [incomeSource] (paid from) — required so balance is not unassigned.
+  final String expensePaidFrom;
 
   const AddAmountToPlanEvent({
     required this.id,
     required this.amountToAdd,
     required this.expenseTitle,
+    required this.expensePaidFrom,
   });
 
   @override
-  List<Object> get props => [id, amountToAdd, expenseTitle];
+  List<Object> get props => [id, amountToAdd, expenseTitle, expensePaidFrom];
 }
 
 class DeletePlanEvent extends PlansTabEvent {

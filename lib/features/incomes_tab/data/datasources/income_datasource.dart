@@ -6,4 +6,6 @@ abstract class IncomeDatasource {
   Future<void> deleteAllIncomes();
   Future<void> updateIncome(String incomeId, String title, double amount, DateTime date, String category);
   Future<List<IncomeModel>> getIncomes();
+  Future<int> renameCategory(String fromCategory, String toCategory);
+  Future<int> deleteByCategory(String category);
 }

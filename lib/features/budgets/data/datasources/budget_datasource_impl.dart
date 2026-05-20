@@ -2,6 +2,7 @@ import 'package:imrpo/core/helpers/supabase_auth_helper.dart';
 import 'package:imrpo/core/helpers/supabase_delete_helper.dart';
 import 'package:imrpo/features/budgets/data/datasources/budget_datasource.dart';
 import 'package:imrpo/features/budgets/data/models/budget_model.dart';
+import 'package:imrpo/features/budgets/domain/services/budget_calculator.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class BudgetDatasourceImpl implements BudgetDatasource {
@@ -31,13 +32,41 @@ class BudgetDatasourceImpl implements BudgetDatasource {
     required double amount,
     required int year,
     required int month,
+    String? budgetId,
   }) async {
     final userId = SupabaseAuthHelper.requireUserId();
+    final normalizedCategory = BudgetCalculator.categoryKey(category);
+
+    if (budgetId != null && budgetId.isNotEmpty) {
+      final updated = await supabaseClient
+          .from('budgets')
+          .update({
+            'category': normalizedCategory,
+            'amount': amount,
+          })
+          .eq('budget_id', budgetId)
+          .eq('user_id', userId)
+          .select()
+          .single();
+
+      // Drop duplicate rows for the same category/period (keeps this edit).
+      await supabaseClient
+          .from('budgets')
+          .delete()
+          .eq('user_id', userId)
+          .eq('year', year)
+          .eq('month', month)
+          .eq('category', normalizedCategory)
+          .neq('budget_id', budgetId);
+
+      return BudgetModel.fromMap(updated);
+    }
+
     final existing = await supabaseClient
         .from('budgets')
         .select()
         .eq('user_id', userId)
-        .eq('category', category)
+        .eq('category', normalizedCategory)
         .eq('year', year)
         .eq('month', month)
         .maybeSingle();
@@ -56,7 +85,7 @@ class BudgetDatasourceImpl implements BudgetDatasource {
         .from('budgets')
         .insert({
           'user_id': userId,
-          'category': category,
+          'category': normalizedCategory,
           'amount': amount,
           'year': year,
           'month': month,

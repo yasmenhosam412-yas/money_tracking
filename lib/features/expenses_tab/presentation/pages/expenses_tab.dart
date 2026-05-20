@@ -1,12 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:imrpo/core/services/smart_import_draft_store.dart';
+import 'package:imrpo/features/expenses_tab/domain/entities/expense_shortcut.dart';
+import 'package:imrpo/features/expenses_tab/presentation/widgets/expense_shortcuts_strip.dart';
+import 'package:imrpo/features/expenses_tab/presentation/widgets/manage_expense_shortcuts_sheet.dart';
+import 'package:imrpo/features/incomes_tab/presentation/bloc/incomes_tab_bloc.dart';
 import 'package:imrpo/features/expenses_tab/data/models/expense_model.dart';
 import 'package:imrpo/core/l10n/l10n_entity_strings.dart';
+import 'package:imrpo/core/services/currency_preferences.dart';
 import 'package:imrpo/core/services/home_date_filter.dart';
 import 'package:imrpo/core/services/service_locator.dart';
 import 'package:imrpo/core/theme/app_decorations.dart';
 import 'package:imrpo/core/utils/app_colors.dart';
 import 'package:imrpo/core/widgets/tab_centered_scroll.dart';
+import 'package:imrpo/core/widgets/transaction_tab_loading_skeleton.dart';
 import 'package:imrpo/core/widgets/tab_refresh_overlay.dart';
 import 'package:imrpo/core/utils/money_format.dart';
 import 'package:imrpo/features/expenses_tab/presentation/bloc/expenses_tab_bloc.dart';
@@ -32,6 +39,8 @@ class _ExpensesTabState extends State<ExpensesTab>
   static const _expenseColor = AppColors.expense;
 
   String? _selectedCategory;
+  String? _pendingShortcutLogLabel;
+  bool _initialLoadDone = false;
   late final HomeDateFilter _dateFilter;
 
   @override
@@ -66,8 +75,8 @@ class _ExpensesTabState extends State<ExpensesTab>
   void _loadBudgets() {
     final period = BudgetPeriod.fromDateFilter(_dateFilter);
     context.read<BudgetsBloc>().add(
-          LoadBudgetsEvent(year: period.year, month: period.month),
-        );
+      LoadBudgetsEvent(year: period.year, month: period.month),
+    );
   }
 
   @override
@@ -78,7 +87,7 @@ class _ExpensesTabState extends State<ExpensesTab>
       backgroundColor: Colors.transparent,
       floatingActionButton: FloatingActionButton.extended(
         heroTag: 'fab-expenses',
-        onPressed: _openAddSheet,
+        onPressed: _onExpenseFabPressed,
         backgroundColor: _expenseColor,
         elevation: 2,
         icon: const Icon(Icons.add_rounded, color: Colors.white),
@@ -130,6 +139,16 @@ class _ExpensesTabState extends State<ExpensesTab>
               );
             },
           ),
+          BlocListener<ExpensesTabBloc, ExpensesTabState>(
+            listenWhen: (previous, current) =>
+                current.status == ExpensesTabStatus.loaded &&
+                previous.status != ExpensesTabStatus.loaded,
+            listener: (context, state) {
+              if (!_initialLoadDone) {
+                setState(() => _initialLoadDone = true);
+              }
+            },
+          ),
           BlocListener<BudgetsBloc, BudgetsState>(
             listenWhen: (previous, current) =>
                 current.status == BudgetsStatus.error &&
@@ -170,307 +189,415 @@ class _ExpensesTabState extends State<ExpensesTab>
               );
             },
           ),
+          BlocListener<ExpensesTabBloc, ExpensesTabState>(
+            listenWhen: (previous, current) =>
+                current.status == ExpensesTabStatus.errorAdd,
+            listener: (context, state) {
+              if (_pendingShortcutLogLabel == null) return;
+              _pendingShortcutLogLabel = null;
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(localizeApiError(l10n, state.error)),
+                  backgroundColor: AppColors.error,
+                  behavior: SnackBarBehavior.floating,
+                ),
+              );
+            },
+          ),
+          BlocListener<ExpensesTabBloc, ExpensesTabState>(
+            listenWhen: (previous, current) =>
+                previous.status == ExpensesTabStatus.loadingAdd &&
+                current.status == ExpensesTabStatus.loaded,
+            listener: (context, state) {
+              final label = _pendingShortcutLogLabel;
+              if (label == null) return;
+              _pendingShortcutLogLabel = null;
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(l10n.expenseShortcutLogged(label)),
+                  backgroundColor: AppColors.success,
+                  behavior: SnackBarBehavior.floating,
+                ),
+              );
+            },
+          ),
         ],
         child: BlocBuilder<ExpensesTabBloc, ExpensesTabState>(
-        builder: (context, state) {
-          if (state.expenses.isEmpty &&
-              state.status == ExpensesTabStatus.loadingAll) {
-            return tabCenteredScroll(
-              const CircularProgressIndicator(color: _expenseColor),
-            );
-          }
+          builder: (context, state) {
+            if (state.expenses.isEmpty &&
+                state.status == ExpensesTabStatus.loadingAll &&
+                !_initialLoadDone) {
+              return const TransactionTabLoadingSkeleton(forIncome: false);
+            }
 
-          if (state.expenses.isEmpty &&
-              state.status == ExpensesTabStatus.errorAll) {
-            return tabCenteredScroll(
-              Padding(
-                padding: const EdgeInsets.all(24),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
+            if (state.expenses.isEmpty &&
+                state.status == ExpensesTabStatus.loadingAll) {
+              return tabCenteredScroll(
+                Stack(
                   children: [
-                    Icon(
-                      Icons.error_outline_rounded,
-                      size: 48,
-                      color: AppColors.textColor.withValues(alpha: 0.4),
-                    ),
-                    const SizedBox(height: 16),
-                    Text(
-                      localizeApiError(l10n, state.error),
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        color: AppColors.textColor.withValues(alpha: 0.7),
-                      ),
-                    ),
-                    const SizedBox(height: 20),
-                    FilledButton(
-                      onPressed: () => context
-                          .read<ExpensesTabBloc>()
-                          .add(const LoadExpensesEvent()),
-                      style: FilledButton.styleFrom(
-                        backgroundColor: _expenseColor,
-                      ),
-                      child: Text(l10n.errorTryAgainGeneric),
+                    _EmptyState(onAdd: _openAddSheet),
+                    const Center(
+                      child: CircularProgressIndicator(color: _expenseColor),
                     ),
                   ],
                 ),
-              ),
-            );
-          }
-
-          final sorted = List.of(state.expenses)
-            ..sort((a, b) => b.date.compareTo(a.date));
-
-          final isRefreshing = state.expenses.isNotEmpty &&
-              state.status == ExpensesTabStatus.loadingAll;
-          final isClearingAll =
-              state.status == ExpensesTabStatus.loadingClearAll;
-
-          return ListenableBuilder(
-            listenable: _dateFilter,
-            builder: (context, _) {
-              final dateFilter = _dateFilter;
-              final budgetPeriod = BudgetPeriod.fromDateFilter(dateFilter);
-              final monthLabel = DateFormat.yMMMM(
-                Localizations.localeOf(context).toString(),
-              ).format(DateTime(budgetPeriod.year, budgetPeriod.month));
-              final dateFiltered = sorted
-                  .where((expense) => dateFilter.matches(expense.date))
-                  .toList();
-              final availableCategories = dateFiltered
-                  .map(_categoryKey)
-                  .toSet()
-                  .toList()
-                ..sort();
-              final activeCategory =
-                  _selectedCategory != null &&
-                      availableCategories.contains(_selectedCategory)
-                  ? _selectedCategory
-                  : null;
-              final filtered = activeCategory == null
-                  ? dateFiltered
-                  : dateFiltered
-                        .where(
-                          (expense) =>
-                              _categoryKey(expense) == activeCategory,
-                        )
-                        .toList();
-              final periodTotal = filtered.fold<double>(
-                0,
-                (sum, expense) => sum + expense.amount,
               );
-              final categoryTotals = _totalsByCategory(dateFiltered);
-              final categoryEntryCounts = _entryCountsByCategory(dateFiltered);
+            }
 
-              return Stack(
-            children: [
-              TabRefreshOverlay(
-            isRefreshing: isRefreshing,
-            indicatorColor: _expenseColor,
-            child: RefreshIndicator(
-              color: _expenseColor,
-              onRefresh: () async {
-                context.read<ExpensesTabBloc>().add(const LoadExpensesEvent());
-                _loadBudgets();
-                await Future.delayed(const Duration(milliseconds: 350));
-              },
-              child: CustomScrollView(
-                physics: const AlwaysScrollableScrollPhysics(),
-                slivers: [
-                  SliverToBoxAdapter(
-                    child: Padding(
-                      padding: const EdgeInsets.fromLTRB(20, 20, 20, 8),
-                      child: _SummaryCard(
-                        total: periodTotal,
-                        periodLabel: dateFilter.summaryPeriodLabel(context),
-                        categoryLabel: activeCategory == null
-                            ? null
-                            : localizeExpenseCategory(
-                                l10n,
-                                activeCategory,
-                              ),
+            if (state.expenses.isEmpty &&
+                state.status == ExpensesTabStatus.errorAll) {
+              return tabCenteredScroll(
+                Padding(
+                  padding: const EdgeInsets.all(24),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(
+                        Icons.error_outline_rounded,
+                        size: 48,
+                        color: AppColors.textColor.withValues(alpha: 0.4),
                       ),
-                    ),
-                  ),
-
-                  SliverToBoxAdapter(
-                    child: Padding(
-                      padding: const EdgeInsets.fromLTRB(20, 12, 20, 0),
-                      child: BlocBuilder<BudgetsBloc, BudgetsState>(
-                        builder: (context, budgetState) {
-                          final spent =
-                              BudgetCalculator.spentByCategoryForMonth(
-                            state.expenses,
-                            year: budgetPeriod.year,
-                            month: budgetPeriod.month,
-                          );
-                          final budgetRows = BudgetCalculator.merge(
-                            budgets: budgetState.budgets,
-                            spentByCategory: spent,
-                          );
-                          final categories = state.expenses
-                              .where(
-                                (e) =>
-                                    e.date.year == budgetPeriod.year &&
-                                    e.date.month == budgetPeriod.month,
-                              )
-                              .map((e) => _categoryKey(e))
-                              .toSet()
-                              .toList()
-                            ..sort();
-
-                          return BudgetOverviewSection(
-                            period: budgetPeriod,
-                            rows: budgetRows,
-                            suggestedCategories: categories,
-                            periodLabel: monthLabel,
-                            isLoading:
-                                budgetState.status == BudgetsStatus.loading ||
-                                budgetState.status == BudgetsStatus.saving,
-                          );
-                        },
-                      ),
-                    ),
-                  ),
-
-                  if (availableCategories.length > 1)
-                    SliverToBoxAdapter(
-                      child: Padding(
-                        padding: const EdgeInsets.fromLTRB(20, 12, 20, 0),
-                        child: _CategoryFilterBar(
-                          categories: availableCategories,
-                          selectedCategory: activeCategory,
-                          onSelected: (category) {
-                            setState(() => _selectedCategory = category);
-                          },
+                      const SizedBox(height: 16),
+                      Text(
+                        localizeApiError(l10n, state.error),
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          color: AppColors.textColor.withValues(alpha: 0.7),
                         ),
                       ),
-                    ),
-
-                  if (categoryTotals.isNotEmpty)
-                    SliverToBoxAdapter(
-                      child: Padding(
-                        padding: const EdgeInsets.fromLTRB(20, 8, 20, 0),
-                        child: _CategoryBreakdown(
-                          categoryTotals: categoryTotals,
-                          categoryEntryCounts: categoryEntryCounts,
-                          selectedCategory: activeCategory,
-                          isBusy: state.status ==
-                              ExpensesTabStatus.loadingCategory,
-                          onCategorySelected: (category) {
-                            setState(() {
-                              _selectedCategory = activeCategory == category
-                                  ? null
-                                  : category;
-                            });
-                          },
-                          onRenameCategory: (category) => _renameCategory(
-                            context,
-                            category,
-                            availableCategories,
-                          ),
-                          onRemoveCategory: (category, count) =>
-                              _removeCategory(context, category, count),
+                      const SizedBox(height: 20),
+                      FilledButton(
+                        onPressed: () => context.read<ExpensesTabBloc>().add(
+                          const LoadExpensesEvent(),
                         ),
+                        style: FilledButton.styleFrom(
+                          backgroundColor: _expenseColor,
+                        ),
+                        child: Text(l10n.errorTryAgainGeneric),
                       ),
-                    ),
-
-                  /// HEADER
-                  SliverToBoxAdapter(
-                    child: Padding(
-                      padding: const EdgeInsets.fromLTRB(20, 16, 20, 8),
-                      child: Row(
-                        children: [
-                          Expanded(
-                            child: Text(
-                              l10n.recentExpenses,
-                              style: const TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                                color: AppColors.textColor,
-                              ),
-                            ),
-                          ),
-                          if (sorted.isNotEmpty) ...[
-                            TextButton(
-                              onPressed: isClearingAll
-                                  ? null
-                                  : () => _confirmClearAll(sorted.length),
-                              style: TextButton.styleFrom(
-                                foregroundColor: AppColors.expense,
-                                visualDensity: VisualDensity.compact,
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 8,
-                                ),
-                              ),
-                              child: Text(l10n.clearAllExpenses),
-                            ),
-                            const SizedBox(width: 4),
-                          ],
-                          Text(
-                            l10n.listEntryCount(filtered.length),
-                            style: TextStyle(
-                              fontSize: 13,
-                              color: AppColors.textColor.withValues(alpha: 0.5),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-
-                  if (filtered.isEmpty)
-                    SliverFillRemaining(
-                      hasScrollBody: false,
-                      child: sorted.isEmpty
-                          ? _EmptyState(onAdd: _openAddSheet)
-                          : _FilteredEmptyState(
-                              message: activeCategory != null
-                                  ? l10n.expenseFilterNoCategoryEntries
-                                  : l10n.homeFilterNoEntries,
-                              onClearFilter: activeCategory != null
-                                  ? () => setState(
-                                      () => _selectedCategory = null,
-                                    )
-                                  : null,
-                            ),
-                    )
-                  else
-                    SliverPadding(
-                      padding: const EdgeInsets.fromLTRB(20, 0, 20, 100),
-                      sliver: SliverList(
-                        delegate: SliverChildBuilderDelegate((context, index) {
-                          final expense = filtered[index];
-
-                          return ExpenseListTile(
-                            expense: expense,
-                            onTap: () => _openEditSheet(expense),
-                            onDelete: () {
-                              context.read<ExpensesTabBloc>().add(
-                                DeleteExpenseEvent(expense.id),
-                              );
-                            },
-                          );
-                        }, childCount: filtered.length),
-                      ),
-                    ),
-                ],
-              ),
-            ),
-          ),
-              if (isClearingAll)
-                const Positioned.fill(
-                  child: ColoredBox(
-                    color: Color(0x33000000),
-                    child: Center(
-                      child: CircularProgressIndicator(color: _expenseColor),
-                    ),
+                    ],
                   ),
                 ),
-            ],
-          );
-            },
-          );
-        },
+              );
+            }
+
+            final sorted = List.of(state.expenses)
+              ..sort((a, b) => b.date.compareTo(a.date));
+
+            final isRefreshing =
+                state.expenses.isNotEmpty &&
+                state.status == ExpensesTabStatus.loadingAll;
+            final isClearingAll =
+                state.status == ExpensesTabStatus.loadingClearAll;
+
+            return ListenableBuilder(
+              listenable: _dateFilter,
+              builder: (context, _) {
+                final dateFilter = _dateFilter;
+                final budgetPeriod = BudgetPeriod.fromDateFilter(dateFilter);
+                final monthLabel = DateFormat.yMMMM(
+                  Localizations.localeOf(context).toString(),
+                ).format(DateTime(budgetPeriod.year, budgetPeriod.month));
+                final dateFiltered = sorted
+                    .where((expense) => dateFilter.matches(expense.date))
+                    .toList();
+                final availableCategories =
+                    dateFiltered.map(_categoryKey).toSet().toList()..sort();
+                final activeCategory =
+                    _selectedCategory != null &&
+                        availableCategories.contains(_selectedCategory)
+                    ? _selectedCategory
+                    : null;
+                final filtered = activeCategory == null
+                    ? dateFiltered
+                    : dateFiltered
+                          .where(
+                            (expense) =>
+                                _categoryKey(expense) == activeCategory,
+                          )
+                          .toList();
+                final periodTotal = filtered.fold<double>(
+                  0,
+                  (sum, expense) => sum + expense.amount,
+                );
+                final categoryTotals = _totalsByCategory(dateFiltered);
+                final categoryEntryCounts = _entryCountsByCategory(
+                  dateFiltered,
+                );
+
+                return Stack(
+                  children: [
+                    TabRefreshOverlay(
+                      isRefreshing: isRefreshing,
+                      indicatorColor: _expenseColor,
+                      child: RefreshIndicator(
+                        color: _expenseColor,
+                        onRefresh: () async {
+                          context.read<ExpensesTabBloc>().add(
+                            const LoadExpensesEvent(),
+                          );
+                          _loadBudgets();
+                          await Future.delayed(
+                            const Duration(milliseconds: 350),
+                          );
+                        },
+                        child: CustomScrollView(
+                          physics: const AlwaysScrollableScrollPhysics(),
+                          slivers: [
+                            SliverToBoxAdapter(
+                              child: Padding(
+                                padding: const EdgeInsets.fromLTRB(
+                                  20,
+                                  20,
+                                  20,
+                                  8,
+                                ),
+                                child: _SummaryCard(
+                                  total: periodTotal,
+                                  periodLabel: dateFilter.summaryPeriodLabel(
+                                    context,
+                                  ),
+                                  categoryLabel: activeCategory == null
+                                      ? null
+                                      : localizeExpenseCategory(
+                                          l10n,
+                                          activeCategory,
+                                        ),
+                                ),
+                              ),
+                            ),
+
+                            SliverToBoxAdapter(
+                              child: Padding(
+                                padding: const EdgeInsets.fromLTRB(
+                                  20,
+                                  12,
+                                  20,
+                                  0,
+                                ),
+                                child: BlocBuilder<BudgetsBloc, BudgetsState>(
+                                  builder: (context, budgetState) {
+                                    final spent =
+                                        BudgetCalculator.spentByCategoryForMonth(
+                                          state.expenses,
+                                          year: budgetPeriod.year,
+                                          month: budgetPeriod.month,
+                                        );
+                                    final budgetRows = BudgetCalculator.merge(
+                                      budgets: budgetState.budgets,
+                                      spentByCategory: spent,
+                                    );
+                                    final categories =
+                                        state.expenses
+                                            .where(
+                                              (e) =>
+                                                  e.date.year ==
+                                                      budgetPeriod.year &&
+                                                  e.date.month ==
+                                                      budgetPeriod.month,
+                                            )
+                                            .map((e) => _categoryKey(e))
+                                            .toSet()
+                                            .toList()
+                                          ..sort();
+
+                                    return BudgetOverviewSection(
+                                      period: budgetPeriod,
+                                      rows: budgetRows,
+                                      suggestedCategories: categories,
+                                      periodLabel: monthLabel,
+                                      isLoading:
+                                          budgetState.status ==
+                                              BudgetsStatus.loading ||
+                                          budgetState.status ==
+                                              BudgetsStatus.saving,
+                                    );
+                                  },
+                                ),
+                              ),
+                            ),
+
+                            if (availableCategories.length > 1)
+                              SliverToBoxAdapter(
+                                child: Padding(
+                                  padding: const EdgeInsets.fromLTRB(
+                                    20,
+                                    12,
+                                    20,
+                                    0,
+                                  ),
+                                  child: _CategoryFilterBar(
+                                    categories: availableCategories,
+                                    selectedCategory: activeCategory,
+                                    onSelected: (category) {
+                                      setState(
+                                        () => _selectedCategory = category,
+                                      );
+                                    },
+                                  ),
+                                ),
+                              ),
+
+                            if (categoryTotals.isNotEmpty)
+                              SliverToBoxAdapter(
+                                child: Padding(
+                                  padding: const EdgeInsets.fromLTRB(
+                                    20,
+                                    8,
+                                    20,
+                                    0,
+                                  ),
+                                  child: _CategoryBreakdown(
+                                    categoryTotals: categoryTotals,
+                                    categoryEntryCounts: categoryEntryCounts,
+                                    selectedCategory: activeCategory,
+                                    isBusy:
+                                        state.status ==
+                                        ExpensesTabStatus.loadingCategory,
+                                    onCategorySelected: (category) {
+                                      setState(() {
+                                        _selectedCategory =
+                                            activeCategory == category
+                                            ? null
+                                            : category;
+                                      });
+                                    },
+                                    onRenameCategory: (category) =>
+                                        _renameCategory(
+                                          category,
+                                          availableCategories,
+                                        ),
+                                    onRemoveCategory: (category, count) =>
+                                        _removeCategory(category, count),
+                                  ),
+                                ),
+                              ),
+
+                            SliverToBoxAdapter(
+                              child: Padding(
+                                padding: const EdgeInsets.fromLTRB(
+                                  20,
+                                  12,
+                                  20,
+                                  0,
+                                ),
+                                child: ExpenseShortcutsStrip(
+                                  isBusy:
+                                      state.status ==
+                                      ExpensesTabStatus.loadingAdd,
+                                  onManage: _openManageExpenseShortcuts,
+                                  onApply: _applyExpenseShortcut,
+                                ),
+                              ),
+                            ),
+
+                            /// HEADER
+                            SliverToBoxAdapter(
+                              child: Padding(
+                                padding: const EdgeInsets.fromLTRB(
+                                  20,
+                                  16,
+                                  20,
+                                  8,
+                                ),
+                                child: Row(
+                                  children: [
+                                    Expanded(
+                                      child: Text(
+                                        l10n.recentExpenses,
+                                        style: const TextStyle(
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.bold,
+                                          color: AppColors.textColor,
+                                        ),
+                                      ),
+                                    ),
+                                    if (sorted.isNotEmpty) ...[
+                                      TextButton(
+                                        onPressed: isClearingAll
+                                            ? null
+                                            : () => _confirmClearAll(
+                                                sorted.length,
+                                              ),
+                                        style: TextButton.styleFrom(
+                                          foregroundColor: AppColors.expense,
+                                          visualDensity: VisualDensity.compact,
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: 8,
+                                          ),
+                                        ),
+                                        child: Text(l10n.clearAllExpenses),
+                                      ),
+                                      const SizedBox(width: 4),
+                                    ],
+                                    Text(
+                                      l10n.listEntryCount(filtered.length),
+                                      style: TextStyle(
+                                        fontSize: 13,
+                                        color: AppColors.textColor.withValues(
+                                          alpha: 0.5,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+
+                            if (filtered.isEmpty)
+                              SliverFillRemaining(
+                                hasScrollBody: false,
+                                child: sorted.isEmpty
+                                    ? _EmptyState(onAdd: _openAddSheet)
+                                    : _FilteredEmptyState(
+                                        message: activeCategory != null
+                                            ? l10n.expenseFilterNoCategoryEntries
+                                            : l10n.homeFilterNoEntries,
+                                        onClearFilter: activeCategory != null
+                                            ? () => setState(
+                                                () => _selectedCategory = null,
+                                              )
+                                            : null,
+                                      ),
+                              )
+                            else
+                              SliverPadding(
+                                padding: const EdgeInsets.fromLTRB(
+                                  20,
+                                  0,
+                                  20,
+                                  100,
+                                ),
+                                sliver: SliverList(
+                                  delegate: SliverChildBuilderDelegate((
+                                    context,
+                                    index,
+                                  ) {
+                                    final expense = filtered[index];
+
+                                    return ExpenseListTile(
+                                      expense: expense,
+                                      onTap: () => _openEditSheet(expense),
+                                      onDelete: () {
+                                        context.read<ExpensesTabBloc>().add(
+                                          DeleteExpenseEvent(expense.id),
+                                        );
+                                      },
+                                    );
+                                  }, childCount: filtered.length),
+                                ),
+                              ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    if (isClearingAll)
+                      const TabBusyOverlay(indicatorColor: _expenseColor),
+                  ],
+                );
+              },
+            );
+          },
         ),
       ),
     );
@@ -521,13 +648,143 @@ class _ExpensesTabState extends State<ExpensesTab>
     return counts;
   }
 
+  Future<void> _onExpenseFabPressed() async {
+    final draft = getIt<SmartImportDraftStore>().lastExpenseDraft;
+    if (draft == null) {
+      _openAddSheet();
+      return;
+    }
+
+    final l10n = AppLocalizations.of(context)!;
+    final choice = await showModalBottomSheet<String>(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (ctx) => SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(24, 12, 24, 28),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Center(
+                child: Container(
+                  width: 40,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: Colors.grey.shade300,
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16),
+              Text(
+                l10n.expenseFabMenuTitle,
+                style: const TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.textColor,
+                ),
+              ),
+              const SizedBox(height: 8),
+              ListTile(
+                contentPadding: EdgeInsets.zero,
+                leading: const Icon(
+                  Icons.edit_note_outlined,
+                  color: _expenseColor,
+                ),
+                title: Text(l10n.expenseFabBlankOption),
+                onTap: () => Navigator.pop(ctx, 'blank'),
+              ),
+              ListTile(
+                contentPadding: EdgeInsets.zero,
+                leading: const Icon(
+                  Icons.content_paste_go_rounded,
+                  color: _expenseColor,
+                ),
+                title: Text(l10n.expenseFabFromLastPaste),
+                subtitle: Text(
+                  l10n.expenseFabFromLastPasteSubtitle,
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: AppColors.textColor.withValues(alpha: 0.55),
+                  ),
+                ),
+                onTap: () => Navigator.pop(ctx, 'scan'),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+
+    if (!mounted) return;
+    if (choice == 'scan') {
+      _openFromLastReceiptDraft();
+    } else if (choice == 'blank') {
+      _openAddSheet();
+    }
+  }
+
+  void _openFromLastReceiptDraft() {
+    final entry = getIt<SmartImportDraftStore>().lastExpenseDraft;
+    final l10n = AppLocalizations.of(context)!;
+    if (entry == null) {
+      _openAddSheet();
+      return;
+    }
+
+    final displayAmount = entry.amountInBase != null
+        ? getIt<CurrencyPreferences>().displayAmount(entry.amountInBase!)
+        : null;
+    final rawTitle = entry.title?.trim();
+    _showExpenseSheet(
+      AddExpenseSheet(
+        initialTitle: (rawTitle != null && rawTitle.isNotEmpty)
+            ? rawTitle
+            : l10n.smartImportDefaultBillTitle,
+        initialAmount: displayAmount,
+        initialDate: entry.date,
+      ),
+    );
+  }
+
+  Future<void> _openManageExpenseShortcuts() async {
+    await showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      useSafeArea: true,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (ctx) => BlocProvider.value(
+        value: context.read<IncomesTabBloc>(),
+        child: const ManageExpenseShortcutsSheet(),
+      ),
+    );
+  }
+
+  void _applyExpenseShortcut(ExpenseShortcut s) {
+    setState(() => _pendingShortcutLogLabel = s.displayLabel);
+    context.read<ExpensesTabBloc>().add(
+      AddExpenseEvent(
+        title: s.expenseTitle,
+        category: s.category,
+        amount: s.amountBase,
+        date: DateTime.now(),
+        incomeSource: s.incomeSource,
+      ),
+    );
+  }
+
   void _openAddSheet() => _showExpenseSheet(const AddExpenseSheet());
 
   void _openEditSheet(ExpenseModel expense) =>
       _showExpenseSheet(AddExpenseSheet(expense: expense));
 
   Future<void> _renameCategory(
-    BuildContext context,
     String category,
     List<String> existingCategories,
   ) async {
@@ -539,22 +796,15 @@ class _ExpensesTabState extends State<ExpensesTab>
     if (newName == null || !mounted) return;
 
     context.read<ExpensesTabBloc>().add(
-          RenameExpenseCategoryEvent(
-            fromCategory: category,
-            toCategory: newName,
-          ),
-        );
+      RenameExpenseCategoryEvent(fromCategory: category, toCategory: newName),
+    );
 
     if (_selectedCategory == category) {
       setState(() => _selectedCategory = newName);
     }
   }
 
-  Future<void> _removeCategory(
-    BuildContext context,
-    String category,
-    int entryCount,
-  ) async {
+  Future<void> _removeCategory(String category, int entryCount) async {
     final l10n = AppLocalizations.of(context)!;
     final label = localizeExpenseCategory(l10n, category);
 
@@ -605,7 +855,10 @@ class _ExpensesTabState extends State<ExpensesTab>
               onTap: () => Navigator.pop(sheetContext, 'move'),
             ),
             ListTile(
-              leading: Icon(Icons.delete_outline_rounded, color: AppColors.errorColor),
+              leading: Icon(
+                Icons.delete_outline_rounded,
+                color: AppColors.errorColor,
+              ),
               title: Text(
                 l10n.expenseCategoryDeleteAll,
                 style: TextStyle(color: AppColors.errorColor),
@@ -625,11 +878,8 @@ class _ExpensesTabState extends State<ExpensesTab>
 
     if (action == 'move') {
       context.read<ExpensesTabBloc>().add(
-            RenameExpenseCategoryEvent(
-              fromCategory: category,
-              toCategory: 'Other',
-            ),
-          );
+        RenameExpenseCategoryEvent(fromCategory: category, toCategory: 'Other'),
+      );
       if (_selectedCategory == category) {
         setState(() => _selectedCategory = 'Other');
       }
@@ -648,7 +898,9 @@ class _ExpensesTabState extends State<ExpensesTab>
               child: Text(l10n.cancel),
             ),
             FilledButton(
-              style: FilledButton.styleFrom(backgroundColor: AppColors.errorColor),
+              style: FilledButton.styleFrom(
+                backgroundColor: AppColors.errorColor,
+              ),
               onPressed: () => Navigator.pop(dialogContext, true),
               child: Text(l10n.expenseCategoryDeleteConfirmAction),
             ),
@@ -658,8 +910,8 @@ class _ExpensesTabState extends State<ExpensesTab>
       if (confirmed != true || !mounted) return;
 
       context.read<ExpensesTabBloc>().add(
-            DeleteExpensesByCategoryEvent(category),
-          );
+        DeleteExpensesByCategoryEvent(category),
+      );
       if (_selectedCategory == category) {
         setState(() => _selectedCategory = null);
       }
@@ -837,15 +1089,15 @@ class _CategoryBreakdown extends StatelessWidget {
               borderRadius: BorderRadius.circular(16),
               child: Container(
                 margin: const EdgeInsets.only(bottom: 8),
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 10,
+                ),
                 decoration: AppDecorations.card(
                   borderColor: isSelected
                       ? _expenseColor
                       : _expenseColor.withValues(alpha: 0.12),
-                ).copyWith(
-                  color: isSelected ? AppColors.expenseLight : null,
-                ),
+                ).copyWith(color: isSelected ? AppColors.expenseLight : null),
                 child: Row(
                   children: [
                     Container(
@@ -1048,10 +1300,7 @@ class _FilteredEmptyState extends StatelessWidget {
 
   static const _expenseColor = AppColors.expense;
 
-  const _FilteredEmptyState({
-    required this.message,
-    this.onClearFilter,
-  });
+  const _FilteredEmptyState({required this.message, this.onClearFilter});
 
   @override
   Widget build(BuildContext context) {

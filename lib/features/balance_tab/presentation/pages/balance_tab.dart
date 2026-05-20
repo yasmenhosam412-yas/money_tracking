@@ -5,6 +5,7 @@ import 'package:imrpo/core/services/home_date_filter.dart';
 import 'package:imrpo/core/services/service_locator.dart';
 import 'package:imrpo/core/utils/app_colors.dart';
 import 'package:imrpo/core/utils/money_format.dart';
+import 'package:imrpo/core/widgets/plans_balance_tab_loading_skeleton.dart';
 import 'package:imrpo/core/widgets/tab_centered_scroll.dart';
 import 'package:imrpo/core/widgets/tab_refresh_overlay.dart';
 import 'package:imrpo/features/balance_tab/presentation/bloc/balance_tab_bloc.dart';
@@ -13,9 +14,12 @@ import 'package:imrpo/features/balance_tab/presentation/widgets/balance_activity
 import 'package:imrpo/features/balance_tab/presentation/widgets/balance_activity_tile.dart';
 import 'package:imrpo/features/balance_tab/presentation/widgets/balance_breakdown_chart.dart';
 import 'package:imrpo/features/balance_tab/presentation/widgets/balance_category_breakdown.dart';
-import 'package:imrpo/core/l10n/l10n_entity_strings.dart';
 import 'package:imrpo/features/balance_tab/presentation/widgets/balance_stat_tile.dart';
+import 'package:imrpo/core/l10n/l10n_entity_strings.dart';
+import 'package:imrpo/features/balance_tab/domain/balance_source_constants.dart';
+import 'package:imrpo/features/budgets/domain/services/budget_calculator.dart';
 import 'package:imrpo/features/expenses_tab/presentation/bloc/expenses_tab_bloc.dart';
+import 'package:imrpo/features/incomes_tab/presentation/bloc/incomes_tab_bloc.dart';
 import 'package:imrpo/features/plans_tab/presentation/bloc/plans_tab_bloc.dart';
 import 'package:imrpo/features/plans_tab/presentation/widgets/add_to_plan_from_balance_sheet.dart';
 import 'package:imrpo/l10n/app_localizations.dart';
@@ -57,30 +61,75 @@ class _BalanceTabState extends State<BalanceTab>
     return Map.fromEntries(entries);
   }
 
+  /// Per income source: gross income in period minus expenses assigned to that source.
+  /// Unassigned spending (no [BalanceActivity.incomeSource]) appears under
+  /// [BalanceSourceConstants.unassigned] as a negative remainder.
+  static Map<String, double> _remainingByIncomeSource(
+    List<BalanceActivity> activities,
+  ) {
+    final gross = <String, double>{};
+    var unassignedExpenseTotal = 0.0;
+    final charged = <String, double>{};
+
+    for (final activity in activities) {
+      if (activity.type == BalanceActivityType.income) {
+        final key = _categoryKey(activity);
+        gross[key] = (gross[key] ?? 0) + activity.amount;
+      } else {
+        final raw = activity.incomeSource?.trim();
+        if (raw == null || raw.isEmpty) {
+          unassignedExpenseTotal += activity.amount;
+        } else {
+          final key = BudgetCalculator.categoryKey(raw);
+          charged[key] = (charged[key] ?? 0) + activity.amount;
+        }
+      }
+    }
+
+    final keys = {...gross.keys, ...charged.keys};
+    final result = <String, double>{};
+    for (final k in keys) {
+      result[k] = (gross[k] ?? 0) - (charged[k] ?? 0);
+    }
+    if (unassignedExpenseTotal > 0) {
+      result[BalanceSourceConstants.unassigned] = -unassignedExpenseTotal;
+    }
+    final entries = result.entries.toList()
+      ..sort((a, b) => b.value.compareTo(a.value));
+    return Map.fromEntries(entries);
+  }
+
   List<BalanceActivity> _filterActivities(List<BalanceActivity> activities) {
     return activities.where((activity) {
+      if (_selectedIncomeSource != null) {
+        if (activity.type == BalanceActivityType.income) {
+          return _categoryKey(activity) == _selectedIncomeSource;
+        }
+        if (activity.type == BalanceActivityType.expense) {
+          if (_selectedIncomeSource == BalanceSourceConstants.unassigned) {
+            final s = activity.incomeSource?.trim();
+            return s == null || s.isEmpty;
+          }
+          final raw = activity.incomeSource?.trim();
+          if (raw == null || raw.isEmpty) return false;
+          return BudgetCalculator.categoryKey(raw) == _selectedIncomeSource;
+        }
+        return false;
+      }
+      if (_selectedExpenseCategory != null) {
+        if (activity.type == BalanceActivityType.expense) {
+          return _categoryKey(activity) == _selectedExpenseCategory;
+        }
+        if (activity.type == BalanceActivityType.income) {
+          return false;
+        }
+      }
       if (_activityFilter == BalanceActivityFilter.income &&
           activity.type != BalanceActivityType.income) {
         return false;
       }
       if (_activityFilter == BalanceActivityFilter.expense &&
           activity.type != BalanceActivityType.expense) {
-        return false;
-      }
-      if (_selectedIncomeSource != null &&
-          activity.type == BalanceActivityType.income) {
-        return _categoryKey(activity) == _selectedIncomeSource;
-      }
-      if (_selectedExpenseCategory != null &&
-          activity.type == BalanceActivityType.expense) {
-        return _categoryKey(activity) == _selectedExpenseCategory;
-      }
-      if (_selectedIncomeSource != null &&
-          activity.type == BalanceActivityType.expense) {
-        return false;
-      }
-      if (_selectedExpenseCategory != null &&
-          activity.type == BalanceActivityType.income) {
         return false;
       }
       return true;
@@ -96,7 +145,7 @@ class _BalanceTabState extends State<BalanceTab>
 
   void _onIncomeSourceSelected(String source) {
     setState(() {
-      _activityFilter = BalanceActivityFilter.income;
+      _activityFilter = BalanceActivityFilter.all;
       _selectedExpenseCategory = null;
       _selectedIncomeSource =
           _selectedIncomeSource == source ? null : source;
@@ -120,6 +169,9 @@ class _BalanceTabState extends State<BalanceTab>
         _selectedExpenseCategory = null;
       } else if (filter == BalanceActivityFilter.income) {
         _selectedExpenseCategory = null;
+        if (_selectedIncomeSource == BalanceSourceConstants.unassigned) {
+          _selectedIncomeSource = null;
+        }
       } else {
         _selectedIncomeSource = null;
       }
@@ -174,20 +226,15 @@ class _BalanceTabState extends State<BalanceTab>
             );
           }
         },
-        builder: (context, state) {
-          if (state is! BalanceTabLoaded) {
-            return tabCenteredScroll(
-              const CircularProgressIndicator(color: AppColors.balance),
-            );
+        builder: (context, blocState) {
+          if (blocState is! BalanceTabLoaded) {
+            return const BalanceTabLoadingSkeleton();
           }
 
-          final isRefreshing =
-              state.status == BalanceTabStatus.loading && state.hasData;
+          final state = blocState;
 
           if (!state.hasData && state.status == BalanceTabStatus.loading) {
-            return tabCenteredScroll(
-              const CircularProgressIndicator(color: AppColors.balance),
-            );
+            return const BalanceTabLoadingSkeleton();
           }
 
           if (!state.hasData && state.status == BalanceTabStatus.error) {
@@ -225,14 +272,20 @@ class _BalanceTabState extends State<BalanceTab>
             );
           }
 
+          final isRefreshing =
+              state.status == BalanceTabStatus.loading && state.hasData;
+
           final sorted = List.of(state.activities)
             ..sort((a, b) => b.date.compareTo(a.date));
-          final incomeBySource =
+          final incomeGrossBySource =
               _totalsByCategory(sorted, BalanceActivityType.income);
+          final remainingByIncomeSource =
+              _remainingByIncomeSource(sorted);
           final expenseByCategory =
               _totalsByCategory(sorted, BalanceActivityType.expense);
           final filteredActivities = _filterActivities(sorted);
-          final incomeSources = incomeBySource.keys.toList()..sort();
+          final incomeFilterChipSources =
+              incomeGrossBySource.keys.toList()..sort();
           final expenseCategories = expenseByCategory.keys.toList()..sort();
 
           final l10n = AppLocalizations.of(context)!;
@@ -243,7 +296,9 @@ class _BalanceTabState extends State<BalanceTab>
               final periodLabel = _dateFilter.summaryPeriodLabel(context);
               final activeIncomeSource =
                   _selectedIncomeSource != null &&
-                      incomeSources.contains(_selectedIncomeSource)
+                      remainingByIncomeSource.containsKey(
+                        _selectedIncomeSource,
+                      )
                   ? _selectedIncomeSource
                   : null;
               final activeExpenseCategory =
@@ -311,19 +366,20 @@ class _BalanceTabState extends State<BalanceTab>
                     ),
                   ),
                 ),
-                if (incomeBySource.isNotEmpty)
+                if (remainingByIncomeSource.isNotEmpty)
                   SliverToBoxAdapter(
                     child: Padding(
                       padding: const EdgeInsets.fromLTRB(20, 12, 20, 0),
                       child: BalanceCategoryBreakdown(
-                        title: l10n.incomeBySource,
-                        totals: incomeBySource,
-                        accentColor: AppColors.income,
-                        accentLight: AppColors.incomeLight,
-                        accentDark: AppColors.incomeDark,
+                        title: l10n.balanceRemainingBySource,
+                        totals: remainingByIncomeSource,
+                        accentColor: AppColors.balance,
+                        accentLight: AppColors.balanceLight,
+                        accentDark: AppColors.balanceDark,
                         selectedKey: activeIncomeSource,
                         onSelected: _onIncomeSourceSelected,
                         localizeKey: localizeIncomeCategory,
+                        signedAmountStyle: true,
                       ),
                     ),
                   ),
@@ -376,11 +432,15 @@ class _BalanceTabState extends State<BalanceTab>
                           onTypeChanged: _onActivityFilterChanged,
                         ),
                         if (_activityFilter == BalanceActivityFilter.income &&
-                            incomeSources.length > 1) ...[
+                            incomeFilterChipSources.length > 1) ...[
                           const SizedBox(height: 12),
                           BalanceCategoryFilterChips(
-                            categories: incomeSources,
-                            selectedCategory: activeIncomeSource,
+                            categories: incomeFilterChipSources,
+                            selectedCategory:
+                                activeIncomeSource ==
+                                        BalanceSourceConstants.unassigned
+                                    ? null
+                                    : activeIncomeSource,
                             accentColor: AppColors.income,
                             allLabel: l10n.incomeFilterAllSources,
                             onSelected: (source) {
@@ -496,8 +556,11 @@ class _BalanceTabState extends State<BalanceTab>
         ),
         duration: const Duration(milliseconds: 150),
         curve: Curves.easeOut,
-        child: BlocProvider.value(
-          value: context.read<PlansTabBloc>(),
+        child: MultiBlocProvider(
+          providers: [
+            BlocProvider.value(value: context.read<PlansTabBloc>()),
+            BlocProvider.value(value: context.read<IncomesTabBloc>()),
+          ],
           child: AddToPlanFromBalanceSheet(
             availableBalanceBase: availableBalance,
           ),

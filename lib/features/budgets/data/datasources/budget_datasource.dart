@@ -11,6 +11,7 @@ abstract class BudgetDatasource {
     required double amount,
     required int year,
     required int month,
+    String? budgetId,
   });
 
   Future<void> deleteBudget(String budgetId);

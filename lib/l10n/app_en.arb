@@ -106,12 +106,93 @@
   "incomeSourceField": "Source",
   "hintIncomeSource": "e.g. Visa card, Rents, Salary",
   "incomeBySource": "By source",
+  "balanceRemainingBySource": "Remaining by source",
+  "paymentMethodAddChip": "+ Add method",
+  "paymentMethodAddCancel": "Cancel",
+  "paymentMethodNewLabel": "New method name",
+  "paymentMethodNewHint": "e.g. Vodafone Cash, InstaPay, Fawry",
+  "paymentMethodSave": "Save method",
+  "paymentMethodNameEmpty": "Enter a name for the payment method.",
+  "paymentMethodAdded": "Added \"{name}\" to your methods.",
+  "@paymentMethodAdded": {
+    "placeholders": {
+      "name": { "type": "String" }
+    }
+  },
+  "expensePaidFromField": "Paid from",
+  "expensePaidFromNone": "Not set",
+  "incomeUnassignedSpending": "Unassigned spending",
   "incomeFilterAllSources": "All sources",
   "incomeFilterNoSourceEntries": "No incomes for this source in the selected period",
+  "incomeSourceManageEdit": "Rename source",
+  "incomeSourceManageRemove": "Remove source",
+  "incomeSourceRenameTitle": "Rename source",
+  "incomeSourceRenameHint": "Updates all incomes with source \"{name}\".",
+  "@incomeSourceRenameHint": {
+    "placeholders": {
+      "name": { "type": "String" }
+    }
+  },
+  "incomeSourceNameTaken": "That source name is already in use",
+  "incomeSourceUpdatedSuccess": "Sources updated",
+  "incomeSourceRemoveTitle": "Remove source",
+  "incomeSourceRemoveMessage": "What should happen to {count} income(s) with source \"{name}\"?",
+  "@incomeSourceRemoveMessage": {
+    "placeholders": {
+      "count": { "type": "int" },
+      "name": { "type": "String" }
+    }
+  },
+  "incomeSourceMoveToOther": "Move all to Other",
+  "incomeSourceDeleteAll": "Delete all incomes with this source",
+  "incomeSourceDeleteConfirmTitle": "Delete incomes?",
+  "incomeSourceDeleteConfirmMessage": "This permanently deletes {count} income(s). This cannot be undone.",
+  "@incomeSourceDeleteConfirmMessage": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "incomeSourceDeleteConfirmAction": "Delete",
   "incomeSourceRents": "Rents",
   "incomeSourceVisaCard": "Visa card",
   "incomeSourceCash": "Cash",
   "amountField": "Amount",
+  "expenseAmountShortcuts": "Quick amounts",
+  "expenseShortcutTransport": "Transport",
+  "expenseShortcutCoffee": "Coffee",
+  "expenseShortcutSnack": "Snack",
+  "expenseFabMenuTitle": "New expense",
+  "expenseFabBlankOption": "Blank form",
+  "expenseFabFromLastPaste": "From last parsed message",
+  "expenseFabFromLastPasteSubtitle": "Uses the last bank or wallet message you parsed in Smart import",
+  "expenseLastPasteNotExpense": "Last parsed message looks like income. Add it from the Incomes tab.",
+  "expenseShortcutsSectionTitle": "One-tap expenses",
+  "expenseShortcutsEmptyCta": "Set up one-tap shortcuts",
+  "expenseShortcutsManageTitle": "Expense shortcuts",
+  "expenseShortcutsManageSubtitle": "Save a label, title, category, paid-from, and amount. Tap the chip on the Expenses tab to log instantly.",
+  "expenseShortcutsEmptyBody": "No shortcuts yet. Add your first coffee, transport, or other repeat purchase.",
+  "expenseShortcutAddTitle": "New shortcut",
+  "expenseShortcutEditTitle": "Edit shortcut",
+  "expenseShortcutChipLabelField": "Chip label",
+  "expenseShortcutChipLabelHint": "e.g. Coffee",
+  "expenseShortcutExpenseTitleField": "Expense title",
+  "expenseShortcutFormHint": "The chip logs this expense for today with one tap — no form.",
+  "expenseShortcutSave": "Save shortcut",
+  "expenseShortcutDelete": "Delete",
+  "expenseShortcutDeleteConfirmTitle": "Delete shortcut?",
+  "expenseShortcutDeleteConfirmMessage": "Remove \"{name}\"?",
+  "@expenseShortcutDeleteConfirmMessage": {
+    "placeholders": {
+      "name": { "type": "String" }
+    }
+  },
+  "expenseShortcutLogged": "Logged: {name}",
+  "@expenseShortcutLogged": {
+    "placeholders": {
+      "name": { "type": "String" }
+    }
+  },
+  "expenseShortcutErrorLabel": "Enter a chip label",
   "expenseByCategory": "By category",
   "expenseCategoryEdit": "Edit category",
   "expenseCategoryRemove": "Remove category",
@@ -147,6 +228,7 @@
   "budgetMonthlyTitle": "Monthly budgets",
   "budgetSetAction": "Set budget",
   "budgetSetTitle": "Set monthly budget",
+  "budgetEditTitle": "Edit monthly budget",
   "budgetSetHint": "Pick a category and set how much you plan to spend this month.",
   "budgetCustomCategory": "Category name",
   "budgetMonthlyLimit": "Monthly limit",
@@ -283,6 +365,8 @@
     }
   },
   "balanceAddToPlanSuccess": "Amount added to your savings goal",
+  "balancePlanAllocationPaidFromHint": "Choose which source this allocation is paid from (shown on Balance, not unassigned).",
+  "planAllocationSelectPaidFrom": "Select paid from for this goal allocation",
   "balancePlanAllocationExpenseTitle": "Savings goal: {planTitle}",
   "@balancePlanAllocationExpenseTitle": {
     "placeholders": {
@@ -398,17 +482,47 @@
     }
   },
   "smartImportTitle": "Smart import",
-  "smartImportShort": "Scan / SMS",
-  "smartImportInvoiceTab": "Invoice OCR",
+  "smartImportShort": "Import",
+  "smartImportPasteTab": "Paste",
+  "smartImportQuickTab": "Quick",
   "smartImportSmsTab": "SMS",
-  "smartImportInvoiceHint": "Take a photo of a receipt or invoice. We'll read the amount and date automatically.",
+  "smartImportQuickHint": "No SMS to paste? Enter the amount, pick expense or income, choose category and source — add in one tap.",
+  "smartImportQuickTypeLabel": "Transaction type",
+  "smartImportQuickAmountLabel": "Amount",
+  "smartImportQuickTitleHint": "Coffee, rent, salary… (optional)",
+  "smartImportQuickAddNow": "Add now",
+  "smartImportQuickReview": "Review in full form",
+  "smartImportQuickAdded": "Transaction added.",
+  "smartImportPasteHint": "Paste one or more bank or wallet messages. Put a blank line between messages, or paste several SMS in a row. We detect amounts and income vs expense for each.",
+  "smartImportPasteShareTip": "Tip: In your SMS app, open a message → Share → Import to Pocketly. No copy-paste needed.",
+  "smartImportSharedTextReady": "Shared message loaded. Review below and add.",
+  "smartImportPasteFieldLabel": "Message text",
+  "smartImportPasteFieldHint": "Paste one or more messages (blank line between each)",
+  "smartImportPasteFromClipboard": "Paste from clipboard",
+  "smartImportParseMessage": "Parse message",
+  "smartImportParseMessages": "Parse messages",
+  "smartImportPasteFoundCount": "Found {count} messages",
+  "@smartImportPasteFoundCount": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "smartImportPasteAddedOneRemaining": "Added. {count} more ready to import.",
+  "@smartImportPasteAddedOneRemaining": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "smartImportPasteProcessing": "Reading message…",
+  "smartImportPasteNoData": "Could not find an amount in this text. Try the full bank message.",
+  "smartImportPasteEmpty": "Paste a message first.",
+  "smartImportPasteClipboardEmpty": "Clipboard is empty. Copy a bank or wallet message first.",
+  "smartImportPasteClear": "Clear",
+  "smartImportPasteAddedSuccess": "Added. Paste another message anytime.",
+  "smartImportPasteParseAnother": "Parse another",
+  "smartImportPasteMarkExpense": "Mark as expense",
+  "smartImportPasteMarkIncome": "Mark as income",
   "smartImportDefaultBillTitle": "Bill",
-  "smartImportScanCamera": "Camera",
-  "smartImportScanGallery": "Gallery",
-  "smartImportOcrProcessing": "Reading invoice…",
-  "smartImportOcrNoData": "Could not find amount or details on this image.",
-  "smartImportOcrFailed": "Failed to read the invoice. Try a clearer photo.",
-  "smartImportCameraDenied": "Camera permission is required to scan invoices.",
   "smartImportExtractedData": "Extracted data",
   "smartImportDateField": "Date",
   "smartImportTypeField": "Type",
@@ -457,7 +571,11 @@
   "smartImportSelectAll": "Select all",
   "smartImportClearSelection": "Clear",
   "smartImportBulkCategorySheetTitle": "Category for import",
-  "smartImportBulkCategorySheetHint": "Apply the same category or source to all selected messages.",
+  "smartImportBulkCategorySheetHint": "Choose category and source here. SMS text is only used for titles, not for income source or paid-from.",
+  "smartImportBulkExpensePaidFromHint": "Tap a source for imported expenses (not read from SMS).",
+  "smartImportBulkIncomeSourceHint": "Tap a source for imported incomes (not read from SMS).",
+  "smartImportBulkSelectPaidFrom": "Select paid from",
+  "smartImportBulkSelectIncomeSource": "Select income source",
   "smartImportBulkExpenseCategory": "Expense category",
   "smartImportBulkIncomeSource": "Income source",
   "smartImportBulkApplyAndImport": "Import",
@@ -474,6 +592,20 @@
   "@smartImportBulkPartialFail": {
     "placeholders": {
       "failed": { "type": "int" }
+    }
+  },
+  "settingsAutoSmsImport": "Auto-import from SMS",
+  "settingsAutoSmsImportSubtitle": "When the app opens, new bank SMS are detected and added as income or expense using your chosen category and source.",
+  "settingsAutoSmsImportDefaults": "Auto-import categories",
+  "settingsAutoSmsImportDefaultsTitle": "Defaults for auto-import",
+  "settingsAutoSmsImportDefaultsHint": "Used for every automatic import. SMS text is only used for titles.",
+  "settingsAutoSmsImportPermissionDenied": "SMS permission is required for auto-import.",
+  "settingsAutoSmsImportEnabled": "Auto-import is on. New financial SMS will be added when you open the app.",
+  "autoSmsImportAddedSnack": "Auto-imported {incomes} incomes and {expenses} expenses.",
+  "@autoSmsImportAddedSnack": {
+    "placeholders": {
+      "incomes": { "type": "int" },
+      "expenses": { "type": "int" }
     }
   },
   "settingsAppLock": "App lock",

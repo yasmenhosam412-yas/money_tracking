@@ -466,6 +466,44 @@ class TransactionTextParser {
     return cleaned.length >= 11;
   }
 
+  /// Maps SMS text to an income-source label for expense [incomeSource] (paid from).
+  /// Returns names aligned with add-expense chips (e.g. Visa Card, Cash).
+  static String? inferExpensePaidFrom({
+    required String body,
+    String? sender,
+  }) {
+    final lower = _normalizeSmsText(body).toLowerCase();
+
+    if (_isCardPurchase(lower) ||
+        lower.contains('trx on your card') ||
+        (lower.contains('card account') &&
+            (lower.contains('debited') ||
+                lower.contains('charged') ||
+                lower.contains('خصم')))) {
+      return 'Visa Card';
+    }
+
+    if (_isAtmWithdrawal(lower)) return 'Cash';
+
+    if (_isVodafoneCashExpense(lower) ||
+        (_isAnyMobileWalletMessage(lower) &&
+            !_isWalletIncomingTransfer(lower) &&
+            !_isVodafoneWalletCredit(lower) &&
+            !_isEnglishWalletReceive(lower))) {
+      return 'Cash';
+    }
+
+    if (sender != null &&
+        sender.trim().isNotEmpty &&
+        isMobileWalletSender(sender) &&
+        !_isWalletIncomingTransfer(lower) &&
+        !_isVodafoneWalletCredit(lower)) {
+      return 'Cash';
+    }
+
+    return null;
+  }
+
   /// Best title for lists/forms — never a call-center short code.
   static String? resolveSmsTitle({
     String? parsedTitle,
@@ -843,6 +881,66 @@ class TransactionTextParser {
       type: type,
       rawText: normalized,
     );
+  }
+
+  /// Splits pasted text into blocks and parses each financial message.
+  static List<ParsedFinancialEntry> parseMultiplePasted(
+    String text, {
+    String defaultCurrencyCode = CurrencyConverter.baseCode,
+  }) {
+    final chunks = _splitPastedMessageChunks(text);
+    final results = <ParsedFinancialEntry>[];
+    final seen = <String>{};
+
+    for (final chunk in chunks) {
+      final parsed = parseSms(
+            chunk,
+            defaultCurrencyCode: defaultCurrencyCode,
+          ) ??
+          () {
+            final fallback = parse(
+              chunk,
+              defaultCurrencyCode: defaultCurrencyCode,
+            );
+            return fallback.hasUsableData ? fallback : null;
+          }();
+      if (parsed == null || !parsed.hasUsableData) continue;
+      final key = parsed.rawText.trim();
+      if (seen.contains(key)) continue;
+      seen.add(key);
+      results.add(parsed);
+    }
+
+    return results;
+  }
+
+  /// Blank lines, `---` lines, or common SMS starters split multiple messages.
+  static List<String> _splitPastedMessageChunks(String text) {
+    final normalized = text.replaceAll('\r', '').trim();
+    if (normalized.isEmpty) return [];
+
+    var chunks = normalized
+        .split(RegExp(r'\n\s*\n+|\n\s*[-=*]{3,}\s*\n'))
+        .map((c) => c.trim())
+        .where((c) => c.isNotEmpty)
+        .toList();
+
+    if (chunks.length <= 1) {
+      final bySmsStart = normalized
+          .split(
+            RegExp(
+              r'(?=\n(?:(?:تم\s)|(?:Dear\s)|(?:تمت\s)|(?:You\s(?:have\s)?(?:received|paid|sent|transferred))))',
+              caseSensitive: false,
+            ),
+          )
+          .map((c) => c.trim())
+          .where((c) => c.isNotEmpty)
+          .toList();
+      if (bySmsStart.length > 1) chunks = bySmsStart;
+    }
+
+    if (chunks.isEmpty) return [normalized];
+    return chunks;
   }
 
   static bool _shouldExcludeSms(String text, {String? sender}) {

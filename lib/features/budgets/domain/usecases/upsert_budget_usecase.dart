@@ -13,12 +13,14 @@ class UpsertBudgetUsecase {
     required double amount,
     required int year,
     required int month,
+    String? budgetId,
   }) {
     return budgetRepository.upsertBudget(
       category: category,
       amount: amount,
       year: year,
       month: month,
+      budgetId: budgetId,
     );
   }
 }

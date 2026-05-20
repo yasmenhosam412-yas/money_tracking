@@ -7,8 +7,10 @@ import 'package:imrpo/core/services/service_locator.dart';
 import 'package:imrpo/core/utils/app_colors.dart';
 import 'package:imrpo/core/widgets/currency_amount_field.dart';
 import 'package:imrpo/features/auth/presentation/widgets/custom_text_field.dart';
+import 'package:imrpo/features/incomes_tab/presentation/bloc/incomes_tab_bloc.dart';
 import 'package:imrpo/features/plans_tab/domain/entities/plan.dart';
 import 'package:imrpo/features/plans_tab/presentation/bloc/plans_tab_bloc.dart';
+import 'package:imrpo/features/plans_tab/presentation/widgets/plan_allocation_paid_from_section.dart';
 import 'package:imrpo/core/l10n/l10n_entity_strings.dart';
 import 'package:imrpo/l10n/app_localizations.dart';
 
@@ -31,6 +33,7 @@ class _AddPlanSheetState extends State<AddPlanSheet> {
   String _category = 'Savings';
   late String _currencyCode;
   DateTime? _deadline;
+  String _paidFromSource = 'Cash';
 
   static const _otherCategory = 'Other';
 
@@ -41,6 +44,10 @@ class _AddPlanSheetState extends State<AddPlanSheet> {
     super.initState();
     _currencyCode = getIt<CurrencyPreferences>().displayCode;
     final plan = widget.plan;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      context.read<IncomesTabBloc>().add(const LoadIncomesEvent());
+    });
     if (plan != null) {
       _titleController.text = plan.title;
       _targetController.text = _formatDisplayAmount(plan.targetAmount);
@@ -53,6 +60,7 @@ class _AddPlanSheetState extends State<AddPlanSheet> {
         _otherCategoryController.text = plan.category;
       }
     }
+    _savedController.addListener(_onSavedTextChanged);
   }
 
   static const _categories = [
@@ -65,13 +73,28 @@ class _AddPlanSheetState extends State<AddPlanSheet> {
 
   bool get _isOtherCategory => _category == _otherCategory;
 
+  double get _previousSavedBase => widget.plan?.savedAmount ?? 0;
+
+  bool get _requiresPaidFrom {
+    final saved = double.tryParse(_savedController.text.trim());
+    if (saved == null) return false;
+    final baseSaved = CurrencyConverter.toBase(saved, _currencyCode);
+    return baseSaved > _previousSavedBase;
+  }
+
   @override
   void dispose() {
     _titleController.dispose();
     _targetController.dispose();
-    _savedController.dispose();
+    _savedController
+      ..removeListener(_onSavedTextChanged)
+      ..dispose();
     _otherCategoryController.dispose();
     super.dispose();
+  }
+
+  void _onSavedTextChanged() {
+    if (mounted) setState(() {});
   }
 
   @override
@@ -131,6 +154,14 @@ class _AddPlanSheetState extends State<AddPlanSheet> {
               initialCurrencyCode: _currencyCode,
               onCurrencyChanged: (c) => _currencyCode = c.code,
             ),
+            if (_requiresPaidFrom) ...[
+              const SizedBox(height: 16),
+              PlanAllocationPaidFromSection(
+                selectedSource: _paidFromSource,
+                onSelected: (src) => setState(() => _paidFromSource = src),
+                accentColor: _planColor,
+              ),
+            ],
             const SizedBox(height: 16),
             Text(
               l10n.categoryField,
@@ -317,6 +348,17 @@ class _AddPlanSheetState extends State<AddPlanSheet> {
       return;
     }
 
+    final needsPaidFrom = baseSaved > _previousSavedBase;
+    final paidFrom = _paidFromSource.trim();
+    if (needsPaidFrom && paidFrom.isEmpty) {
+      _showError(l10n.planAllocationSelectPaidFrom);
+      return;
+    }
+
+    final allocationTitle = l10n.balancePlanAllocationExpenseTitle(
+      localizeDemoTitle(l10n, title),
+    );
+
     final bloc = context.read<PlansTabBloc>();
     if (_isEditing) {
       bloc.add(
@@ -327,6 +369,8 @@ class _AddPlanSheetState extends State<AddPlanSheet> {
           targetAmount: baseTarget,
           savedAmount: baseSaved,
           deadline: _deadline,
+          expensePaidFrom: needsPaidFrom ? paidFrom : null,
+          expenseTitle: needsPaidFrom ? allocationTitle : null,
         ),
       );
     } else {
@@ -337,6 +381,8 @@ class _AddPlanSheetState extends State<AddPlanSheet> {
           targetAmount: baseTarget,
           savedAmount: baseSaved,
           deadline: _deadline,
+          expensePaidFrom: needsPaidFrom ? paidFrom : null,
+          expenseTitle: needsPaidFrom ? allocationTitle : null,
         ),
       );
     }

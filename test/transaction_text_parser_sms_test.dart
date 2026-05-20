@@ -325,4 +325,21 @@ void main() {
       expect(title, 'Talabat');
     });
   });
+
+  group('parseMultiplePasted', () {
+    test('splits on blank lines and parses each message', () {
+      const income =
+          'تم استلام مبلغ 6000 جنيه من رقم 01094490330 المسجل بإسم Mohamed S Amer على رقم محفظتك 01024193022.';
+      const expense =
+          'Your account was debited with EGP 850.00 at CARREFOUR on 12/05/2026 18:40';
+      final results = TransactionTextParser.parseMultiplePasted(
+        '$income\n\n$expense',
+      );
+      expect(results.length, 2);
+      expect(results[0].type, FinancialEntryType.income);
+      expect(results[0].amount, 6000);
+      expect(results[1].type, FinancialEntryType.expense);
+      expect(results[1].amount, 850);
+    });
+  });
 }

@@ -3,7 +3,13 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:imrpo/core/config/app_router.dart';
 import 'package:imrpo/core/services/app_lock_service.dart';
+import 'package:imrpo/core/services/auto_sms_import_preferences.dart';
+import 'package:imrpo/core/widgets/auto_sms_import_gate.dart';
+import 'package:imrpo/core/widgets/shared_text_import_gate.dart';
+import 'package:imrpo/core/services/share_text_import_bridge.dart';
 import 'package:imrpo/core/services/currency_preferences.dart';
+import 'package:imrpo/core/services/expense_shortcuts_store.dart';
+import 'package:imrpo/core/services/payment_methods_store.dart';
 import 'package:imrpo/core/widgets/app_lock_gate.dart';
 import 'package:imrpo/core/services/locale_preferences.dart';
 import 'package:imrpo/core/services/service_locator.dart';
@@ -37,8 +43,12 @@ Future<void> main() async {
   setupServiceLocator();
   await getIt<CurrencyPreferences>().load();
   await getIt<LocalePreferences>().load();
+  await getIt<ExpenseShortcutsStore>().load();
+  await getIt<PaymentMethodsStore>().load();
   await getIt<SmsImportedRegistry>().load();
+  await getIt<AutoSmsImportPreferences>().load();
   await getIt<AppLockService>().load();
+  await ShareTextImportBridge.instance.startListening();
   runApp(
     MultiBlocProvider(
       providers: [
@@ -87,7 +97,11 @@ class MainApp extends StatelessWidget {
               textDirection: locale.languageCode == 'ar'
                   ? TextDirection.rtl
                   : TextDirection.ltr,
-              child: AppLockGate(child: child!),
+              child: AppLockGate(
+                child: SharedTextImportGate(
+                  child: AutoSmsImportGate(child: child!),
+                ),
+              ),
             );
           },
           home: getIt<SupabaseClient>().auth.currentUser != null

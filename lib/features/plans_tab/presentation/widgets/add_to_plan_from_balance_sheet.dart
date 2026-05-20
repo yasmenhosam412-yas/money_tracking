@@ -7,8 +7,10 @@ import 'package:imrpo/core/services/service_locator.dart';
 import 'package:imrpo/core/utils/app_colors.dart';
 import 'package:imrpo/core/utils/money_format.dart';
 import 'package:imrpo/core/widgets/currency_amount_field.dart';
+import 'package:imrpo/features/incomes_tab/presentation/bloc/incomes_tab_bloc.dart';
 import 'package:imrpo/features/plans_tab/domain/entities/plan.dart';
 import 'package:imrpo/features/plans_tab/presentation/bloc/plans_tab_bloc.dart';
+import 'package:imrpo/features/plans_tab/presentation/widgets/plan_allocation_paid_from_section.dart';
 import 'package:imrpo/l10n/app_localizations.dart';
 
 /// Allocate part of net balance to a savings plan.
@@ -31,12 +33,17 @@ class _AddToPlanFromBalanceSheetState extends State<AddToPlanFromBalanceSheet> {
   final _amountController = TextEditingController();
   late String _currencyCode;
   Plan? _selectedPlan;
+  String _paidFromSource = 'Cash';
   bool _awaitingSubmit = false;
 
   @override
   void initState() {
     super.initState();
     _currencyCode = getIt<CurrencyPreferences>().displayCode;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      context.read<IncomesTabBloc>().add(const LoadIncomesEvent());
+    });
   }
 
   @override
@@ -252,6 +259,12 @@ class _AddToPlanFromBalanceSheetState extends State<AddToPlanFromBalanceSheet> {
                       ),
                     );
                   }),
+                  const SizedBox(height: 20),
+                  PlanAllocationPaidFromSection(
+                    selectedSource: _paidFromSource,
+                    onSelected: (src) => setState(() => _paidFromSource = src),
+                    accentColor: _planColor,
+                  ),
                   const SizedBox(height: 16),
                   CurrencyAmountField(
                     label: l10n.balanceAmountToAllocate,
@@ -304,6 +317,12 @@ class _AddToPlanFromBalanceSheetState extends State<AddToPlanFromBalanceSheet> {
     final plan = _selectedPlan;
     if (plan == null) return;
 
+    final paidFrom = _paidFromSource.trim();
+    if (paidFrom.isEmpty) {
+      _showError(AppLocalizations.of(context)!.planAllocationSelectPaidFrom);
+      return;
+    }
+
     final amount = double.tryParse(_amountController.text.trim());
     if (amount == null || amount <= 0) {
       _showError(AppLocalizations.of(context)!.errorEnterValidSavedAmount);
@@ -331,6 +350,7 @@ class _AddToPlanFromBalanceSheetState extends State<AddToPlanFromBalanceSheet> {
             expenseTitle: l10n.balancePlanAllocationExpenseTitle(
               localizeDemoTitle(l10n, plan.title),
             ),
+            expensePaidFrom: paidFrom,
           ),
         );
   }

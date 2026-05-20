@@ -2,8 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:imrpo/core/config/app_router.dart';
 import 'package:imrpo/core/services/app_lock_service.dart';
+import 'package:imrpo/core/services/auto_sms_import_preferences.dart';
 import 'package:imrpo/core/services/locale_preferences.dart';
 import 'package:imrpo/core/services/service_locator.dart';
+import 'package:imrpo/core/services/sms_import_service.dart';
+import 'package:imrpo/features/home/presentation/widgets/auto_sms_import_settings.dart';
 import 'package:imrpo/features/home/presentation/widgets/app_lock_settings.dart';
 import 'package:imrpo/core/session/user_session.dart';
 import 'package:imrpo/core/l10n/l10n_entity_strings.dart';
@@ -12,6 +15,7 @@ import 'package:imrpo/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:imrpo/features/auth/presentation/widgets/custom_text_field.dart';
 import 'package:imrpo/features/home/domain/entities/user_profile.dart';
 import 'package:imrpo/features/home/presentation/bloc/home_bloc.dart';
+import 'package:imrpo/features/incomes_tab/presentation/bloc/incomes_tab_bloc.dart';
 import 'package:imrpo/l10n/app_localizations.dart';
 
 class UserSettingsSheet extends StatefulWidget {
@@ -113,11 +117,15 @@ class _UserSettingsSheetState extends State<UserSettingsSheet> {
 
               return PopScope(
                 canPop: !isAuthBusy,
-                child: Padding(
-                padding: const EdgeInsets.fromLTRB(24, 12, 24, 24),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(
+                    maxHeight: MediaQuery.sizeOf(context).height * 0.92,
+                  ),
+                  child: SingleChildScrollView(
+                    padding: const EdgeInsets.fromLTRB(24, 12, 24, 24),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
                     Center(
                       child: Container(
                         width: 40,
@@ -238,6 +246,64 @@ class _UserSettingsSheetState extends State<UserSettingsSheet> {
                               );
                             },
                     ),
+                    if (getIt<SmsImportService>().isSupported)
+                      ListenableBuilder(
+                        listenable: getIt<AutoSmsImportPreferences>(),
+                        builder: (context, _) {
+                          final autoSms = getIt<AutoSmsImportPreferences>();
+
+                          return Column(
+                            children: [
+                              _SettingsTile(
+                                icon: Icons.sms_outlined,
+                                label: l10n.settingsAutoSmsImport,
+                                trailing: Switch.adaptive(
+                                  value: autoSms.enabled,
+                                  activeThumbColor: AppColors.primary,
+                                  onChanged: actionsLocked
+                                      ? null
+                                      : (enabled) => setAutoSmsImportEnabled(
+                                            context,
+                                            enabled: enabled,
+                                          ),
+                                ),
+                              ),
+                              Padding(
+                                padding: const EdgeInsets.only(
+                                  left: 48,
+                                  right: 4,
+                                  bottom: 4,
+                                ),
+                                child: Align(
+                                  alignment: Alignment.centerLeft,
+                                  child: Text(
+                                    l10n.settingsAutoSmsImportSubtitle,
+                                    style: TextStyle(
+                                      fontSize: 13,
+                                      color: AppColors.textColor.withValues(
+                                        alpha: 0.55,
+                                      ),
+                                      height: 1.35,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              if (autoSms.enabled)
+                                _SettingsTile(
+                                  icon: Icons.tune_rounded,
+                                  label: l10n.settingsAutoSmsImportDefaults,
+                                  onTap: actionsLocked
+                                      ? null
+                                      : () async {
+                                          await configureAutoSmsImportDefaults(
+                                            context,
+                                          );
+                                        },
+                                ),
+                            ],
+                          );
+                        },
+                      ),
                     ListenableBuilder(
                       listenable: getIt<AppLockService>(),
                       builder: (context, _) {
@@ -321,10 +387,13 @@ class _UserSettingsSheetState extends State<UserSettingsSheet> {
                           ? null
                           : () => _confirmDeleteAccount(context),
                     ),
-                    SizedBox(height: MediaQuery.paddingOf(context).bottom),
-                  ],
+                        SizedBox(
+                          height: MediaQuery.paddingOf(context).bottom,
+                        ),
+                      ],
+                    ),
+                  ),
                 ),
-              ),
               );
             },
           );
@@ -550,7 +619,7 @@ class _SettingsTile extends StatelessWidget {
                   ),
                 ),
               ),
-              if (trailing != null) trailing!,
+              ?trailing,
               if (isLoading)
                 const SizedBox(
                   width: 22,
@@ -586,6 +655,7 @@ void showUserSettingsSheet(BuildContext context, UserProfile profile) {
       providers: [
         BlocProvider.value(value: context.read<HomeBloc>()),
         BlocProvider.value(value: context.read<AuthBloc>()),
+        BlocProvider.value(value: context.read<IncomesTabBloc>()),
       ],
       child: UserSettingsSheet(profile: profile),
     ),

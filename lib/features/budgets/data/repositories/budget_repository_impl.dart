@@ -31,6 +31,7 @@ class BudgetRepositoryImpl implements BudgetRepository {
     required double amount,
     required int year,
     required int month,
+    String? budgetId,
   }) async {
     try {
       final budget = await budgetDatasource.upsertBudget(
@@ -38,6 +39,7 @@ class BudgetRepositoryImpl implements BudgetRepository {
         amount: amount,
         year: year,
         month: month,
+        budgetId: budgetId,
       );
       return Right(budget);
     } catch (e) {

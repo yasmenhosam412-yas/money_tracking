@@ -68,3 +68,25 @@ class DeleteIncomeEvent extends IncomesTabEvent {
 class ClearAllIncomesEvent extends IncomesTabEvent {
   const ClearAllIncomesEvent();
 }
+
+class RenameIncomeSourceEvent extends IncomesTabEvent {
+  final String fromSource;
+  final String toSource;
+
+  const RenameIncomeSourceEvent({
+    required this.fromSource,
+    required this.toSource,
+  });
+
+  @override
+  List<Object> get props => [fromSource, toSource];
+}
+
+class DeleteIncomesBySourceEvent extends IncomesTabEvent {
+  final String source;
+
+  const DeleteIncomesBySourceEvent(this.source);
+
+  @override
+  List<Object> get props => [source];
+}

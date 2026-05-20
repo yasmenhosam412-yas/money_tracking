@@ -13,6 +13,8 @@ class BalanceCategoryBreakdown extends StatelessWidget {
   final String? selectedKey;
   final ValueChanged<String> onSelected;
   final String Function(AppLocalizations l10n, String key) localizeKey;
+  /// When true, negative totals use [AppColors.expense] for the amount text.
+  final bool signedAmountStyle;
 
   const BalanceCategoryBreakdown({
     super.key,
@@ -24,6 +26,7 @@ class BalanceCategoryBreakdown extends StatelessWidget {
     required this.selectedKey,
     required this.onSelected,
     required this.localizeKey,
+    this.signedAmountStyle = false,
   });
 
   @override
@@ -46,6 +49,9 @@ class BalanceCategoryBreakdown extends StatelessWidget {
         ...totals.entries.map((entry) {
           final label = localizeKey(l10n, entry.key);
           final isSelected = selectedKey == entry.key;
+          final amountColor = signedAmountStyle && entry.value < 0
+              ? AppColors.expense
+              : accentColor;
           return Material(
             color: Colors.transparent,
             child: InkWell(
@@ -99,7 +105,7 @@ class BalanceCategoryBreakdown extends StatelessWidget {
                       style: TextStyle(
                         fontSize: 15,
                         fontWeight: FontWeight.w700,
-                        color: accentColor,
+                        color: amountColor,
                       ),
                     ),
                   ],

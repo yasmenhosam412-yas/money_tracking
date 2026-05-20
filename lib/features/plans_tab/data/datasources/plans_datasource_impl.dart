@@ -10,21 +10,26 @@ class PlansDatasourceImpl implements PlansDatasource {
   PlansDatasourceImpl({required this.supabaseClient});
 
   @override
-  Future<void> addPlan(
+  Future<String> addPlan(
     String title,
     String category,
     double targetAmount,
     double savedAmount,
     DateTime? deadline,
   ) async {
-    await supabaseClient.from('plans').insert({
-      'title': title,
-      'category': category,
-      'target_amount': targetAmount,
-      'saved_amount': savedAmount,
-      'deadline': deadline?.toIso8601String(),
-      'user_id': SupabaseAuthHelper.requireUserId(),
-    });
+    final row = await supabaseClient
+        .from('plans')
+        .insert({
+          'title': title,
+          'category': category,
+          'target_amount': targetAmount,
+          'saved_amount': savedAmount,
+          'deadline': deadline?.toIso8601String(),
+          'user_id': SupabaseAuthHelper.requireUserId(),
+        })
+        .select('plan_id')
+        .single();
+    return row['plan_id'] as String;
   }
 
   @override

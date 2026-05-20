@@ -295,10 +295,90 @@ class AppLocalizationsAr extends AppLocalizations {
   String get incomeBySource => 'حسب المصدر';
 
   @override
+  String get balanceRemainingBySource => 'المتبقي حسب المصدر';
+
+  @override
+  String get paymentMethodAddChip => '+ إضافة طريقة';
+
+  @override
+  String get paymentMethodAddCancel => 'إلغاء';
+
+  @override
+  String get paymentMethodNewLabel => 'اسم الطريقة الجديدة';
+
+  @override
+  String get paymentMethodNewHint => 'مثال: فودافون كاش، إنستاباي، فوري';
+
+  @override
+  String get paymentMethodSave => 'حفظ الطريقة';
+
+  @override
+  String get paymentMethodNameEmpty => 'أدخل اسم طريقة الدفع.';
+
+  @override
+  String paymentMethodAdded(String name) {
+    return 'تمت إضافة \"$name\" إلى طرقك.';
+  }
+
+  @override
+  String get expensePaidFromField => 'الدفع من';
+
+  @override
+  String get expensePaidFromNone => 'بدون';
+
+  @override
+  String get incomeUnassignedSpending => 'مصروف غير مربوط بمصدر';
+
+  @override
   String get incomeFilterAllSources => 'كل المصادر';
 
   @override
   String get incomeFilterNoSourceEntries => 'لا يوجد دخل لهذا المصدر في الفترة المحددة';
+
+  @override
+  String get incomeSourceManageEdit => 'إعادة تسمية المصدر';
+
+  @override
+  String get incomeSourceManageRemove => 'إزالة المصدر';
+
+  @override
+  String get incomeSourceRenameTitle => 'إعادة تسمية المصدر';
+
+  @override
+  String incomeSourceRenameHint(String name) {
+    return 'سيتم تحديث كل الدخول ذات المصدر \"$name\".';
+  }
+
+  @override
+  String get incomeSourceNameTaken => 'اسم المصدر مستخدم بالفعل';
+
+  @override
+  String get incomeSourceUpdatedSuccess => 'تم تحديث المصادر';
+
+  @override
+  String get incomeSourceRemoveTitle => 'إزالة المصدر';
+
+  @override
+  String incomeSourceRemoveMessage(int count, String name) {
+    return 'ماذا تريد أن تفعل بـ $count دخل بمصدر \"$name\"؟';
+  }
+
+  @override
+  String get incomeSourceMoveToOther => 'نقل الكل إلى أخرى';
+
+  @override
+  String get incomeSourceDeleteAll => 'حذف كل الدخل بهذا المصدر';
+
+  @override
+  String get incomeSourceDeleteConfirmTitle => 'حذف الدخل؟';
+
+  @override
+  String incomeSourceDeleteConfirmMessage(int count) {
+    return 'سيُحذف $count دخل نهائياً. لا يمكن التراجع.';
+  }
+
+  @override
+  String get incomeSourceDeleteConfirmAction => 'حذف';
 
   @override
   String get incomeSourceRents => 'إيجارات';
@@ -311,6 +391,88 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get amountField => 'المبلغ';
+
+  @override
+  String get expenseAmountShortcuts => 'مبالغ سريعة';
+
+  @override
+  String get expenseShortcutTransport => 'مواصلات';
+
+  @override
+  String get expenseShortcutCoffee => 'قهوة';
+
+  @override
+  String get expenseShortcutSnack => 'وجبة خفيفة';
+
+  @override
+  String get expenseFabMenuTitle => 'مصروف جديد';
+
+  @override
+  String get expenseFabBlankOption => 'نموذج فارغ';
+
+  @override
+  String get expenseFabFromLastPaste => 'من آخر رسالة محلّلة';
+
+  @override
+  String get expenseFabFromLastPasteSubtitle => 'يستخدم آخر رسالة بنك أو محفظة حللتها في الاستيراد الذكي';
+
+  @override
+  String get expenseLastPasteNotExpense => 'آخر رسالة محلّلة تبدو كدخل. أضفها من تبويب الدخل.';
+
+  @override
+  String get expenseShortcutsSectionTitle => 'مصروفات بلمسة';
+
+  @override
+  String get expenseShortcutsEmptyCta => 'إعداد اختصارات سريعة';
+
+  @override
+  String get expenseShortcutsManageTitle => 'اختصارات المصروف';
+
+  @override
+  String get expenseShortcutsManageSubtitle => 'احفظ تسمية الزر، عنوان المصروف، التصنيف، الدفع من، والمبلغ. المس الشريط في تبويب المصروفات لتسجيله فوراً.';
+
+  @override
+  String get expenseShortcutsEmptyBody => 'لا توجد اختصارات بعد. أضف قهوة، مواصلات، أو أي شراء متكرر.';
+
+  @override
+  String get expenseShortcutAddTitle => 'اختصار جديد';
+
+  @override
+  String get expenseShortcutEditTitle => 'تعديل الاختصار';
+
+  @override
+  String get expenseShortcutChipLabelField => 'تسمية الزر';
+
+  @override
+  String get expenseShortcutChipLabelHint => 'مثال: قهوة';
+
+  @override
+  String get expenseShortcutExpenseTitleField => 'عنوان المصروف';
+
+  @override
+  String get expenseShortcutFormHint => 'يسجل هذا المصروف لتاريخ اليوم بلمسة واحدة دون فتح النموذج.';
+
+  @override
+  String get expenseShortcutSave => 'حفظ الاختصار';
+
+  @override
+  String get expenseShortcutDelete => 'حذف';
+
+  @override
+  String get expenseShortcutDeleteConfirmTitle => 'حذف الاختصار؟';
+
+  @override
+  String expenseShortcutDeleteConfirmMessage(String name) {
+    return 'إزالة \"$name\"؟';
+  }
+
+  @override
+  String expenseShortcutLogged(String name) {
+    return 'تم التسجيل: $name';
+  }
+
+  @override
+  String get expenseShortcutErrorLabel => 'أدخل تسمية للزر';
 
   @override
   String get expenseByCategory => 'حسب التصنيف';
@@ -374,6 +536,9 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get budgetSetTitle => 'ميزانية شهرية';
+
+  @override
+  String get budgetEditTitle => 'تعديل الميزانية الشهرية';
 
   @override
   String get budgetSetHint => 'اختر تصنيفاً وحدد المبلغ المخطط إنفاقه هذا الشهر.';
@@ -626,6 +791,12 @@ class AppLocalizationsAr extends AppLocalizations {
   String get balanceAddToPlanSuccess => 'تمت إضافة المبلغ لهدف الادخار';
 
   @override
+  String get balancePlanAllocationPaidFromHint => 'اختر المصدر الذي يُخصم منه هذا المبلغ (يظهر في الرصيد وليس كإنفاق غير مُعيَّن).';
+
+  @override
+  String get planAllocationSelectPaidFrom => 'اختر «الدفع من» لتخصيص هذا الهدف';
+
+  @override
   String balancePlanAllocationExpenseTitle(String planTitle) {
     return 'هدف ادخار: $planTitle';
   }
@@ -795,37 +966,101 @@ class AppLocalizationsAr extends AppLocalizations {
   String get smartImportTitle => 'استيراد ذكي';
 
   @override
-  String get smartImportShort => 'فاتورة / SMS';
+  String get smartImportShort => 'استيراد';
 
   @override
-  String get smartImportInvoiceTab => 'OCR فواتير';
+  String get smartImportPasteTab => 'لصق';
+
+  @override
+  String get smartImportQuickTab => 'سريع';
 
   @override
   String get smartImportSmsTab => 'رسائل SMS';
 
   @override
-  String get smartImportInvoiceHint => 'التقط صورة للفاتورة أو الإيصال. سنقرأ المبلغ والتاريخ تلقائياً.';
+  String get smartImportQuickHint => 'لا توجد رسالة للصق؟ أدخل المبلغ، اختر مصروف أو دخل، والفئة والمصدر — أضف بضغطة واحدة.';
+
+  @override
+  String get smartImportQuickTypeLabel => 'نوع المعاملة';
+
+  @override
+  String get smartImportQuickAmountLabel => 'المبلغ';
+
+  @override
+  String get smartImportQuickTitleHint => 'قهوة، إيجار، راتب… (اختياري)';
+
+  @override
+  String get smartImportQuickAddNow => 'إضافة الآن';
+
+  @override
+  String get smartImportQuickReview => 'مراجعة في النموذج الكامل';
+
+  @override
+  String get smartImportQuickAdded => 'تمت إضافة المعاملة.';
+
+  @override
+  String get smartImportPasteHint => 'الصق رسالة أو أكثر من البنك أو المحفظة. ضع سطراً فارغاً بين الرسائل، أو الصق عدة رسائل متتالية. نكتشف المبلغ ونوع كل رسالة (دخل أو مصروف).';
+
+  @override
+  String get smartImportPasteShareTip => 'نصيحة: من تطبيق الرسائل → مشاركة → استيراد إلى Pocketly دون نسخ ولصق.';
+
+  @override
+  String get smartImportSharedTextReady => 'تم تحميل الرسالة المشاركة. راجعها أدناه ثم أضفها.';
+
+  @override
+  String get smartImportPasteFieldLabel => 'نص الرسالة';
+
+  @override
+  String get smartImportPasteFieldHint => 'الصق رسالة أو أكثر (سطر فارغ بين كل رسالة)';
+
+  @override
+  String get smartImportPasteFromClipboard => 'لصق من الحافظة';
+
+  @override
+  String get smartImportParseMessage => 'تحليل الرسالة';
+
+  @override
+  String get smartImportParseMessages => 'تحليل الرسائل';
+
+  @override
+  String smartImportPasteFoundCount(int count) {
+    return 'تم العثور على $count رسائل';
+  }
+
+  @override
+  String smartImportPasteAddedOneRemaining(int count) {
+    return 'تمت الإضافة. $count رسائل جاهزة للاستيراد.';
+  }
+
+  @override
+  String get smartImportPasteProcessing => 'جاري قراءة الرسالة…';
+
+  @override
+  String get smartImportPasteNoData => 'لم نعثر على مبلغ في النص. جرّب رسالة البنك كاملة.';
+
+  @override
+  String get smartImportPasteEmpty => 'الصق رسالة أولاً.';
+
+  @override
+  String get smartImportPasteClipboardEmpty => 'الحافظة فارغة. انسخ رسالة بنك أو محفظة أولاً.';
+
+  @override
+  String get smartImportPasteClear => 'مسح';
+
+  @override
+  String get smartImportPasteAddedSuccess => 'تمت الإضافة. يمكنك لصق رسالة أخرى الآن.';
+
+  @override
+  String get smartImportPasteParseAnother => 'تحليل رسالة أخرى';
+
+  @override
+  String get smartImportPasteMarkExpense => 'تسجيل كمصروف';
+
+  @override
+  String get smartImportPasteMarkIncome => 'تسجيل كدخل';
 
   @override
   String get smartImportDefaultBillTitle => 'فاتورة';
-
-  @override
-  String get smartImportScanCamera => 'الكاميرا';
-
-  @override
-  String get smartImportScanGallery => 'المعرض';
-
-  @override
-  String get smartImportOcrProcessing => 'جاري قراءة الفاتورة…';
-
-  @override
-  String get smartImportOcrNoData => 'لم نتمكن من العثور على مبلغ أو تفاصيل في الصورة.';
-
-  @override
-  String get smartImportOcrFailed => 'فشلت قراءة الفاتورة. جرّب صورة أوضح.';
-
-  @override
-  String get smartImportCameraDenied => 'يلزم إذن الكاميرا لمسح الفواتير.';
 
   @override
   String get smartImportExtractedData => 'البيانات المستخرجة';
@@ -920,7 +1155,19 @@ class AppLocalizationsAr extends AppLocalizations {
   String get smartImportBulkCategorySheetTitle => 'التصنيف للاستيراد';
 
   @override
-  String get smartImportBulkCategorySheetHint => 'طبّق نفس التصنيف أو المصدر على كل الرسائل المحددة.';
+  String get smartImportBulkCategorySheetHint => 'اختر التصنيف والمصدر هنا. نص الرسالة يُستخدم للعنوان فقط، وليس لمصدر الدخل أو «الدفع من».';
+
+  @override
+  String get smartImportBulkExpensePaidFromHint => 'اختر مصدر الدفع للمصروفات المستوردة (لا يُقرأ من SMS).';
+
+  @override
+  String get smartImportBulkIncomeSourceHint => 'اختر مصدر الدخل للدخل المستورد (لا يُقرأ من SMS).';
+
+  @override
+  String get smartImportBulkSelectPaidFrom => 'اختر «الدفع من»';
+
+  @override
+  String get smartImportBulkSelectIncomeSource => 'اختر مصدر الدخل';
 
   @override
   String get smartImportBulkExpenseCategory => 'تصنيف المصروف';
@@ -945,6 +1192,32 @@ class AppLocalizationsAr extends AppLocalizations {
   @override
   String smartImportBulkPartialFail(int failed) {
     return 'تعذر استيراد $failed رسالة.';
+  }
+
+  @override
+  String get settingsAutoSmsImport => 'استيراد تلقائي من SMS';
+
+  @override
+  String get settingsAutoSmsImportSubtitle => 'عند فتح التطبيق، تُكتشف رسائل البنك الجديدة وتُضاف كدخل أو مصروف حسب التصنيف والمصدر الذي تختاره.';
+
+  @override
+  String get settingsAutoSmsImportDefaults => 'تصنيفات الاستيراد التلقائي';
+
+  @override
+  String get settingsAutoSmsImportDefaultsTitle => 'افتراضيات الاستيراد التلقائي';
+
+  @override
+  String get settingsAutoSmsImportDefaultsHint => 'تُستخدم في كل استيراد تلقائي. نص الرسالة يُستخدم للعنوان فقط.';
+
+  @override
+  String get settingsAutoSmsImportPermissionDenied => 'يلزم إذن SMS للاستيراد التلقائي.';
+
+  @override
+  String get settingsAutoSmsImportEnabled => 'الاستيراد التلقائي مفعّل. ستُضاف الرسائل المالية الجديدة عند فتح التطبيق.';
+
+  @override
+  String autoSmsImportAddedSnack(int incomes, int expenses) {
+    return 'تم استيراد $incomes دخل و$expenses مصروف تلقائياً.';
   }
 
   @override

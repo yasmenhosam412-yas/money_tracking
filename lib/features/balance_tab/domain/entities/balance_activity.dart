@@ -9,6 +9,8 @@ class BalanceActivity extends Equatable {
   final double amount;
   final DateTime date;
   final BalanceActivityType type;
+  /// For expenses: income source / wallet the amount is charged against.
+  final String? incomeSource;
 
   const BalanceActivity({
     required this.id,
@@ -17,8 +19,10 @@ class BalanceActivity extends Equatable {
     required this.amount,
     required this.date,
     required this.type,
+    this.incomeSource,
   });
 
   @override
-  List<Object> get props => [id, title, category, amount, date, type];
+  List<Object?> get props =>
+      [id, title, category, amount, date, type, incomeSource];
 }

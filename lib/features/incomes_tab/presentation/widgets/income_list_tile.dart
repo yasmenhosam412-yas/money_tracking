@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 import 'package:imrpo/core/theme/app_decorations.dart';
 import 'package:imrpo/core/utils/app_colors.dart';
 import 'package:imrpo/core/utils/money_format.dart';
+import 'package:skeletonizer/skeletonizer.dart';
 import 'package:imrpo/features/incomes_tab/domain/entities/income.dart';
 import 'package:imrpo/core/l10n/l10n_entity_strings.dart';
 import 'package:imrpo/l10n/app_localizations.dart';
@@ -28,6 +29,13 @@ class IncomeListTile extends StatelessWidget {
     final title = localizeDemoTitle(l10n, income.title);
     final showTitleSubtitle =
         title.trim().toLowerCase() != source.trim().toLowerCase();
+    final metaStyle = TextStyle(
+      fontSize: 12.5,
+      height: 1.25,
+      fontWeight: FontWeight.w500,
+      color: AppColors.textColor.withValues(alpha: 0.55),
+    );
+    final iconMetaColor = AppColors.textColor.withValues(alpha: 0.45);
     return Material(
       color: Colors.transparent,
       child: InkWell(
@@ -40,6 +48,7 @@ class IncomeListTile extends StatelessWidget {
             borderColor: AppColors.income.withValues(alpha: 0.15),
           ),
           child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Container(
                 height: 48,
@@ -65,27 +74,57 @@ class IncomeListTile extends StatelessWidget {
                         fontSize: 16,
                         fontWeight: FontWeight.w600,
                         color: AppColors.textColor,
+                        height: 1.2,
                       ),
                     ),
-                    const SizedBox(height: 4),
-                    Text(
-                      showTitleSubtitle
-                          ? '$title · ${_formatDate(context, income.date)}'
-                          : _formatDate(context, income.date),
-                      style: TextStyle(
-                        fontSize: 13,
-                        color: AppColors.textColor.withValues(alpha: 0.55),
+                    if (showTitleSubtitle) ...[
+                      const SizedBox(height: 6),
+                      Text(
+                        title,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                          height: 1.25,
+                          color: AppColors.textColor.withValues(alpha: 0.72),
+                        ),
                       ),
+                    ],
+                    const SizedBox(height: 8),
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.only(top: 1),
+                          child: Icon(
+                            Icons.calendar_today_outlined,
+                            size: 14,
+                            color: iconMetaColor,
+                          ),
+                        ),
+                        const SizedBox(width: 6),
+                        Expanded(
+                          child: Text(
+                            _formatDate(context, income.date),
+                            style: metaStyle,
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 ),
               ),
-              Text(
-                '+${Money.format(income.amount)}',
-                style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w700,
-                  color: AppColors.income,
+              Padding(
+                padding: const EdgeInsets.only(top: 1),
+                child: Text(
+                  '+${Money.format(income.amount)}',
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.income,
+                    height: 1.2,
+                  ),
                 ),
               ),
               if (onDelete != null) ...[
@@ -101,22 +140,16 @@ class IncomeListTile extends StatelessWidget {
 
                     return IconButton(
                       onPressed: isDeleting ? null : onDelete,
-                      icon: isDeleting
-                          ? const SizedBox(
-                              width: 20,
-                              height: 20,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2,
-                                color: AppColors.income,
-                              ),
-                            )
-                          : Icon(
-                              Icons.close_rounded,
-                              size: 20,
-                              color: AppColors.textColor.withValues(
-                                alpha: 0.35,
-                              ),
-                            ),
+                      icon: Skeletonizer(
+                        enabled: isDeleting,
+                        child: Icon(
+                          Icons.close_rounded,
+                          size: 20,
+                          color: AppColors.textColor.withValues(
+                            alpha: 0.35,
+                          ),
+                        ),
+                      ),
                       visualDensity: VisualDensity.compact,
                       padding: EdgeInsets.zero,
                       constraints: const BoxConstraints(

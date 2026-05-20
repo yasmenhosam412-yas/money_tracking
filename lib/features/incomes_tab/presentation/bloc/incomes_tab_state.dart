@@ -13,6 +13,8 @@ enum IncomesTabStatus {
   errorClearAll,
   errorUpdate,
   errorAll,
+  loadingSource,
+  errorSource,
 }
 
 class IncomesTabState extends Equatable {

@@ -2,7 +2,7 @@ import 'package:imrpo/core/services/currency_converter.dart';
 
 enum FinancialEntryType { expense, income }
 
-/// Data extracted from invoice OCR or bank SMS text.
+/// Data extracted from pasted text or bank SMS.
 class ParsedFinancialEntry {
   final String? title;
   /// Amount in [currencyCode] as read from the message (not app base currency).

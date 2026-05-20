@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:imrpo/core/l10n/l10n_entity_strings.dart';
+import 'package:imrpo/core/services/currency_preferences.dart';
 import 'package:imrpo/core/services/home_date_filter.dart';
 import 'package:imrpo/core/services/service_locator.dart';
 import 'package:imrpo/core/theme/app_decorations.dart';
@@ -191,6 +192,7 @@ class _GlobalSearchScreenState extends State<GlobalSearchScreen> {
                       l10n,
                       _queryController.text,
                       typeFilter: _typeFilter,
+                      displayCode: getIt<CurrencyPreferences>().displayCode,
                     );
 
                     if (results.isEmpty) {

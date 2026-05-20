@@ -1,8 +1,13 @@
 import 'package:get_it/get_it.dart';
 import 'package:imrpo/core/services/app_lock_service.dart';
+import 'package:imrpo/core/services/auto_sms_import_preferences.dart';
+import 'package:imrpo/core/services/auto_sms_import_service.dart';
 import 'package:imrpo/core/services/currency_preferences.dart';
 import 'package:imrpo/core/services/home_date_filter.dart';
-import 'package:imrpo/core/services/invoice_ocr_service.dart';
+import 'package:imrpo/core/services/expense_shortcuts_store.dart';
+import 'package:imrpo/core/services/smart_import_draft_store.dart';
+import 'package:imrpo/core/services/shared_text_import_store.dart';
+import 'package:imrpo/core/services/payment_methods_store.dart';
 import 'package:imrpo/core/services/locale_preferences.dart';
 import 'package:imrpo/core/services/sms_bulk_import_service.dart';
 import 'package:imrpo/core/services/sms_import_service.dart';
@@ -49,7 +54,9 @@ import 'package:imrpo/features/incomes_tab/domain/repositories/income_repository
 import 'package:imrpo/features/incomes_tab/domain/usecases/add_income_usecase.dart';
 import 'package:imrpo/features/incomes_tab/domain/usecases/delete_all_incomes_usecase.dart';
 import 'package:imrpo/features/incomes_tab/domain/usecases/delete_income_usecase.dart';
+import 'package:imrpo/features/incomes_tab/domain/usecases/delete_incomes_by_source_usecase.dart';
 import 'package:imrpo/features/incomes_tab/domain/usecases/get_all_incomes_usecase.dart';
+import 'package:imrpo/features/incomes_tab/domain/usecases/rename_income_source_usecase.dart';
 import 'package:imrpo/features/incomes_tab/domain/usecases/update_income_usecase.dart';
 import 'package:imrpo/features/incomes_tab/presentation/bloc/incomes_tab_bloc.dart';
 import 'package:imrpo/features/plans_tab/data/datasources/plans_datasource.dart';
@@ -85,7 +92,14 @@ void setupServiceLocator() {
 
   getIt.registerLazySingleton<HomeDateFilter>(() => HomeDateFilter());
 
-  getIt.registerLazySingleton<InvoiceOcrService>(() => InvoiceOcrService());
+  getIt.registerLazySingleton<SmartImportDraftStore>(
+    () => SmartImportDraftStore(),
+  );
+  getIt.registerLazySingleton<SharedTextImportStore>(
+    () => SharedTextImportStore(),
+  );
+  getIt.registerLazySingleton<PaymentMethodsStore>(() => PaymentMethodsStore());
+  getIt.registerLazySingleton<ExpenseShortcutsStore>(() => ExpenseShortcutsStore());
   getIt.registerLazySingleton<SmsImportService>(() => SmsImportService());
 
   getIt.registerLazySingleton<SmsImportedRegistry>(() => SmsImportedRegistry());
@@ -95,6 +109,19 @@ void setupServiceLocator() {
       addExpenseUsecase: getIt<AddExpenseUsecase>(),
       addIncomeUsecase: getIt<AddIncomeUsecase>(),
       importedRegistry: getIt<SmsImportedRegistry>(),
+    ),
+  );
+
+  getIt.registerLazySingleton<AutoSmsImportPreferences>(
+    () => AutoSmsImportPreferences(),
+  );
+
+  getIt.registerLazySingleton<AutoSmsImportService>(
+    () => AutoSmsImportService(
+      preferences: getIt<AutoSmsImportPreferences>(),
+      smsImport: getIt<SmsImportService>(),
+      bulkImport: getIt<SmsBulkImportService>(),
+      appLock: getIt<AppLockService>(),
     ),
   );
 
@@ -172,6 +199,16 @@ void setupServiceLocator() {
     () => GetAllIncomesUsecase(incomeRepository: getIt<IncomeRepository>()),
   );
 
+  getIt.registerLazySingleton(
+    () => RenameIncomeSourceUsecase(incomeRepository: getIt<IncomeRepository>()),
+  );
+
+  getIt.registerLazySingleton(
+    () => DeleteIncomesBySourceUsecase(
+      incomeRepository: getIt<IncomeRepository>(),
+    ),
+  );
+
   getIt.registerFactory<IncomesTabBloc>(
     () => IncomesTabBloc(
       addIncomeUsecase: getIt<AddIncomeUsecase>(),
@@ -179,6 +216,8 @@ void setupServiceLocator() {
       deleteIncomeUsecase: getIt<DeleteIncomeUsecase>(),
       deleteAllIncomesUsecase: getIt<DeleteAllIncomesUsecase>(),
       getAllIncomesUsecase: getIt<GetAllIncomesUsecase>(),
+      renameIncomeSourceUsecase: getIt<RenameIncomeSourceUsecase>(),
+      deleteIncomesBySourceUsecase: getIt<DeleteIncomesBySourceUsecase>(),
     ),
   );
 

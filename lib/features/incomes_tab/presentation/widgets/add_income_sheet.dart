@@ -6,6 +6,8 @@ import 'package:imrpo/core/services/currency_preferences.dart';
 import 'package:imrpo/core/services/service_locator.dart';
 import 'package:imrpo/core/utils/app_colors.dart';
 import 'package:imrpo/core/widgets/currency_amount_field.dart';
+import 'package:imrpo/core/widgets/payment_method_chips_section.dart';
+import 'package:imrpo/core/services/payment_methods_store.dart';
 import 'package:imrpo/features/auth/presentation/widgets/custom_text_field.dart';
 import 'package:imrpo/features/incomes_tab/domain/entities/income.dart';
 import 'package:imrpo/features/incomes_tab/presentation/bloc/incomes_tab_bloc.dart';
@@ -37,16 +39,6 @@ class _AddIncomeSheetState extends State<AddIncomeSheet> {
   late String _currencyCode;
   DateTime _date = DateTime.now();
 
-  static const _suggestedSources = [
-    'Salary',
-    'Rents',
-    'Visa Card',
-    'Cash',
-    'Freelance',
-    'Business',
-    'Investment',
-  ];
-
   bool get _isEditing => widget.income != null;
 
   @override
@@ -68,6 +60,9 @@ class _AddIncomeSheetState extends State<AddIncomeSheet> {
       }
       if (widget.initialDate != null) {
         _date = widget.initialDate!;
+      }
+      if (_sourceController.text.trim().isEmpty) {
+        _sourceController.text = PaymentMethodsStore.defaultPresets.first;
       }
     }
   }
@@ -94,17 +89,6 @@ class _AddIncomeSheetState extends State<AddIncomeSheet> {
     _sourceController.dispose();
     _amountController.dispose();
     super.dispose();
-  }
-
-  List<String> _sourceSuggestions(IncomesTabState state) {
-    final recent = state.incomes
-        .map((i) => i.category.trim())
-        .where((c) => c.isNotEmpty)
-        .toSet()
-        .toList()
-      ..sort();
-    final combined = <String>{..._suggestedSources, ...recent};
-    return combined.toList();
   }
 
   @override
@@ -136,8 +120,6 @@ class _AddIncomeSheetState extends State<AddIncomeSheet> {
             _isSubmitting(previous) != _isSubmitting(current) ||
             previous.incomes.length != current.incomes.length,
         builder: (context, state) {
-          final suggestions = _sourceSuggestions(state);
-
           return PopScope(
             canPop: !_isSubmitting(state),
             child: ConstrainedBox(
@@ -170,42 +152,15 @@ class _AddIncomeSheetState extends State<AddIncomeSheet> {
                       ),
                     ),
                     const SizedBox(height: 24),
-                    CustomFormField(
+                    PaymentMethodChipsSection(
                       label: l10n.incomeSourceField,
                       hint: l10n.hintIncomeSource,
-                      controller: _sourceController,
-                      obscure: false,
-                      icon: Icons.account_balance_wallet_outlined,
-                    ),
-                    const SizedBox(height: 12),
-                    Wrap(
-                      spacing: 8,
-                      runSpacing: 8,
-                      children: suggestions.map((source) {
-                        final selected =
-                            _sourceController.text.trim() == source;
-                        return ActionChip(
-                          label: Text(
-                            localizeIncomeCategory(l10n, source),
-                          ),
-                          onPressed: () {
-                            setState(() => _sourceController.text = source);
-                          },
-                          backgroundColor: selected
-                              ? AppColors.income
-                              : AppColors.surface,
-                          labelStyle: TextStyle(
-                            color: selected
-                                ? Colors.white
-                                : AppColors.textColor,
-                            fontWeight: FontWeight.w500,
-                          ),
-                          side: BorderSide.none,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                        );
-                      }).toList(),
+                      selected: _sourceController.text.trim().isEmpty
+                          ? PaymentMethodsStore.defaultPresets.first
+                          : _sourceController.text.trim(),
+                      onSelected: (src) =>
+                          setState(() => _sourceController.text = src),
+                      accentColor: AppColors.income,
                     ),
                     const SizedBox(height: 16),
                     CustomFormField(

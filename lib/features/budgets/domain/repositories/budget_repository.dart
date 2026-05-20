@@ -13,6 +13,7 @@ abstract class BudgetRepository {
     required double amount,
     required int year,
     required int month,
+    String? budgetId,
   });
 
   Future<Either<Failure, void>> deleteBudget(String budgetId);

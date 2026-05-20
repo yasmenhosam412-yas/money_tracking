@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 import 'package:imrpo/core/theme/app_decorations.dart';
 import 'package:imrpo/core/utils/app_colors.dart';
 import 'package:imrpo/core/utils/money_format.dart';
+import 'package:imrpo/features/budgets/domain/services/budget_calculator.dart';
 import 'package:imrpo/features/balance_tab/domain/entities/balance_activity.dart';
 import 'package:imrpo/core/l10n/l10n_entity_strings.dart';
 import 'package:imrpo/l10n/app_localizations.dart';
@@ -21,6 +22,15 @@ class BalanceActivityTile extends StatelessWidget {
         ? localizeIncomeCategory(l10n, activity.category)
         : localizeExpenseCategory(l10n, activity.category);
     final title = localizeDemoTitle(l10n, activity.title);
+    final paidFromRaw = activity.incomeSource?.trim();
+    final paidFromLabel = !isIncome &&
+            paidFromRaw != null &&
+            paidFromRaw.isNotEmpty
+        ? localizeIncomeCategory(
+            l10n,
+            BudgetCalculator.categoryKey(paidFromRaw),
+          )
+        : null;
     final showTitleSubtitle =
         title.trim().toLowerCase() != categoryLabel.trim().toLowerCase();
 
@@ -60,9 +70,15 @@ class BalanceActivityTile extends StatelessWidget {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  showTitleSubtitle
-                      ? '$title · ${_formatDate(context, activity.date)}'
-                      : '${isIncome ? l10n.activityIncome : l10n.activityExpense} · ${_formatDate(context, activity.date)}',
+                  _subtitleLine(
+                    context,
+                    l10n,
+                    isIncome: isIncome,
+                    title: title,
+                    showTitleSubtitle: showTitleSubtitle,
+                    paidFromLabel: paidFromLabel,
+                    date: activity.date,
+                  ),
                   style: TextStyle(
                     fontSize: 13,
                     color: AppColors.textColor.withValues(alpha: 0.55),
@@ -87,5 +103,29 @@ class BalanceActivityTile extends StatelessWidget {
   String _formatDate(BuildContext context, DateTime date) {
     final locale = Localizations.localeOf(context).toString();
     return DateFormat.MMMd(locale).format(date);
+  }
+
+  String _subtitleLine(
+    BuildContext context,
+    AppLocalizations l10n, {
+    required bool isIncome,
+    required String title,
+    required bool showTitleSubtitle,
+    required String? paidFromLabel,
+    required DateTime date,
+  }) {
+    final parts = <String>[];
+    if (showTitleSubtitle) {
+      parts.add(title);
+    }
+    if (paidFromLabel != null) {
+      parts.add('${l10n.expensePaidFromField}: $paidFromLabel');
+    }
+    final dateStr = _formatDate(context, date);
+    if (parts.isEmpty) {
+      return '${isIncome ? l10n.activityIncome : l10n.activityExpense} · $dateStr';
+    }
+    parts.add(dateStr);
+    return parts.join(' · ');
   }
 }

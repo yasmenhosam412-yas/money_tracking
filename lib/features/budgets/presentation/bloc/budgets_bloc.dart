@@ -86,6 +86,7 @@ class BudgetsBloc extends Bloc<BudgetsEvent, BudgetsState> {
       amount: event.amount,
       year: event.year,
       month: event.month,
+      budgetId: event.budgetId,
     );
 
     await result.fold(

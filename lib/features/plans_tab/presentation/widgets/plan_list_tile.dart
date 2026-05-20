@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:imrpo/core/utils/app_colors.dart';
 import 'package:imrpo/core/utils/money_format.dart';
+import 'package:skeletonizer/skeletonizer.dart';
 import 'package:imrpo/features/plans_tab/domain/entities/plan.dart';
 import 'package:imrpo/core/l10n/l10n_entity_strings.dart';
 import 'package:imrpo/l10n/app_localizations.dart';
@@ -103,21 +104,15 @@ class PlanListTile extends StatelessWidget {
                             if (onDelete != null)
                               IconButton(
                                 onPressed: isDeleting ? null : onDelete,
-                                icon: isDeleting
-                                    ? const SizedBox(
-                                        width: 20,
-                                        height: 20,
-                                        child: CircularProgressIndicator(
-                                          strokeWidth: 2,
-                                          color: AppColors.plans,
-                                        ),
-                                      )
-                                    : Icon(
-                                        Icons.delete,
-                                        color: AppColors.textColor.withValues(
-                                          alpha: 0.35,
-                                        ),
-                                      ),
+                                icon: Skeletonizer(
+                                  enabled: isDeleting,
+                                  child: Icon(
+                                    Icons.delete,
+                                    color: AppColors.textColor.withValues(
+                                      alpha: 0.35,
+                                    ),
+                                  ),
+                                ),
                                 visualDensity: VisualDensity.compact,
                                 padding: EdgeInsets.zero,
                                 constraints: const BoxConstraints(

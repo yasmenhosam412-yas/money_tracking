@@ -106,12 +106,93 @@
   "incomeSourceField": "المصدر",
   "hintIncomeSource": "مثال: فيزا، إيجارات، راتب",
   "incomeBySource": "حسب المصدر",
+  "balanceRemainingBySource": "المتبقي حسب المصدر",
+  "paymentMethodAddChip": "+ إضافة طريقة",
+  "paymentMethodAddCancel": "إلغاء",
+  "paymentMethodNewLabel": "اسم الطريقة الجديدة",
+  "paymentMethodNewHint": "مثال: فودافون كاش، إنستاباي، فوري",
+  "paymentMethodSave": "حفظ الطريقة",
+  "paymentMethodNameEmpty": "أدخل اسم طريقة الدفع.",
+  "paymentMethodAdded": "تمت إضافة \"{name}\" إلى طرقك.",
+  "@paymentMethodAdded": {
+    "placeholders": {
+      "name": { "type": "String" }
+    }
+  },
+  "expensePaidFromField": "الدفع من",
+  "expensePaidFromNone": "بدون",
+  "incomeUnassignedSpending": "مصروف غير مربوط بمصدر",
   "incomeFilterAllSources": "كل المصادر",
   "incomeFilterNoSourceEntries": "لا يوجد دخل لهذا المصدر في الفترة المحددة",
+  "incomeSourceManageEdit": "إعادة تسمية المصدر",
+  "incomeSourceManageRemove": "إزالة المصدر",
+  "incomeSourceRenameTitle": "إعادة تسمية المصدر",
+  "incomeSourceRenameHint": "سيتم تحديث كل الدخول ذات المصدر \"{name}\".",
+  "@incomeSourceRenameHint": {
+    "placeholders": {
+      "name": { "type": "String" }
+    }
+  },
+  "incomeSourceNameTaken": "اسم المصدر مستخدم بالفعل",
+  "incomeSourceUpdatedSuccess": "تم تحديث المصادر",
+  "incomeSourceRemoveTitle": "إزالة المصدر",
+  "incomeSourceRemoveMessage": "ماذا تريد أن تفعل بـ {count} دخل بمصدر \"{name}\"؟",
+  "@incomeSourceRemoveMessage": {
+    "placeholders": {
+      "count": { "type": "int" },
+      "name": { "type": "String" }
+    }
+  },
+  "incomeSourceMoveToOther": "نقل الكل إلى أخرى",
+  "incomeSourceDeleteAll": "حذف كل الدخل بهذا المصدر",
+  "incomeSourceDeleteConfirmTitle": "حذف الدخل؟",
+  "incomeSourceDeleteConfirmMessage": "سيُحذف {count} دخل نهائياً. لا يمكن التراجع.",
+  "@incomeSourceDeleteConfirmMessage": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "incomeSourceDeleteConfirmAction": "حذف",
   "incomeSourceRents": "إيجارات",
   "incomeSourceVisaCard": "بطاقة فيزا",
   "incomeSourceCash": "نقد",
   "amountField": "المبلغ",
+  "expenseAmountShortcuts": "مبالغ سريعة",
+  "expenseShortcutTransport": "مواصلات",
+  "expenseShortcutCoffee": "قهوة",
+  "expenseShortcutSnack": "وجبة خفيفة",
+  "expenseFabMenuTitle": "مصروف جديد",
+  "expenseFabBlankOption": "نموذج فارغ",
+  "expenseFabFromLastPaste": "من آخر رسالة محلّلة",
+  "expenseFabFromLastPasteSubtitle": "يستخدم آخر رسالة بنك أو محفظة حللتها في الاستيراد الذكي",
+  "expenseLastPasteNotExpense": "آخر رسالة محلّلة تبدو كدخل. أضفها من تبويب الدخل.",
+  "expenseShortcutsSectionTitle": "مصروفات بلمسة",
+  "expenseShortcutsEmptyCta": "إعداد اختصارات سريعة",
+  "expenseShortcutsManageTitle": "اختصارات المصروف",
+  "expenseShortcutsManageSubtitle": "احفظ تسمية الزر، عنوان المصروف، التصنيف، الدفع من، والمبلغ. المس الشريط في تبويب المصروفات لتسجيله فوراً.",
+  "expenseShortcutsEmptyBody": "لا توجد اختصارات بعد. أضف قهوة، مواصلات، أو أي شراء متكرر.",
+  "expenseShortcutAddTitle": "اختصار جديد",
+  "expenseShortcutEditTitle": "تعديل الاختصار",
+  "expenseShortcutChipLabelField": "تسمية الزر",
+  "expenseShortcutChipLabelHint": "مثال: قهوة",
+  "expenseShortcutExpenseTitleField": "عنوان المصروف",
+  "expenseShortcutFormHint": "يسجل هذا المصروف لتاريخ اليوم بلمسة واحدة دون فتح النموذج.",
+  "expenseShortcutSave": "حفظ الاختصار",
+  "expenseShortcutDelete": "حذف",
+  "expenseShortcutDeleteConfirmTitle": "حذف الاختصار؟",
+  "expenseShortcutDeleteConfirmMessage": "إزالة \"{name}\"؟",
+  "@expenseShortcutDeleteConfirmMessage": {
+    "placeholders": {
+      "name": { "type": "String" }
+    }
+  },
+  "expenseShortcutLogged": "تم التسجيل: {name}",
+  "@expenseShortcutLogged": {
+    "placeholders": {
+      "name": { "type": "String" }
+    }
+  },
+  "expenseShortcutErrorLabel": "أدخل تسمية للزر",
   "expenseByCategory": "حسب التصنيف",
   "expenseCategoryEdit": "تعديل التصنيف",
   "expenseCategoryRemove": "إزالة التصنيف",
@@ -147,6 +228,7 @@
   "budgetMonthlyTitle": "الميزانية الشهرية",
   "budgetSetAction": "تعيين ميزانية",
   "budgetSetTitle": "ميزانية شهرية",
+  "budgetEditTitle": "تعديل الميزانية الشهرية",
   "budgetSetHint": "اختر تصنيفاً وحدد المبلغ المخطط إنفاقه هذا الشهر.",
   "budgetCustomCategory": "اسم التصنيف",
   "budgetMonthlyLimit": "الحد الشهري",
@@ -283,6 +365,8 @@
     }
   },
   "balanceAddToPlanSuccess": "تمت إضافة المبلغ لهدف الادخار",
+  "balancePlanAllocationPaidFromHint": "اختر المصدر الذي يُخصم منه هذا المبلغ (يظهر في الرصيد وليس كإنفاق غير مُعيَّن).",
+  "planAllocationSelectPaidFrom": "اختر «الدفع من» لتخصيص هذا الهدف",
   "balancePlanAllocationExpenseTitle": "هدف ادخار: {planTitle}",
   "@balancePlanAllocationExpenseTitle": {
     "placeholders": {
@@ -398,17 +482,47 @@
     }
   },
   "smartImportTitle": "استيراد ذكي",
-  "smartImportShort": "فاتورة / SMS",
-  "smartImportInvoiceTab": "OCR فواتير",
+  "smartImportShort": "استيراد",
+  "smartImportPasteTab": "لصق",
+  "smartImportQuickTab": "سريع",
   "smartImportSmsTab": "رسائل SMS",
-  "smartImportInvoiceHint": "التقط صورة للفاتورة أو الإيصال. سنقرأ المبلغ والتاريخ تلقائياً.",
+  "smartImportQuickHint": "لا توجد رسالة للصق؟ أدخل المبلغ، اختر مصروف أو دخل، والفئة والمصدر — أضف بضغطة واحدة.",
+  "smartImportQuickTypeLabel": "نوع المعاملة",
+  "smartImportQuickAmountLabel": "المبلغ",
+  "smartImportQuickTitleHint": "قهوة، إيجار، راتب… (اختياري)",
+  "smartImportQuickAddNow": "إضافة الآن",
+  "smartImportQuickReview": "مراجعة في النموذج الكامل",
+  "smartImportQuickAdded": "تمت إضافة المعاملة.",
+  "smartImportPasteHint": "الصق رسالة أو أكثر من البنك أو المحفظة. ضع سطراً فارغاً بين الرسائل، أو الصق عدة رسائل متتالية. نكتشف المبلغ ونوع كل رسالة (دخل أو مصروف).",
+  "smartImportPasteShareTip": "نصيحة: من تطبيق الرسائل → مشاركة → استيراد إلى Pocketly دون نسخ ولصق.",
+  "smartImportSharedTextReady": "تم تحميل الرسالة المشاركة. راجعها أدناه ثم أضفها.",
+  "smartImportPasteFieldLabel": "نص الرسالة",
+  "smartImportPasteFieldHint": "الصق رسالة أو أكثر (سطر فارغ بين كل رسالة)",
+  "smartImportPasteFromClipboard": "لصق من الحافظة",
+  "smartImportParseMessage": "تحليل الرسالة",
+  "smartImportParseMessages": "تحليل الرسائل",
+  "smartImportPasteFoundCount": "تم العثور على {count} رسائل",
+  "@smartImportPasteFoundCount": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "smartImportPasteAddedOneRemaining": "تمت الإضافة. {count} رسائل جاهزة للاستيراد.",
+  "@smartImportPasteAddedOneRemaining": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "smartImportPasteProcessing": "جاري قراءة الرسالة…",
+  "smartImportPasteNoData": "لم نعثر على مبلغ في النص. جرّب رسالة البنك كاملة.",
+  "smartImportPasteEmpty": "الصق رسالة أولاً.",
+  "smartImportPasteClipboardEmpty": "الحافظة فارغة. انسخ رسالة بنك أو محفظة أولاً.",
+  "smartImportPasteClear": "مسح",
+  "smartImportPasteAddedSuccess": "تمت الإضافة. يمكنك لصق رسالة أخرى الآن.",
+  "smartImportPasteParseAnother": "تحليل رسالة أخرى",
+  "smartImportPasteMarkExpense": "تسجيل كمصروف",
+  "smartImportPasteMarkIncome": "تسجيل كدخل",
   "smartImportDefaultBillTitle": "فاتورة",
-  "smartImportScanCamera": "الكاميرا",
-  "smartImportScanGallery": "المعرض",
-  "smartImportOcrProcessing": "جاري قراءة الفاتورة…",
-  "smartImportOcrNoData": "لم نتمكن من العثور على مبلغ أو تفاصيل في الصورة.",
-  "smartImportOcrFailed": "فشلت قراءة الفاتورة. جرّب صورة أوضح.",
-  "smartImportCameraDenied": "يلزم إذن الكاميرا لمسح الفواتير.",
   "smartImportExtractedData": "البيانات المستخرجة",
   "smartImportDateField": "التاريخ",
   "smartImportTypeField": "النوع",
@@ -457,7 +571,11 @@
   "smartImportSelectAll": "تحديد الكل",
   "smartImportClearSelection": "إلغاء التحديد",
   "smartImportBulkCategorySheetTitle": "التصنيف للاستيراد",
-  "smartImportBulkCategorySheetHint": "طبّق نفس التصنيف أو المصدر على كل الرسائل المحددة.",
+  "smartImportBulkCategorySheetHint": "اختر التصنيف والمصدر هنا. نص الرسالة يُستخدم للعنوان فقط، وليس لمصدر الدخل أو «الدفع من».",
+  "smartImportBulkExpensePaidFromHint": "اختر مصدر الدفع للمصروفات المستوردة (لا يُقرأ من SMS).",
+  "smartImportBulkIncomeSourceHint": "اختر مصدر الدخل للدخل المستورد (لا يُقرأ من SMS).",
+  "smartImportBulkSelectPaidFrom": "اختر «الدفع من»",
+  "smartImportBulkSelectIncomeSource": "اختر مصدر الدخل",
   "smartImportBulkExpenseCategory": "تصنيف المصروف",
   "smartImportBulkIncomeSource": "مصدر الدخل",
   "smartImportBulkApplyAndImport": "استيراد",
@@ -474,6 +592,20 @@
   "@smartImportBulkPartialFail": {
     "placeholders": {
       "failed": { "type": "int" }
+    }
+  },
+  "settingsAutoSmsImport": "استيراد تلقائي من SMS",
+  "settingsAutoSmsImportSubtitle": "عند فتح التطبيق، تُكتشف رسائل البنك الجديدة وتُضاف كدخل أو مصروف حسب التصنيف والمصدر الذي تختاره.",
+  "settingsAutoSmsImportDefaults": "تصنيفات الاستيراد التلقائي",
+  "settingsAutoSmsImportDefaultsTitle": "افتراضيات الاستيراد التلقائي",
+  "settingsAutoSmsImportDefaultsHint": "تُستخدم في كل استيراد تلقائي. نص الرسالة يُستخدم للعنوان فقط.",
+  "settingsAutoSmsImportPermissionDenied": "يلزم إذن SMS للاستيراد التلقائي.",
+  "settingsAutoSmsImportEnabled": "الاستيراد التلقائي مفعّل. ستُضاف الرسائل المالية الجديدة عند فتح التطبيق.",
+  "autoSmsImportAddedSnack": "تم استيراد {incomes} دخل و{expenses} مصروف تلقائياً.",
+  "@autoSmsImportAddedSnack": {
+    "placeholders": {
+      "incomes": { "type": "int" },
+      "expenses": { "type": "int" }
     }
   },
   "settingsAppLock": "قفل التطبيق",

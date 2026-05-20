@@ -8,4 +8,9 @@ abstract class IncomeRepository {
   Future<Either<Failure,void>> deleteAllIncomes();
   Future<Either<Failure,void>> updateIncome(String incomeId, String title, double amount, DateTime date, String category);
   Future<Either<Failure,List<IncomeModel>>> getIncomes();
+  Future<Either<Failure, int>> renameCategory(
+    String fromCategory,
+    String toCategory,
+  );
+  Future<Either<Failure, int>> deleteByCategory(String category);
 }

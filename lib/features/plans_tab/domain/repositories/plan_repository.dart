@@ -3,7 +3,7 @@ import 'package:imrpo/core/helpers/error_helper.dart';
 import 'package:imrpo/features/plans_tab/data/models/plan_model.dart';
 
 abstract class PlanRepository {
-  Future<Either<Failure, void>> addPlan(
+  Future<Either<Failure, String>> addPlan(
     String title,
     String category,
     double targetAmount,

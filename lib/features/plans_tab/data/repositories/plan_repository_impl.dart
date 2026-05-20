@@ -10,7 +10,7 @@ class PlanRepositoryImpl implements PlanRepository {
   PlanRepositoryImpl({required this.plansDatasource});
 
   @override
-  Future<Either<Failure, void>> addPlan(
+  Future<Either<Failure, String>> addPlan(
     String title,
     String category,
     double targetAmount,
@@ -18,14 +18,14 @@ class PlanRepositoryImpl implements PlanRepository {
     DateTime? deadline,
   ) async {
     try {
-      await plansDatasource.addPlan(
+      final planId = await plansDatasource.addPlan(
         title,
         category,
         targetAmount,
         savedAmount,
         deadline,
       );
-      return const Right(null);
+      return Right(planId);
     } catch (e) {
       return Left(ErrorHelper.handle(e));
     }

@@ -11,14 +11,16 @@ class UpdateExpenseUsecase {
     String title,
     String category,
     double amount,
-    DateTime date,
-  ) async {
+    DateTime date, {
+    String? incomeSource,
+  }) async {
     return await expenseRepository.updateExpense(
       title,
       category,
       amount,
       date,
       expenseId,
+      incomeSource: incomeSource,
     );
   }
 }

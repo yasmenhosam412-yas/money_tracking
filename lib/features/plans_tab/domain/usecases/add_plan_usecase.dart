@@ -7,7 +7,7 @@ class AddPlanUsecase {
 
   AddPlanUsecase({required this.planRepository});
 
-  Future<Either<Failure, void>> call(
+  Future<Either<Failure, String>> call(
     String title,
     String category,
     double targetAmount,

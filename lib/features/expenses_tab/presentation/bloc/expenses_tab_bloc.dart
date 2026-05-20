@@ -85,16 +85,21 @@ class ExpensesTabBloc extends Bloc<ExpensesTabEvent, ExpensesTabState> {
       event.category,
       event.amount,
       event.date,
+      incomeSource: event.incomeSource,
     );
-    result.fold(
-      (l) {
-        emit(
-          state.copyWith(error: l.error, status: ExpensesTabStatus.errorAdd),
-        );
-      },
-      (r) {
-        add(LoadExpensesEvent());
-      },
+    if (emit.isDone) return;
+    if (result.isLeft()) {
+      emit(
+        state.copyWith(
+          error: result.fold((l) => l.error, (_) => ''),
+          status: ExpensesTabStatus.errorAdd,
+        ),
+      );
+      return;
+    }
+    await _reloadExpensesAfterMutation(
+      emit,
+      loadFailureStatus: ExpensesTabStatus.errorAdd,
     );
   }
 
@@ -109,15 +114,50 @@ class ExpensesTabBloc extends Bloc<ExpensesTabEvent, ExpensesTabState> {
       event.category,
       event.amount,
       event.date,
+      incomeSource: event.incomeSource,
     );
-    result.fold(
-      (l) {
+    if (emit.isDone) return;
+    if (result.isLeft()) {
+      emit(
+        state.copyWith(
+          error: result.fold((l) => l.error, (_) => ''),
+          status: ExpensesTabStatus.errorUpdate,
+        ),
+      );
+      return;
+    }
+    await _reloadExpensesAfterMutation(
+      emit,
+      loadFailureStatus: ExpensesTabStatus.errorUpdate,
+    );
+  }
+
+  /// Refreshes the list after add/update so callers get [errorAdd]/[errorUpdate]
+  /// if the refresh fails (not [errorAll], which the add sheet does not handle).
+  Future<void> _reloadExpensesAfterMutation(
+    Emitter<ExpensesTabState> emit, {
+    required ExpensesTabStatus loadFailureStatus,
+  }) async {
+    final reload = await getAllExpensesUsecase();
+    if (emit.isDone) return;
+    reload.fold(
+      (failure) {
         emit(
-          state.copyWith(error: l.error, status: ExpensesTabStatus.errorUpdate),
+          state.copyWith(
+            error: failure.error,
+            status: loadFailureStatus,
+          ),
         );
       },
-      (r) {
-        add(LoadExpensesEvent());
+      (expenses) {
+        emit(
+          state.copyWith(
+            status: ExpensesTabStatus.loaded,
+            expenses: expenses,
+            deletingExpenseId: '',
+            error: '',
+          ),
+        );
       },
     );
   }
@@ -167,9 +207,11 @@ class ExpensesTabBloc extends Bloc<ExpensesTabEvent, ExpensesTabState> {
     ClearAllExpensesEvent event,
     Emitter<ExpensesTabState> emit,
   ) async {
+    final previousExpenses = state.expenses;
     emit(
       state.copyWith(
         status: ExpensesTabStatus.loadingClearAll,
+        expenses: const [],
         deletingExpenseId: '',
       ),
     );
@@ -182,6 +224,7 @@ class ExpensesTabBloc extends Bloc<ExpensesTabEvent, ExpensesTabState> {
         emit(
           state.copyWith(
             status: ExpensesTabStatus.errorClearAll,
+            expenses: previousExpenses,
             error: failure.error,
           ),
         );

@@ -295,10 +295,90 @@ class AppLocalizationsEn extends AppLocalizations {
   String get incomeBySource => 'By source';
 
   @override
+  String get balanceRemainingBySource => 'Remaining by source';
+
+  @override
+  String get paymentMethodAddChip => '+ Add method';
+
+  @override
+  String get paymentMethodAddCancel => 'Cancel';
+
+  @override
+  String get paymentMethodNewLabel => 'New method name';
+
+  @override
+  String get paymentMethodNewHint => 'e.g. Vodafone Cash, InstaPay, Fawry';
+
+  @override
+  String get paymentMethodSave => 'Save method';
+
+  @override
+  String get paymentMethodNameEmpty => 'Enter a name for the payment method.';
+
+  @override
+  String paymentMethodAdded(String name) {
+    return 'Added \"$name\" to your methods.';
+  }
+
+  @override
+  String get expensePaidFromField => 'Paid from';
+
+  @override
+  String get expensePaidFromNone => 'Not set';
+
+  @override
+  String get incomeUnassignedSpending => 'Unassigned spending';
+
+  @override
   String get incomeFilterAllSources => 'All sources';
 
   @override
   String get incomeFilterNoSourceEntries => 'No incomes for this source in the selected period';
+
+  @override
+  String get incomeSourceManageEdit => 'Rename source';
+
+  @override
+  String get incomeSourceManageRemove => 'Remove source';
+
+  @override
+  String get incomeSourceRenameTitle => 'Rename source';
+
+  @override
+  String incomeSourceRenameHint(String name) {
+    return 'Updates all incomes with source \"$name\".';
+  }
+
+  @override
+  String get incomeSourceNameTaken => 'That source name is already in use';
+
+  @override
+  String get incomeSourceUpdatedSuccess => 'Sources updated';
+
+  @override
+  String get incomeSourceRemoveTitle => 'Remove source';
+
+  @override
+  String incomeSourceRemoveMessage(int count, String name) {
+    return 'What should happen to $count income(s) with source \"$name\"?';
+  }
+
+  @override
+  String get incomeSourceMoveToOther => 'Move all to Other';
+
+  @override
+  String get incomeSourceDeleteAll => 'Delete all incomes with this source';
+
+  @override
+  String get incomeSourceDeleteConfirmTitle => 'Delete incomes?';
+
+  @override
+  String incomeSourceDeleteConfirmMessage(int count) {
+    return 'This permanently deletes $count income(s). This cannot be undone.';
+  }
+
+  @override
+  String get incomeSourceDeleteConfirmAction => 'Delete';
 
   @override
   String get incomeSourceRents => 'Rents';
@@ -311,6 +391,88 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get amountField => 'Amount';
+
+  @override
+  String get expenseAmountShortcuts => 'Quick amounts';
+
+  @override
+  String get expenseShortcutTransport => 'Transport';
+
+  @override
+  String get expenseShortcutCoffee => 'Coffee';
+
+  @override
+  String get expenseShortcutSnack => 'Snack';
+
+  @override
+  String get expenseFabMenuTitle => 'New expense';
+
+  @override
+  String get expenseFabBlankOption => 'Blank form';
+
+  @override
+  String get expenseFabFromLastPaste => 'From last parsed message';
+
+  @override
+  String get expenseFabFromLastPasteSubtitle => 'Uses the last bank or wallet message you parsed in Smart import';
+
+  @override
+  String get expenseLastPasteNotExpense => 'Last parsed message looks like income. Add it from the Incomes tab.';
+
+  @override
+  String get expenseShortcutsSectionTitle => 'One-tap expenses';
+
+  @override
+  String get expenseShortcutsEmptyCta => 'Set up one-tap shortcuts';
+
+  @override
+  String get expenseShortcutsManageTitle => 'Expense shortcuts';
+
+  @override
+  String get expenseShortcutsManageSubtitle => 'Save a label, title, category, paid-from, and amount. Tap the chip on the Expenses tab to log instantly.';
+
+  @override
+  String get expenseShortcutsEmptyBody => 'No shortcuts yet. Add your first coffee, transport, or other repeat purchase.';
+
+  @override
+  String get expenseShortcutAddTitle => 'New shortcut';
+
+  @override
+  String get expenseShortcutEditTitle => 'Edit shortcut';
+
+  @override
+  String get expenseShortcutChipLabelField => 'Chip label';
+
+  @override
+  String get expenseShortcutChipLabelHint => 'e.g. Coffee';
+
+  @override
+  String get expenseShortcutExpenseTitleField => 'Expense title';
+
+  @override
+  String get expenseShortcutFormHint => 'The chip logs this expense for today with one tap — no form.';
+
+  @override
+  String get expenseShortcutSave => 'Save shortcut';
+
+  @override
+  String get expenseShortcutDelete => 'Delete';
+
+  @override
+  String get expenseShortcutDeleteConfirmTitle => 'Delete shortcut?';
+
+  @override
+  String expenseShortcutDeleteConfirmMessage(String name) {
+    return 'Remove \"$name\"?';
+  }
+
+  @override
+  String expenseShortcutLogged(String name) {
+    return 'Logged: $name';
+  }
+
+  @override
+  String get expenseShortcutErrorLabel => 'Enter a chip label';
 
   @override
   String get expenseByCategory => 'By category';
@@ -374,6 +536,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get budgetSetTitle => 'Set monthly budget';
+
+  @override
+  String get budgetEditTitle => 'Edit monthly budget';
 
   @override
   String get budgetSetHint => 'Pick a category and set how much you plan to spend this month.';
@@ -626,6 +791,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get balanceAddToPlanSuccess => 'Amount added to your savings goal';
 
   @override
+  String get balancePlanAllocationPaidFromHint => 'Choose which source this allocation is paid from (shown on Balance, not unassigned).';
+
+  @override
+  String get planAllocationSelectPaidFrom => 'Select paid from for this goal allocation';
+
+  @override
   String balancePlanAllocationExpenseTitle(String planTitle) {
     return 'Savings goal: $planTitle';
   }
@@ -795,37 +966,101 @@ class AppLocalizationsEn extends AppLocalizations {
   String get smartImportTitle => 'Smart import';
 
   @override
-  String get smartImportShort => 'Scan / SMS';
+  String get smartImportShort => 'Import';
 
   @override
-  String get smartImportInvoiceTab => 'Invoice OCR';
+  String get smartImportPasteTab => 'Paste';
+
+  @override
+  String get smartImportQuickTab => 'Quick';
 
   @override
   String get smartImportSmsTab => 'SMS';
 
   @override
-  String get smartImportInvoiceHint => 'Take a photo of a receipt or invoice. We\'ll read the amount and date automatically.';
+  String get smartImportQuickHint => 'No SMS to paste? Enter the amount, pick expense or income, choose category and source — add in one tap.';
+
+  @override
+  String get smartImportQuickTypeLabel => 'Transaction type';
+
+  @override
+  String get smartImportQuickAmountLabel => 'Amount';
+
+  @override
+  String get smartImportQuickTitleHint => 'Coffee, rent, salary… (optional)';
+
+  @override
+  String get smartImportQuickAddNow => 'Add now';
+
+  @override
+  String get smartImportQuickReview => 'Review in full form';
+
+  @override
+  String get smartImportQuickAdded => 'Transaction added.';
+
+  @override
+  String get smartImportPasteHint => 'Paste one or more bank or wallet messages. Put a blank line between messages, or paste several SMS in a row. We detect amounts and income vs expense for each.';
+
+  @override
+  String get smartImportPasteShareTip => 'Tip: In your SMS app, open a message → Share → Import to Pocketly. No copy-paste needed.';
+
+  @override
+  String get smartImportSharedTextReady => 'Shared message loaded. Review below and add.';
+
+  @override
+  String get smartImportPasteFieldLabel => 'Message text';
+
+  @override
+  String get smartImportPasteFieldHint => 'Paste one or more messages (blank line between each)';
+
+  @override
+  String get smartImportPasteFromClipboard => 'Paste from clipboard';
+
+  @override
+  String get smartImportParseMessage => 'Parse message';
+
+  @override
+  String get smartImportParseMessages => 'Parse messages';
+
+  @override
+  String smartImportPasteFoundCount(int count) {
+    return 'Found $count messages';
+  }
+
+  @override
+  String smartImportPasteAddedOneRemaining(int count) {
+    return 'Added. $count more ready to import.';
+  }
+
+  @override
+  String get smartImportPasteProcessing => 'Reading message…';
+
+  @override
+  String get smartImportPasteNoData => 'Could not find an amount in this text. Try the full bank message.';
+
+  @override
+  String get smartImportPasteEmpty => 'Paste a message first.';
+
+  @override
+  String get smartImportPasteClipboardEmpty => 'Clipboard is empty. Copy a bank or wallet message first.';
+
+  @override
+  String get smartImportPasteClear => 'Clear';
+
+  @override
+  String get smartImportPasteAddedSuccess => 'Added. Paste another message anytime.';
+
+  @override
+  String get smartImportPasteParseAnother => 'Parse another';
+
+  @override
+  String get smartImportPasteMarkExpense => 'Mark as expense';
+
+  @override
+  String get smartImportPasteMarkIncome => 'Mark as income';
 
   @override
   String get smartImportDefaultBillTitle => 'Bill';
-
-  @override
-  String get smartImportScanCamera => 'Camera';
-
-  @override
-  String get smartImportScanGallery => 'Gallery';
-
-  @override
-  String get smartImportOcrProcessing => 'Reading invoice…';
-
-  @override
-  String get smartImportOcrNoData => 'Could not find amount or details on this image.';
-
-  @override
-  String get smartImportOcrFailed => 'Failed to read the invoice. Try a clearer photo.';
-
-  @override
-  String get smartImportCameraDenied => 'Camera permission is required to scan invoices.';
 
   @override
   String get smartImportExtractedData => 'Extracted data';
@@ -920,7 +1155,19 @@ class AppLocalizationsEn extends AppLocalizations {
   String get smartImportBulkCategorySheetTitle => 'Category for import';
 
   @override
-  String get smartImportBulkCategorySheetHint => 'Apply the same category or source to all selected messages.';
+  String get smartImportBulkCategorySheetHint => 'Choose category and source here. SMS text is only used for titles, not for income source or paid-from.';
+
+  @override
+  String get smartImportBulkExpensePaidFromHint => 'Tap a source for imported expenses (not read from SMS).';
+
+  @override
+  String get smartImportBulkIncomeSourceHint => 'Tap a source for imported incomes (not read from SMS).';
+
+  @override
+  String get smartImportBulkSelectPaidFrom => 'Select paid from';
+
+  @override
+  String get smartImportBulkSelectIncomeSource => 'Select income source';
 
   @override
   String get smartImportBulkExpenseCategory => 'Expense category';
@@ -945,6 +1192,32 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String smartImportBulkPartialFail(int failed) {
     return '$failed message(s) could not be imported.';
+  }
+
+  @override
+  String get settingsAutoSmsImport => 'Auto-import from SMS';
+
+  @override
+  String get settingsAutoSmsImportSubtitle => 'When the app opens, new bank SMS are detected and added as income or expense using your chosen category and source.';
+
+  @override
+  String get settingsAutoSmsImportDefaults => 'Auto-import categories';
+
+  @override
+  String get settingsAutoSmsImportDefaultsTitle => 'Defaults for auto-import';
+
+  @override
+  String get settingsAutoSmsImportDefaultsHint => 'Used for every automatic import. SMS text is only used for titles.';
+
+  @override
+  String get settingsAutoSmsImportPermissionDenied => 'SMS permission is required for auto-import.';
+
+  @override
+  String get settingsAutoSmsImportEnabled => 'Auto-import is on. New financial SMS will be added when you open the app.';
+
+  @override
+  String autoSmsImportAddedSnack(int incomes, int expenses) {
+    return 'Auto-imported $incomes incomes and $expenses expenses.';
   }
 
   @override

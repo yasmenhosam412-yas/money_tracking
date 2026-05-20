@@ -1,16 +1,23 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:imrpo/core/l10n/l10n_entity_strings.dart';
 import 'package:imrpo/core/utils/app_colors.dart';
 import 'package:imrpo/features/auth/presentation/widgets/custom_text_field.dart';
+import 'package:imrpo/core/widgets/payment_method_chips_section.dart';
+import 'package:imrpo/features/incomes_tab/presentation/bloc/incomes_tab_bloc.dart';
 import 'package:imrpo/l10n/app_localizations.dart';
 
 class BulkImportCategories {
   final String? expenseCategory;
+  /// Income row category (source name on income records).
   final String? incomeSource;
+  /// Expense [incomeSource] (paid from), chosen in the sheet only.
+  final String? expensePaidFrom;
 
   const BulkImportCategories({
     this.expenseCategory,
     this.incomeSource,
+    this.expensePaidFrom,
   });
 }
 
@@ -18,6 +25,11 @@ Future<BulkImportCategories?> showSmartImportBulkCategorySheet(
   BuildContext context, {
   required bool needsExpenseCategory,
   required bool needsIncomeSource,
+  String? initialExpenseCategory,
+  String? initialIncomeSource,
+  String? initialExpensePaidFrom,
+  String? sheetTitle,
+  String? sheetHint,
 }) {
   return showModalBottomSheet<BulkImportCategories>(
     context: context,
@@ -27,9 +39,17 @@ Future<BulkImportCategories?> showSmartImportBulkCategorySheet(
     shape: const RoundedRectangleBorder(
       borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
     ),
-    builder: (_) => _SmartImportBulkCategorySheet(
-      needsExpenseCategory: needsExpenseCategory,
-      needsIncomeSource: needsIncomeSource,
+    builder: (ctx) => BlocProvider.value(
+      value: context.read<IncomesTabBloc>(),
+      child: _SmartImportBulkCategorySheet(
+        needsExpenseCategory: needsExpenseCategory,
+        needsIncomeSource: needsIncomeSource,
+        initialExpenseCategory: initialExpenseCategory,
+        initialIncomeSource: initialIncomeSource,
+        initialExpensePaidFrom: initialExpensePaidFrom,
+        sheetTitle: sheetTitle,
+        sheetHint: sheetHint,
+      ),
     ),
   );
 }
@@ -37,10 +57,20 @@ Future<BulkImportCategories?> showSmartImportBulkCategorySheet(
 class _SmartImportBulkCategorySheet extends StatefulWidget {
   final bool needsExpenseCategory;
   final bool needsIncomeSource;
+  final String? initialExpenseCategory;
+  final String? initialIncomeSource;
+  final String? initialExpensePaidFrom;
+  final String? sheetTitle;
+  final String? sheetHint;
 
   const _SmartImportBulkCategorySheet({
     required this.needsExpenseCategory,
     required this.needsIncomeSource,
+    this.initialExpenseCategory,
+    this.initialIncomeSource,
+    this.initialExpensePaidFrom,
+    this.sheetTitle,
+    this.sheetHint,
   });
 
   @override
@@ -60,26 +90,44 @@ class _SmartImportBulkCategorySheetState
     _expenseOther,
   ];
 
-  static const _incomeSuggested = [
-    'Salary',
-    'Rents',
-    'Visa Card',
-    'Cash',
-    'Freelance',
-    'Business',
-    'Investment',
-  ];
-
-  String _expenseCategory = 'Bills';
+  late String _expenseCategory;
   final _expenseOtherController = TextEditingController();
-  final _incomeSourceController = TextEditingController(text: 'Other');
+  late String _selectedIncomeSource;
+  late String _expensePaidFrom;
 
   bool get _isExpenseOther => _expenseCategory == _expenseOther;
 
   @override
+  void initState() {
+    super.initState();
+    final initialExpense = widget.initialExpenseCategory?.trim();
+    if (initialExpense != null &&
+        initialExpense.isNotEmpty &&
+        _expenseCategories.contains(initialExpense)) {
+      _expenseCategory = initialExpense;
+    } else if (initialExpense != null && initialExpense.isNotEmpty) {
+      _expenseCategory = _expenseOther;
+      _expenseOtherController.text = initialExpense;
+    } else {
+      _expenseCategory = 'Bills';
+    }
+    _selectedIncomeSource =
+        widget.initialIncomeSource?.trim().isNotEmpty == true
+            ? widget.initialIncomeSource!.trim()
+            : 'Other';
+    _expensePaidFrom =
+        widget.initialExpensePaidFrom?.trim().isNotEmpty == true
+            ? widget.initialExpensePaidFrom!.trim()
+            : 'Cash';
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      context.read<IncomesTabBloc>().add(const LoadIncomesEvent());
+    });
+  }
+
+  @override
   void dispose() {
     _expenseOtherController.dispose();
-    _incomeSourceController.dispose();
     super.dispose();
   }
 
@@ -89,15 +137,11 @@ class _SmartImportBulkCategorySheetState
     return custom.isEmpty ? null : custom;
   }
 
-  String? _resolvedIncomeSource() {
-    final source = _incomeSourceController.text.trim();
-    return source.isEmpty ? null : source;
-  }
-
   void _submit() {
     final l10n = AppLocalizations.of(context)!;
     String? expense;
     String? income;
+    String? paidFrom;
 
     if (widget.needsExpenseCategory) {
       expense = _resolvedExpenseCategory();
@@ -105,11 +149,16 @@ class _SmartImportBulkCategorySheetState
         _showError(l10n.errorEnterCategoryName);
         return;
       }
+      paidFrom = _expensePaidFrom.trim();
+      if (paidFrom.isEmpty) {
+        _showError(l10n.smartImportBulkSelectPaidFrom);
+        return;
+      }
     }
     if (widget.needsIncomeSource) {
-      income = _resolvedIncomeSource();
-      if (income == null) {
-        _showError(l10n.errorEnterCategoryName);
+      income = _selectedIncomeSource.trim();
+      if (income.isEmpty) {
+        _showError(l10n.smartImportBulkSelectIncomeSource);
         return;
       }
     }
@@ -118,6 +167,7 @@ class _SmartImportBulkCategorySheetState
       BulkImportCategories(
         expenseCategory: expense,
         incomeSource: income,
+        expensePaidFrom: paidFrom,
       ),
     );
   }
@@ -128,6 +178,32 @@ class _SmartImportBulkCategorySheetState
         content: Text(message),
         backgroundColor: AppColors.errorColor,
         behavior: SnackBarBehavior.floating,
+      ),
+    );
+  }
+
+  Widget _buildExpensePaidFromSection(AppLocalizations l10n) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 24),
+      child: PaymentMethodChipsSection(
+        label: l10n.expensePaidFromField,
+        hint: l10n.smartImportBulkExpensePaidFromHint,
+        selected: _expensePaidFrom,
+        onSelected: (src) => setState(() => _expensePaidFrom = src),
+        accentColor: AppColors.expense,
+      ),
+    );
+  }
+
+  Widget _buildIncomeSourceSection(AppLocalizations l10n) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 24),
+      child: PaymentMethodChipsSection(
+        label: l10n.smartImportBulkIncomeSource,
+        hint: l10n.smartImportBulkIncomeSourceHint,
+        selected: _selectedIncomeSource,
+        onSelected: (src) => setState(() => _selectedIncomeSource = src),
+        accentColor: AppColors.income,
       ),
     );
   }
@@ -161,7 +237,7 @@ class _SmartImportBulkCategorySheetState
               ),
               const SizedBox(height: 20),
               Text(
-                l10n.smartImportBulkCategorySheetTitle,
+                widget.sheetTitle ?? l10n.smartImportBulkCategorySheetTitle,
                 style: const TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
@@ -170,7 +246,7 @@ class _SmartImportBulkCategorySheetState
               ),
               const SizedBox(height: 8),
               Text(
-                l10n.smartImportBulkCategorySheetHint,
+                widget.sheetHint ?? l10n.smartImportBulkCategorySheetHint,
                 style: TextStyle(
                   fontSize: 14,
                   color: AppColors.textColor.withValues(alpha: 0.6),
@@ -220,48 +296,9 @@ class _SmartImportBulkCategorySheetState
                     icon: Icons.category_outlined,
                   ),
                 ],
+                _buildExpensePaidFromSection(l10n),
               ],
-              if (widget.needsIncomeSource) ...[
-                const SizedBox(height: 24),
-                Text(
-                  l10n.smartImportBulkIncomeSource,
-                  style: const TextStyle(
-                    fontSize: 15,
-                    fontWeight: FontWeight.w600,
-                    color: AppColors.textColor,
-                  ),
-                ),
-                const SizedBox(height: 10),
-                CustomFormField(
-                  label: l10n.incomeSourceField,
-                  hint: l10n.hintIncomeSource,
-                  controller: _incomeSourceController,
-                  obscure: false,
-                  icon: Icons.account_balance_wallet_outlined,
-                ),
-                const SizedBox(height: 10),
-                Wrap(
-                  spacing: 8,
-                  runSpacing: 8,
-                  children: _incomeSuggested.map((source) {
-                    return ActionChip(
-                      label: Text(localizeIncomeCategory(l10n, source)),
-                      onPressed: () {
-                        setState(() => _incomeSourceController.text = source);
-                      },
-                      backgroundColor: AppColors.incomeLight,
-                      labelStyle: const TextStyle(
-                        color: AppColors.textColor,
-                        fontWeight: FontWeight.w500,
-                      ),
-                      side: BorderSide.none,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                    );
-                  }).toList(),
-                ),
-              ],
+              if (widget.needsIncomeSource) _buildIncomeSourceSection(l10n),
               const SizedBox(height: 28),
               SizedBox(
                 height: 52,

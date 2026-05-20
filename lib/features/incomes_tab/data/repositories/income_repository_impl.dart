@@ -71,7 +71,33 @@ class IncomeRepositoryImpl extends IncomeRepository {
       );
       return const Right(null);
     } catch (e) {
-      return Left(ErrorHelper.handle(e.toString()));
+      return Left(ErrorHelper.handle(e));
+    }
+  }
+
+  @override
+  Future<Either<Failure, int>> renameCategory(
+    String fromCategory,
+    String toCategory,
+  ) async {
+    try {
+      final count = await incomeDatasource.renameCategory(
+        fromCategory,
+        toCategory,
+      );
+      return Right(count);
+    } catch (e) {
+      return Left(ErrorHelper.handle(e));
+    }
+  }
+
+  @override
+  Future<Either<Failure, int>> deleteByCategory(String category) async {
+    try {
+      final count = await incomeDatasource.deleteByCategory(category);
+      return Right(count);
+    } catch (e) {
+      return Left(ErrorHelper.handle(e));
     }
   }
 }

@@ -1,7 +1,7 @@
 import 'package:imrpo/features/plans_tab/data/models/plan_model.dart';
 
 abstract class PlansDatasource {
-  Future<void> addPlan(
+  Future<String> addPlan(
     String title,
     String category,
     double targetAmount,

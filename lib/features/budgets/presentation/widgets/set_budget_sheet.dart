@@ -9,6 +9,7 @@ import 'package:imrpo/core/widgets/currency_amount_field.dart';
 import 'package:imrpo/features/auth/presentation/widgets/custom_text_field.dart';
 import 'package:imrpo/features/budgets/domain/entities/budget_period.dart';
 import 'package:imrpo/features/budgets/domain/entities/category_budget_status.dart';
+import 'package:imrpo/features/budgets/domain/services/budget_calculator.dart';
 import 'package:imrpo/features/budgets/presentation/bloc/budgets_bloc.dart';
 import 'package:imrpo/l10n/app_localizations.dart';
 
@@ -100,10 +101,11 @@ class _SetBudgetSheetState extends State<SetBudgetSheet> {
     final baseAmount = CurrencyConverter.toBase(amount, _currencyCode);
     context.read<BudgetsBloc>().add(
           UpsertBudgetEvent(
-            category: category,
+            category: BudgetCalculator.categoryKey(category),
             amount: baseAmount,
             year: widget.period.year,
             month: widget.period.month,
+            budgetId: widget.initialRow?.budgetId,
           ),
         );
   }
@@ -160,7 +162,9 @@ class _SetBudgetSheetState extends State<SetBudgetSheet> {
                     ),
                     const SizedBox(height: 20),
                     Text(
-                      l10n.budgetSetTitle,
+                      widget.initialRow?.budgetId != null
+                          ? l10n.budgetEditTitle
+                          : l10n.budgetSetTitle,
                       style: const TextStyle(
                         fontSize: 22,
                         fontWeight: FontWeight.bold,

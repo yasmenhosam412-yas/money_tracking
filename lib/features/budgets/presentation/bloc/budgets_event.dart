@@ -31,16 +31,19 @@ class UpsertBudgetEvent extends BudgetsEvent {
   final double amount;
   final int year;
   final int month;
+  /// When set, updates this budget row instead of inserting by category.
+  final String? budgetId;
 
   const UpsertBudgetEvent({
     required this.category,
     required this.amount,
     required this.year,
     required this.month,
+    this.budgetId,
   });
 
   @override
-  List<Object?> get props => [category, amount, year, month];
+  List<Object?> get props => [category, amount, year, month, budgetId];
 }
 
 class DeleteBudgetEvent extends BudgetsEvent {

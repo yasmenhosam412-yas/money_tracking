@@ -113,16 +113,31 @@ class PlansTabBloc extends Bloc<PlansTabEvent, PlansTabState> {
       emit(current.copyWith(status: PlansTabStatus.loadingAdd, error: ''));
     }
 
+    final initialSaved = event.savedAmount;
+    final paidFrom = event.expensePaidFrom?.trim();
+    if (initialSaved > 0 && (paidFrom == null || paidFrom.isEmpty)) {
+      final previous = state;
+      if (previous is PlansTabLoaded) {
+        emit(
+          previous.copyWith(
+            status: PlansTabStatus.errorAdd,
+            error: 'Select paid from',
+          ),
+        );
+      }
+      return;
+    }
+
     final result = await addPlanUsecase(
       event.title,
       event.category,
       event.targetAmount,
-      event.savedAmount,
+      initialSaved > 0 ? 0 : initialSaved,
       event.deadline,
     );
 
-    result.fold(
-      (failure) {
+    final planId = await result.fold(
+      (failure) async {
         final previous = state;
         if (previous is PlansTabLoaded) {
           emit(
@@ -132,9 +147,57 @@ class PlansTabBloc extends Bloc<PlansTabEvent, PlansTabState> {
             ),
           );
         }
+        return null;
       },
-      (_) => add(const LoadPlansEvent()),
+      (id) async => id,
     );
+    if (planId == null) return;
+
+    if (initialSaved > 0 && paidFrom != null) {
+      final title = event.expenseTitle ?? event.title;
+      final expenseResult = await addExpenseUsecase(
+        title,
+        planAllocationCategory,
+        initialSaved,
+        DateTime.now(),
+        incomeSource: paidFrom,
+      );
+      final expenseFailed = expenseResult.fold(
+        (failure) {
+          final previous = state;
+          if (previous is PlansTabLoaded) {
+            emit(
+              previous.copyWith(
+                status: PlansTabStatus.errorAdd,
+                error: failure.error,
+              ),
+            );
+          }
+          return true;
+        },
+        (_) => false,
+      );
+      if (expenseFailed) return;
+
+      final savedResult = await updatePlanSavedUsecase(planId, initialSaved);
+      savedResult.fold(
+        (failure) {
+          final previous = state;
+          if (previous is PlansTabLoaded) {
+            emit(
+              previous.copyWith(
+                status: PlansTabStatus.errorAdd,
+                error: failure.error,
+              ),
+            );
+          }
+        },
+        (_) => add(const LoadPlansEvent()),
+      );
+      return;
+    }
+
+    add(const LoadPlansEvent());
   }
 
   Future<void> _onUpdate(
@@ -142,8 +205,55 @@ class PlansTabBloc extends Bloc<PlansTabEvent, PlansTabState> {
     Emitter<PlansTabState> emit,
   ) async {
     final current = state;
-    if (current is PlansTabLoaded) {
-      emit(current.copyWith(status: PlansTabStatus.loadingUpdate, error: ''));
+    if (current is! PlansTabLoaded) return;
+
+    Plan? existing;
+    for (final p in current.plans) {
+      if (p.id == event.id) {
+        existing = p;
+        break;
+      }
+    }
+    if (existing == null) return;
+
+    emit(current.copyWith(status: PlansTabStatus.loadingUpdate, error: ''));
+
+    final savedDelta = event.savedAmount - existing.savedAmount;
+    if (savedDelta > 0) {
+      final paidFrom = event.expensePaidFrom?.trim();
+      if (paidFrom == null || paidFrom.isEmpty) {
+        emit(
+          current.copyWith(
+            status: PlansTabStatus.errorUpdate,
+            error: 'Select paid from',
+          ),
+        );
+        return;
+      }
+
+      final expenseResult = await addExpenseUsecase(
+        event.expenseTitle ?? event.title,
+        planAllocationCategory,
+        savedDelta,
+        DateTime.now(),
+        incomeSource: paidFrom,
+      );
+      final expenseFailed = expenseResult.fold(
+        (failure) {
+          final previous = state;
+          if (previous is PlansTabLoaded) {
+            emit(
+              previous.copyWith(
+                status: PlansTabStatus.errorUpdate,
+                error: failure.error,
+              ),
+            );
+          }
+          return true;
+        },
+        (_) => false,
+      );
+      if (expenseFailed) return;
     }
 
     final result = await updatePlanUsecase(
@@ -242,6 +352,7 @@ class PlansTabBloc extends Bloc<PlansTabEvent, PlansTabState> {
       planAllocationCategory,
       addAmount,
       DateTime.now(),
+      incomeSource: event.expensePaidFrom,
     );
 
     final expenseFailed = expenseResult.fold(

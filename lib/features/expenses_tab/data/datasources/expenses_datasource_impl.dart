@@ -13,15 +13,21 @@ class ExpensesDatasourceImpl extends ExpensesDatasource {
     String title,
     double amount,
     String category,
-    DateTime date,
-  ) async {
-    await supabaseClient.from("expenses").insert({
+    DateTime date, {
+    String? incomeSource,
+  }) async {
+    final trimmed = incomeSource?.trim();
+    final row = <String, dynamic>{
       "title": title,
       "amount": amount,
       "category": category,
       "date": date.toIso8601String(),
       "user_id": SupabaseAuthHelper.requireUserId(),
-    });
+    };
+    if (trimmed != null && trimmed.isNotEmpty) {
+      row["income_source"] = trimmed;
+    }
+    await supabaseClient.from("expenses").insert(row);
   }
 
   @override
@@ -62,16 +68,24 @@ class ExpensesDatasourceImpl extends ExpensesDatasource {
     String title,
     double amount,
     String category,
-    DateTime date,
-  ) async {
+    DateTime date, {
+    String? incomeSource,
+  }) async {
+    final trimmed = incomeSource?.trim();
+    final update = <String, dynamic>{
+      'title': title,
+      'amount': amount,
+      'date': date.toIso8601String(),
+      'category': category,
+    };
+    if (trimmed == null || trimmed.isEmpty) {
+      update['income_source'] = null;
+    } else {
+      update['income_source'] = trimmed;
+    }
     await supabaseClient
         .from("expenses")
-        .update({
-          'title': title,
-          'amount': amount,
-          'date': date.toIso8601String(),
-          'category': category,
-        })
+        .update(update)
         .eq("expense_id", expenseId);
   }
 

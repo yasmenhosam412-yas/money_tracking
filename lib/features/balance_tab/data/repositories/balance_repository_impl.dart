@@ -85,6 +85,7 @@ class BalanceRepositoryImpl implements BalanceRepository {
           amount: expense.amount,
           date: expense.date,
           type: BalanceActivityType.expense,
+          incomeSource: expense.incomeSource,
         ),
       ),
     ]..sort((a, b) => b.date.compareTo(a.date));

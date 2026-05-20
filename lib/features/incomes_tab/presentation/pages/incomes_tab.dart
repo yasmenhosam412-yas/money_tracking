@@ -6,12 +6,14 @@ import 'package:imrpo/core/services/service_locator.dart';
 import 'package:imrpo/core/theme/app_decorations.dart';
 import 'package:imrpo/core/utils/app_colors.dart';
 import 'package:imrpo/core/widgets/tab_centered_scroll.dart';
+import 'package:imrpo/core/widgets/transaction_tab_loading_skeleton.dart';
 import 'package:imrpo/core/widgets/tab_refresh_overlay.dart';
 import 'package:imrpo/core/utils/money_format.dart';
 import 'package:imrpo/features/incomes_tab/domain/entities/income.dart';
 import 'package:imrpo/features/incomes_tab/presentation/bloc/incomes_tab_bloc.dart';
 import 'package:imrpo/features/incomes_tab/presentation/widgets/add_income_sheet.dart';
 import 'package:imrpo/features/incomes_tab/presentation/widgets/income_list_tile.dart';
+import 'package:imrpo/features/incomes_tab/presentation/widgets/manage_income_source_sheet.dart';
 import 'package:imrpo/l10n/app_localizations.dart';
 
 class IncomesTab extends StatefulWidget {
@@ -24,6 +26,7 @@ class IncomesTab extends StatefulWidget {
 class _IncomesTabState extends State<IncomesTab>
     with AutomaticKeepAliveClientMixin {
   String? _selectedSource;
+  bool _initialLoadDone = false;
 
   @override
   bool get wantKeepAlive => true;
@@ -59,38 +62,86 @@ class _IncomesTabState extends State<IncomesTab>
           ),
         ),
       ),
-      body: BlocConsumer<IncomesTabBloc, IncomesTabState>(
-        listenWhen: (previous, current) =>
-            current.status == IncomesTabStatus.errorDelete ||
-            current.status == IncomesTabStatus.errorAll ||
-            current.status == IncomesTabStatus.errorClearAll ||
-            (previous.status == IncomesTabStatus.loadingClearAll &&
-                current.status == IncomesTabStatus.loaded),
-        listener: (context, state) {
-          if (state.status == IncomesTabStatus.errorDelete ||
-              state.status == IncomesTabStatus.errorAll ||
-              state.status == IncomesTabStatus.errorClearAll) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(localizeApiError(l10n, state.message)),
-                backgroundColor: AppColors.error,
-              ),
-            );
-            return;
+      body: MultiBlocListener(
+        listeners: [
+          BlocListener<IncomesTabBloc, IncomesTabState>(
+            listenWhen: (previous, current) =>
+                current.status == IncomesTabStatus.errorDelete ||
+                current.status == IncomesTabStatus.errorAll ||
+                current.status == IncomesTabStatus.errorClearAll ||
+                current.status == IncomesTabStatus.errorSource,
+            listener: (context, state) {
+              final msgL10n = AppLocalizations.of(context)!;
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(localizeApiError(msgL10n, state.message)),
+                  backgroundColor: AppColors.error,
+                ),
+              );
+            },
+          ),
+          BlocListener<IncomesTabBloc, IncomesTabState>(
+            listenWhen: (previous, current) =>
+                previous.status == IncomesTabStatus.loadingClearAll &&
+                current.status == IncomesTabStatus.loaded,
+            listener: (context, state) {
+              final msgL10n = AppLocalizations.of(context)!;
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(msgL10n.clearAllIncomesSuccess),
+                  backgroundColor: AppColors.success,
+                  behavior: SnackBarBehavior.floating,
+                ),
+              );
+            },
+          ),
+          BlocListener<IncomesTabBloc, IncomesTabState>(
+            listenWhen: (previous, current) =>
+                previous.status == IncomesTabStatus.loadingSource &&
+                current.status == IncomesTabStatus.loaded,
+            listener: (context, state) {
+              final msgL10n = AppLocalizations.of(context)!;
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(msgL10n.incomeSourceUpdatedSuccess),
+                  backgroundColor: AppColors.success,
+                  behavior: SnackBarBehavior.floating,
+                ),
+              );
+            },
+          ),
+          BlocListener<IncomesTabBloc, IncomesTabState>(
+            listenWhen: (previous, current) =>
+                current.status == IncomesTabStatus.loaded &&
+                previous.status != IncomesTabStatus.loaded,
+            listener: (context, state) {
+              if (!_initialLoadDone) {
+                setState(() => _initialLoadDone = true);
+              }
+            },
+          ),
+        ],
+        child: BlocBuilder<IncomesTabBloc, IncomesTabState>(
+          builder: (context, state) {
+          if (state.incomes.isEmpty &&
+              state.status == IncomesTabStatus.loadingAll &&
+              !_initialLoadDone) {
+            return const TransactionTabLoadingSkeleton(forIncome: true);
           }
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(l10n.clearAllIncomesSuccess),
-              backgroundColor: AppColors.success,
-              behavior: SnackBarBehavior.floating,
-            ),
-          );
-        },
-        builder: (context, state) {
+
           if (state.incomes.isEmpty &&
               state.status == IncomesTabStatus.loadingAll) {
             return tabCenteredScroll(
-              const CircularProgressIndicator(color: AppColors.income),
+              Stack(
+                children: [
+                  _EmptyState(onAdd: _openAddSheet),
+                  const Center(
+                    child: CircularProgressIndicator(
+                      color: AppColors.income,
+                    ),
+                  ),
+                ],
+              ),
             );
           }
 
@@ -129,6 +180,7 @@ class _IncomesTabState extends State<IncomesTab>
                 (sum, income) => sum + income.amount,
               );
               final sourceTotals = _totalsBySource(dateFiltered);
+              final sourceEntryCounts = _entryCountsBySource(dateFiltered);
 
               return Stack(
             children: [
@@ -180,13 +232,21 @@ class _IncomesTabState extends State<IncomesTab>
                     padding: const EdgeInsets.fromLTRB(20, 8, 20, 0),
                     child: _SourceBreakdown(
                       sourceTotals: sourceTotals,
+                      sourceEntryCounts: sourceEntryCounts,
                       selectedSource: activeSource,
+                      isBusy: state.status == IncomesTabStatus.loadingSource,
                       onSourceSelected: (source) {
                         setState(() {
                           _selectedSource =
                               activeSource == source ? null : source;
                         });
                       },
+                      onRenameSource: (source) => _renameIncomeSource(
+                        source,
+                        availableSources,
+                      ),
+                      onRemoveSource: (source, count) =>
+                          _removeIncomeSource(source, count),
                     ),
                   ),
                 ),
@@ -270,19 +330,13 @@ class _IncomesTabState extends State<IncomesTab>
             ),
           ),
               if (isClearingAll)
-                const Positioned.fill(
-                  child: ColoredBox(
-                    color: Color(0x33000000),
-                    child: Center(
-                      child: CircularProgressIndicator(color: AppColors.income),
-                    ),
-                  ),
-                ),
+                const TabBusyOverlay(indicatorColor: AppColors.income),
             ],
           );
             },
           );
         },
+        ),
       ),
     );
   }
@@ -326,6 +380,147 @@ class _IncomesTabState extends State<IncomesTab>
     final entries = totals.entries.toList()
       ..sort((a, b) => b.value.compareTo(a.value));
     return Map.fromEntries(entries);
+  }
+
+  static Map<String, int> _entryCountsBySource(List<Income> incomes) {
+    final counts = <String, int>{};
+    for (final income in incomes) {
+      final key = _sourceKey(income);
+      counts[key] = (counts[key] ?? 0) + 1;
+    }
+    return counts;
+  }
+
+  Future<void> _renameIncomeSource(
+    String source,
+    List<String> existingSources,
+  ) async {
+    final newName = await showRenameIncomeSourceSheet(
+      context,
+      currentSource: source,
+      existingSources: existingSources,
+    );
+    if (newName == null || !mounted) return;
+
+    context.read<IncomesTabBloc>().add(
+          RenameIncomeSourceEvent(fromSource: source, toSource: newName),
+        );
+
+    if (_selectedSource == source) {
+      setState(() => _selectedSource = newName);
+    }
+  }
+
+  Future<void> _removeIncomeSource(String source, int entryCount) async {
+    final l10n = AppLocalizations.of(context)!;
+    final label = localizeIncomeCategory(l10n, source);
+
+    final action = await showModalBottomSheet<String>(
+      context: context,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (sheetContext) => Padding(
+        padding: const EdgeInsets.fromLTRB(24, 12, 24, 24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Center(
+              child: Container(
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: Colors.grey.shade300,
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+            ),
+            const SizedBox(height: 20),
+            Text(
+              l10n.incomeSourceRemoveTitle,
+              style: const TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+                color: AppColors.textColor,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              l10n.incomeSourceRemoveMessage(entryCount, label),
+              style: TextStyle(
+                fontSize: 14,
+                color: AppColors.textColor.withValues(alpha: 0.65),
+                height: 1.4,
+              ),
+            ),
+            const SizedBox(height: 20),
+            ListTile(
+              leading: const Icon(Icons.drive_file_move_outline),
+              title: Text(l10n.incomeSourceMoveToOther),
+              onTap: () => Navigator.pop(sheetContext, 'move'),
+            ),
+            ListTile(
+              leading: Icon(
+                Icons.delete_outline_rounded,
+                color: AppColors.errorColor,
+              ),
+              title: Text(
+                l10n.incomeSourceDeleteAll,
+                style: TextStyle(color: AppColors.errorColor),
+              ),
+              onTap: () => Navigator.pop(sheetContext, 'delete'),
+            ),
+            TextButton(
+              onPressed: () => Navigator.pop(sheetContext),
+              child: Text(l10n.cancel),
+            ),
+          ],
+        ),
+      ),
+    );
+
+    if (!mounted || action == null) return;
+
+    if (action == 'move') {
+      context.read<IncomesTabBloc>().add(
+            RenameIncomeSourceEvent(fromSource: source, toSource: 'Other'),
+          );
+      if (_selectedSource == source) {
+        setState(() => _selectedSource = 'Other');
+      }
+      return;
+    }
+
+    if (action == 'delete') {
+      final confirmed = await showDialog<bool>(
+        context: context,
+        builder: (dialogContext) => AlertDialog(
+          title: Text(l10n.incomeSourceDeleteConfirmTitle),
+          content: Text(l10n.incomeSourceDeleteConfirmMessage(entryCount)),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(dialogContext, false),
+              child: Text(l10n.cancel),
+            ),
+            FilledButton(
+              style: FilledButton.styleFrom(
+                backgroundColor: AppColors.errorColor,
+              ),
+              onPressed: () => Navigator.pop(dialogContext, true),
+              child: Text(l10n.incomeSourceDeleteConfirmAction),
+            ),
+          ],
+        ),
+      );
+      if (confirmed != true || !mounted) return;
+
+      context.read<IncomesTabBloc>().add(DeleteIncomesBySourceEvent(source));
+      if (_selectedSource == source) {
+        setState(() => _selectedSource = null);
+      }
+    }
   }
 
   Future<void> _showIncomeSheet(Widget sheet) async {
@@ -452,13 +647,21 @@ class _SourceFilterBar extends StatelessWidget {
 
 class _SourceBreakdown extends StatelessWidget {
   final Map<String, double> sourceTotals;
+  final Map<String, int> sourceEntryCounts;
   final String? selectedSource;
+  final bool isBusy;
   final ValueChanged<String> onSourceSelected;
+  final ValueChanged<String> onRenameSource;
+  final void Function(String source, int entryCount) onRemoveSource;
 
   const _SourceBreakdown({
     required this.sourceTotals,
+    required this.sourceEntryCounts,
     required this.selectedSource,
+    required this.isBusy,
     required this.onSourceSelected,
+    required this.onRenameSource,
+    required this.onRemoveSource,
   });
 
   @override
@@ -479,15 +682,16 @@ class _SourceBreakdown extends StatelessWidget {
         ...sourceTotals.entries.map((entry) {
           final label = localizeIncomeCategory(l10n, entry.key);
           final isSelected = selectedSource == entry.key;
+          final count = sourceEntryCounts[entry.key] ?? 0;
           return Material(
             color: Colors.transparent,
             child: InkWell(
-              onTap: () => onSourceSelected(entry.key),
+              onTap: isBusy ? null : () => onSourceSelected(entry.key),
               borderRadius: BorderRadius.circular(16),
               child: Container(
                 margin: const EdgeInsets.only(bottom: 8),
                 padding:
-                    const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
                 decoration: AppDecorations.card(
                   borderColor: isSelected
                       ? AppColors.income
@@ -516,15 +720,29 @@ class _SourceBreakdown extends StatelessWidget {
                     ),
                     const SizedBox(width: 12),
                     Expanded(
-                      child: Text(
-                        label,
-                        style: TextStyle(
-                          fontSize: 15,
-                          fontWeight: FontWeight.w600,
-                          color: isSelected
-                              ? AppColors.incomeDark
-                              : AppColors.textColor,
-                        ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            label,
+                            style: TextStyle(
+                              fontSize: 15,
+                              fontWeight: FontWeight.w600,
+                              color: isSelected
+                                  ? AppColors.incomeDark
+                                  : AppColors.textColor,
+                            ),
+                          ),
+                          const SizedBox(height: 2),
+                          Text(
+                            l10n.listEntryCount(count),
+                            style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w500,
+                              color: AppColors.textColor.withValues(alpha: 0.5),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                     Text(
@@ -534,6 +752,49 @@ class _SourceBreakdown extends StatelessWidget {
                         fontWeight: FontWeight.w700,
                         color: AppColors.income,
                       ),
+                    ),
+                    PopupMenuButton<String>(
+                      enabled: !isBusy,
+                      icon: Icon(
+                        Icons.more_vert_rounded,
+                        color: AppColors.textColor.withValues(alpha: 0.45),
+                      ),
+                      onSelected: (value) {
+                        if (value == 'edit') {
+                          onRenameSource(entry.key);
+                        } else if (value == 'remove') {
+                          onRemoveSource(entry.key, count);
+                        }
+                      },
+                      itemBuilder: (context) => [
+                        PopupMenuItem(
+                          value: 'edit',
+                          child: Row(
+                            children: [
+                              const Icon(Icons.edit_outlined, size: 20),
+                              const SizedBox(width: 10),
+                              Text(l10n.incomeSourceManageEdit),
+                            ],
+                          ),
+                        ),
+                        PopupMenuItem(
+                          value: 'remove',
+                          child: Row(
+                            children: [
+                              Icon(
+                                Icons.delete_outline_rounded,
+                                size: 20,
+                                color: AppColors.errorColor,
+                              ),
+                              const SizedBox(width: 10),
+                              Text(
+                                l10n.incomeSourceManageRemove,
+                                style: TextStyle(color: AppColors.errorColor),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 ),
