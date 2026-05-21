@@ -1,10 +1,263 @@
 {
   "@@locale": "en",
   "appTitle": "imrpo",
+  "onboardingSkip": "Skip",
+  "onboardingNext": "Next",
+  "onboardingGetStarted": "Get started",
+  "onboardingPage1Title": "Your money, one place",
+  "onboardingPage1Body": "Track income and expenses in Egyptian pounds. See your balance and stay on top of spending.",
+  "onboardingPage2Title": "Ledgers & smart import",
+  "onboardingPage2Body": "Use personal or shared ledgers. Import transactions from SMS or shared text and add them in seconds.",
+  "onboardingPage3Title": "Reminders & insights",
+  "onboardingPage3Body": "Get bill reminders before due dates and view 3-month charts for income, expenses, and categories.",
   "tabIncomes": "Incomes",
   "tabExpenses": "Expenses",
   "tabBalance": "Balance",
   "tabPlans": "Plans",
+  "tabStatistics": "Stats",
+  "statisticsLast3Months": "Last 3 months",
+  "statisticsMonthlyTrend": "Monthly income vs expenses",
+  "statisticsNetPerMonth": "Net per month",
+  "statisticsTotalIncome": "Total income",
+  "statisticsTotalExpenses": "Total expenses",
+  "statisticsNet3Months": "Net (3 months)",
+  "statisticsAvgMonthlyNet": "Avg. per month: {amount}",
+  "@statisticsAvgMonthlyNet": {
+    "placeholders": {
+      "amount": { "type": "String" }
+    }
+  },
+  "statisticsTopExpenses": "Top expense categories (3 mo)",
+  "statisticsTopIncomeSources": "Top income sources (3 mo)",
+  "statisticsEmpty": "Add incomes and expenses to see your 3-month charts.",
+  "associationPersonal": "Personal",
+  "currencyEgyptianPound": "Egyptian pound",
+  "currencyEgpSymbol": "E£",
+  "billRemindersTitle": "Bill reminders",
+  "billRemindersSubtitle": "Get notified before recurring bills are due",
+  "billRemindersEmpty": "No bill reminders yet. Add electricity, rent, internet, and more.",
+  "billRemindersAdd": "Add reminder",
+  "billRemindersEdit": "Edit reminder",
+  "billRemindersTitleLabel": "Bill name",
+  "billRemindersTitleHint": "e.g. Electricity, Rent, Internet",
+  "billRemindersTitleRequired": "Enter a name for the bill",
+  "billRemindersAmountLabel": "Amount (optional)",
+  "billRemindersTimeLabel": "Notification time",
+  "billRemindersDayOfMonth": "Day of month",
+  "billRemindersDayOfMonthShortMonthHint": "In shorter months, the reminder uses the last day of that month.",
+  "billRemindersDayOfMonthValue": "Day {day}",
+  "@billRemindersDayOfMonthValue": {
+    "placeholders": {
+      "day": { "type": "int" }
+    }
+  },
+  "billRemindersRemindBefore": "Remind me",
+  "billRemindersRemindOnDay": "On due day",
+  "billRemindersRemind1Day": "1 day before",
+  "billRemindersRemind3Days": "3 days before",
+  "billRemindersRemind7Days": "7 days before",
+  "billRemindersEnabled": "Bill reminders",
+  "billRemindersPermissionDenied": "Allow notifications in system settings to get bill reminders.",
+  "billRemindersSaved": "Reminder saved",
+  "billRemindersDeleted": "Reminder deleted",
+  "billRemindersTestNow": "Test now",
+  "billRemindersTestNowSent": "Test notification sent — check your notification shade",
+  "billReminderNotificationTitle": "Bill: {title}",
+  "@billReminderNotificationTitle": {
+    "placeholders": {
+      "title": { "type": "String" }
+    }
+  },
+  "billReminderNotificationDueTodayWithAmount": "Due today — {amount}",
+  "@billReminderNotificationDueTodayWithAmount": {
+    "placeholders": {
+      "amount": { "type": "String" }
+    }
+  },
+  "billReminderNotificationDueTodayPlain": "Due today",
+  "billReminderNotificationDueInDaysWithAmount": "Due in {days} days — {amount}",
+  "@billReminderNotificationDueInDaysWithAmount": {
+    "placeholders": {
+      "days": { "type": "int" },
+      "amount": { "type": "String" }
+    }
+  },
+  "billReminderNotificationDueInDaysPlain": "Due in {days} days",
+  "@billReminderNotificationDueInDaysPlain": {
+    "placeholders": {
+      "days": { "type": "int" }
+    }
+  },
+  "billRemindersPresetElectricity": "Electricity",
+  "billRemindersPresetRent": "Rent",
+  "billRemindersPresetInternet": "Internet",
+  "billRemindersPresetWater": "Water",
+  "associationSelect": "Ledger",
+  "associationPickerTitle": "Choose ledger",
+  "associationPickerSubtitle": "Each ledger has its own income, expenses, budgets, and plans.",
+  "associationCreateTitle": "New ledger",
+  "associationCreateAction": "Create",
+  "associationNameHint": "e.g. Family fund, Club treasury",
+  "associationNameRequired": "Enter a name for the ledger",
+  "associationCreated": "Created \"{name}\"",
+  "@associationCreated": {
+    "placeholders": {
+      "name": { "type": "String" }
+    }
+  },
+  "associationDeleteConfirmTitle": "Delete ledger?",
+  "associationDeleteConfirmMessage": "Delete \"{name}\" and all its income, expenses, budgets, and plans? This cannot be undone.",
+  "@associationDeleteConfirmMessage": {
+    "placeholders": {
+      "name": { "type": "String" }
+    }
+  },
+  "associationDeleteAction": "Delete",
+  "associationDeletedSnack": "Ledger deleted",
+  "associationCannotDeletePersonal": "The personal ledger cannot be deleted",
+  "associationInviteTitle": "Invite members",
+  "associationInviteSubtitle": "Search by username and invite people to \"{name}\". They choose whether to join.",
+  "@associationInviteSubtitle": {
+    "placeholders": {
+      "name": { "type": "String" }
+    }
+  },
+  "associationInviteSearchHint": "Search username…",
+  "associationInviteSearchMinChars": "Type at least 2 characters to search",
+  "associationInviteNoResults": "No users found",
+  "associationInviteAction": "Invite",
+  "associationInviteSentLabel": "Invited",
+  "associationInviteSent": "Invitation sent to {username}",
+  "@associationInviteSent": {
+    "placeholders": {
+      "username": { "type": "String" }
+    }
+  },
+  "associationInviteMembersAction": "Invite members",
+  "associationInvitePendingTitle": "Invitations for you",
+  "associationInviteAccept": "Join",
+  "associationInviteReject": "Decline",
+  "associationInviteAcceptedSnack": "You joined the ledger",
+  "associationInviteRejectedSnack": "Invitation declined",
+  "associationInviteDisclaimerTitle": "Before you invite",
+  "associationInviteDisclaimerBody": "Pocketly helps you organize shared ledgers. You are responsible for who you invite and how money is handled between members. The app does not hold funds, is not a bank, and is not liable for disputes between members. Only invite people you trust.",
+  "associationInviteDisclaimerAccept": "I understand",
+  "associationInviteLegalNote": "Pocketly is a record-keeping tool only — not financial advice, escrow, or legal counsel.",
+  "associationManageTitle": "Manage ledger",
+  "associationManageOpen": "Open",
+  "associationManageNotAvailable": "Switch to a shared ledger first.",
+  "associationManageSubtitle": "You are the treasurer. Record all income, expenses, plans, and dates here. Members only view.",
+  "associationManageIncomeHint": "Add and edit income entries",
+  "associationManageExpenseHint": "Add and edit expenses with dates",
+  "associationManageBalanceHint": "See balance for this ledger",
+  "associationManageStatsHint": "Charts for the last 3 months",
+  "associationManagePlansHint": "Savings plans and goals",
+  "associationManageInviteHint": "Invite people to view this ledger",
+  "associationManageTreasurerNote": "Only you can add or change numbers. Invited members see the same ledger read-only.",
+  "associationTreasurerBannerTitle": "You manage this ledger",
+  "associationTreasurerBannerBody": "All entries for {name} are recorded by you.",
+  "@associationTreasurerBannerBody": {
+    "placeholders": {
+      "name": { "type": "String" }
+    }
+  },
+  "associationMemberReadOnlyBanner": "View-only member of \"{name}\". Ask the treasurer to add or edit entries.",
+  "@associationMemberReadOnlyBanner": {
+    "placeholders": {
+      "name": { "type": "String" }
+    }
+  },
+  "associationManageHubAction": "Manage ledger",
+  "associationHubTitle": "Association",
+  "associationHubOpen": "Open",
+  "associationHubNotAvailable": "Choose a shared association first.",
+  "associationHubOwnerSubtitle": "You manage this gom3eya: payout, installment, whose turn, and members.",
+  "associationHubMemberSubtitle": "View-only: see payout, installment, and whose turn it is.",
+  "associationHubPayout": "Payout (gom3eya amount)",
+  "associationHubPayoutHint": "12000",
+  "associationHubInstallment": "Installment",
+  "associationHubInstallmentHint": "1000",
+  "associationHubMemberCount": "Slots",
+  "associationHubCollectionDay": "Collection day",
+  "associationHubCollectionDayHint": "Day of month (1–31)",
+  "associationHubCollectionDayInvalid": "Collection day must be between 1 and 31.",
+  "associationHubDayOfMonth": "Day {day}",
+  "@associationHubDayOfMonth": {
+    "placeholders": { "day": { "type": "int" } }
+  },
+  "associationHubCurrentTurn": "Current turn",
+  "associationHubTurnNumber": "Turn {current} of {total}",
+  "@associationHubTurnNumber": {
+    "placeholders": {
+      "current": { "type": "int" },
+      "total": { "type": "int" }
+    }
+  },
+  "associationHubTurnList": "Turn order",
+  "associationHubEmptySetup": "Set payout, installment, and who takes each turn.",
+  "associationHubEmptyTurnList": "No slots yet. Tap Edit to add names.",
+  "associationHubEdit": "Edit details",
+  "associationHubSave": "Save",
+  "associationHubSaved": "Association details saved.",
+  "associationHubSlotsRequired": "Add at least one name for the turn order.",
+  "associationHubFormFixErrors": "Fix the highlighted fields.",
+  "associationHubPaymentsTitle": "Installment payments",
+  "associationHubPaymentsEmpty": "No payments recorded yet.",
+  "associationHubPaymentsTotal": "Total: {amount}",
+  "@associationHubPaymentsTotal": {
+    "placeholders": { "amount": { "type": "String" } }
+  },
+  "associationHubRecordPayment": "Record payment",
+  "associationHubPaymentRecorded": "Payment recorded.",
+  "associationHubPaymentPayer": "Who paid",
+  "associationHubPaymentPayerRequired": "Choose who paid.",
+  "associationHubPaymentAmount": "Amount paid",
+  "associationHubPaymentDate": "Payment date",
+  "associationHubPaymentPaidOn": "Paid on {date}",
+  "@associationHubPaymentPaidOn": {
+    "placeholders": { "date": { "type": "String" } }
+  },
+  "associationHubPaymentNote": "Note (optional)",
+  "associationHubPaymentNoteHint": "e.g. March installment",
+  "associationHubPaymentSave": "Save payment",
+  "associationHubPaymentDeleteTitle": "Delete payment?",
+  "associationHubPaymentDeleteMessage": "Remove payment record for {name}?",
+  "@associationHubPaymentDeleteMessage": {
+    "placeholders": { "name": { "type": "String" } }
+  },
+  "associationHubPaymentDeleteConfirm": "Delete",
+  "associationHubEndGam3eya": "End gom3eya",
+  "associationHubEndGam3eyaTitle": "End this gom3eya?",
+  "associationHubEndGam3eyaMessage": "The association will be closed. You can still view turns and payments, but no more edits or new payments.",
+  "associationHubEndGam3eyaConfirm": "End",
+  "associationHubEndGam3eyaDone": "Gom3eya ended.",
+  "associationHubEndedBanner": "This gom3eya ended on {date}. View only.",
+  "@associationHubEndedBanner": {
+    "placeholders": { "date": { "type": "String" } }
+  },
+  "associationHubOwnerEndedSubtitle": "This gom3eya is finished. Data is view-only.",
+  "associationHubMemberEndedSubtitle": "The manager ended this gom3eya. View only.",
+  "associationHubAdvanceTurn": "Next turn",
+  "associationHubAdvanceTurnConfirm": "Mark turn complete and move to the next person after {name}?",
+  "@associationHubAdvanceTurnConfirm": {
+    "placeholders": { "name": { "type": "String" } }
+  },
+  "associationHubReceived": "Received",
+  "associationHubPending": "Waiting",
+  "associationHubCurrentBadge": "Current",
+  "associationHubInvite": "Invite members",
+  "associationHubTreasurerNote": "Financial entries (income/expenses) are still recorded by the manager on the home tabs. This page tracks the gom3eya schedule.",
+  "associationHubAppMembers": "App members",
+  "associationHubRoleOwner": "Manager",
+  "associationHubRoleAdmin": "Admin",
+  "associationHubRoleMember": "Member",
+  "associationHubAddSlot": "Add slot",
+  "associationHubSlotName": "Name",
+  "associationHubBannerTitle": "Manage association",
+  "associationHubBannerBody": "Turn, payout & installment for {name}.",
+  "@associationHubBannerBody": {
+    "placeholders": { "name": { "type": "String" } }
+  },
   "homeWelcomeBack": "Welcome back",
   "homeWelcomeUser": "Welcome back, {name}",
   "@homeWelcomeUser": {
@@ -95,6 +348,11 @@
   "addExpense": "Add Expense",
   "editExpense": "Edit Expense",
   "recentExpenses": "Recent Expenses",
+  "expenseSortNewest": "Newest",
+  "expenseSortHighestAmount": "Highest amount",
+  "expenseDeletedSnack": "Expense removed",
+  "expenseUndoAction": "Undo",
+  "expenseRestoredSnack": "Expense restored",
   "totalExpenses": "Total Expenses",
   "noIncomesTitle": "No incomes yet",
   "noIncomesSubtitle": "Tap the button below to record your first income",
@@ -105,6 +363,14 @@
   "hintIncomeTitle": "e.g. March payment",
   "incomeSourceField": "Source",
   "hintIncomeSource": "e.g. Visa card, Rents, Salary",
+  "addIncomeSheetTitleHint": "e.g. March salary, apartment rent",
+  "addIncomeSheetSourceHint": "e.g. Visa, Vodafone Cash, salary, bank transfer",
+  "addExpenseSheetTitleHint": "e.g. supermarket, eating out, Uber",
+  "addExpenseSheetPaidFromHint": "Where you paid from: cash, Visa, Vodafone Cash…",
+  "addExpenseSheetOtherCategoryHint": "e.g. gym, subscriptions, gifts",
+  "paymentPresetBankTransfer": "Bank transfer",
+  "paymentPresetVodafoneCash": "Vodafone Cash",
+  "paymentPresetInstaPay": "InstaPay",
   "incomeBySource": "By source",
   "balanceRemainingBySource": "Remaining by source",
   "paymentMethodAddChip": "+ Add method",
@@ -496,6 +762,7 @@
   "smartImportPasteHint": "Paste one or more bank or wallet messages. Put a blank line between messages, or paste several SMS in a row. We detect amounts and income vs expense for each.",
   "smartImportPasteShareTip": "Tip: In your SMS app, open a message → Share → Import to Pocketly. No copy-paste needed.",
   "smartImportSharedTextReady": "Shared message loaded. Review below and add.",
+  "smartImportScrollToTop": "Back to top",
   "smartImportPasteFieldLabel": "Message text",
   "smartImportPasteFieldHint": "Paste one or more messages (blank line between each)",
   "smartImportPasteFromClipboard": "Paste from clipboard",
@@ -546,6 +813,14 @@
   "smartImportSmsLoadMore": "Load more messages",
   "smartImportSmsLoading": "Reading your SMS messages…",
   "smartImportSmsLoadingMore": "Loading more…",
+  "smartImportSmsListCap": "Showing the latest {count} financial messages. Pull to refresh for a new scan.",
+  "@smartImportSmsListCap": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "smartImportUnknownSender": "Unknown sender",
   "smartImportSmsTitleExpense": "Bank expense",
   "smartImportSmsTitleIncome": "Bank income",

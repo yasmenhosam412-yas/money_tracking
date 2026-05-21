@@ -6,4 +6,8 @@ class Money {
 
   static String format(double baseAmount) =>
       getIt<CurrencyPreferences>().formatBase(baseAmount);
+
+  /// Association / gom3eya amounts stored as EGP (not USD base).
+  static String formatEgp(double amountInEgp) =>
+      getIt<CurrencyPreferences>().formatDisplayAmount(amountInEgp);
 }

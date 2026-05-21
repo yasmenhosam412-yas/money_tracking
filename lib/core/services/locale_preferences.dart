@@ -5,7 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 class LocalePreferences extends ChangeNotifier {
   static const _storageKey = 'app_locale_code';
 
-  Locale _locale = const Locale('en');
+  Locale _locale = const Locale('ar');
   bool _isSaving = false;
 
   Locale get locale => _locale;

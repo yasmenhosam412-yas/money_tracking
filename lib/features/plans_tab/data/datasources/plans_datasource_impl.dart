@@ -1,10 +1,12 @@
+import 'package:imrpo/core/helpers/association_datasource_mixin.dart';
 import 'package:imrpo/core/helpers/supabase_auth_helper.dart';
 import 'package:imrpo/core/helpers/supabase_delete_helper.dart';
 import 'package:imrpo/features/plans_tab/data/datasources/plans_datasource.dart';
 import 'package:imrpo/features/plans_tab/data/models/plan_model.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-class PlansDatasourceImpl implements PlansDatasource {
+class PlansDatasourceImpl with AssociationDatasourceMixin
+    implements PlansDatasource {
   final SupabaseClient supabaseClient;
 
   PlansDatasourceImpl({required this.supabaseClient});
@@ -19,14 +21,16 @@ class PlansDatasourceImpl implements PlansDatasource {
   ) async {
     final row = await supabaseClient
         .from('plans')
-        .insert({
-          'title': title,
-          'category': category,
-          'target_amount': targetAmount,
-          'saved_amount': savedAmount,
-          'deadline': deadline?.toIso8601String(),
-          'user_id': SupabaseAuthHelper.requireUserId(),
-        })
+        .insert(
+          scopedFinancialRow({
+            'title': title,
+            'category': category,
+            'target_amount': targetAmount,
+            'saved_amount': savedAmount,
+            'deadline': deadline?.toIso8601String(),
+            'user_id': SupabaseAuthHelper.requireUserId(),
+          }),
+        )
         .select('plan_id')
         .single();
     return row['plan_id'] as String;
@@ -36,12 +40,13 @@ class PlansDatasourceImpl implements PlansDatasource {
   Future<void> deletePlan(String planId) async {
     final userId = SupabaseAuthHelper.requireUserId();
 
-    final deleted = await supabaseClient
+    var deleteQuery = supabaseClient
         .from('plans')
         .delete()
         .eq('plan_id', planId)
-        .eq('user_id', userId)
-        .select('plan_id');
+        .eq('user_id', userId);
+    deleteQuery = scopeFinancialQuery(deleteQuery);
+    final deleted = await deleteQuery.select('plan_id');
 
     ensureDeleteSucceeded(deleted);
   }
@@ -49,10 +54,10 @@ class PlansDatasourceImpl implements PlansDatasource {
   @override
   Future<List<PlanModel>> getPlans() async {
     final userId = SupabaseAuthHelper.requireUserId();
-    final response = await supabaseClient
-        .from('plans')
-        .select()
-        .eq('user_id', userId);
+    var selectQuery =
+        supabaseClient.from('plans').select().eq('user_id', userId);
+    selectQuery = scopeFinancialQuery(selectQuery);
+    final response = await selectQuery;
 
     return response.map((item) => PlanModel.fromMap(item)).toList();
   }
@@ -66,19 +71,25 @@ class PlansDatasourceImpl implements PlansDatasource {
     double savedAmount,
     DateTime? deadline,
   ) async {
-    await supabaseClient.from('plans').update({
+    var updateQuery = supabaseClient.from('plans').update({
       'title': title,
       'category': category,
       'target_amount': targetAmount,
       'saved_amount': savedAmount,
       'deadline': deadline?.toIso8601String(),
-    }).eq('plan_id', planId);
+    }).eq('plan_id', planId).eq('user_id', SupabaseAuthHelper.requireUserId());
+    updateQuery = scopeFinancialQuery(updateQuery);
+    await updateQuery;
   }
 
   @override
   Future<void> updatePlanSaved(String planId, double savedAmount) async {
-    await supabaseClient.from('plans').update({
-      'saved_amount': savedAmount,
-    }).eq('plan_id', planId);
+    var updateQuery = supabaseClient
+        .from('plans')
+        .update({'saved_amount': savedAmount})
+        .eq('plan_id', planId)
+        .eq('user_id', SupabaseAuthHelper.requireUserId());
+    updateQuery = scopeFinancialQuery(updateQuery);
+    await updateQuery;
   }
 }

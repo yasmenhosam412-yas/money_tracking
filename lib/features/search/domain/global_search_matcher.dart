@@ -50,7 +50,7 @@ class GlobalSearchMatcher {
     String needle, {
     required String displayCode,
   }) {
-    if (_matchesAmount(item, needle, displayCode)) return true;
+    if (_matchesAmount(l10n, item, needle, displayCode)) return true;
 
     final isIncome = item.type == SearchResultType.income;
     final localizedCategory = isIncome
@@ -69,15 +69,15 @@ class GlobalSearchMatcher {
   }
 
   static bool _matchesAmount(
+    AppLocalizations l10n,
     SearchResultItem item,
     String needle,
     String displayCode,
   ) {
     final displayAmount =
         CurrencyConverter.fromBase(item.amount, displayCode);
-    final formatted =
-        CurrencyConverter.format(displayAmount, displayCode).toLowerCase();
-    final formattedPlain = _stripCurrencyDecorations(formatted);
+    final formatted = _formatDisplayAmount(l10n, displayAmount, displayCode);
+    final formattedPlain = _stripCurrencyDecorations(l10n, formatted);
 
     final textHaystacks = <String>{
       item.amount.toString(),
@@ -92,7 +92,7 @@ class GlobalSearchMatcher {
       return true;
     }
 
-    final parsed = parseAmountQuery(needle);
+    final parsed = parseAmountQuery(needle, l10n: l10n);
     if (parsed == null) return false;
 
     if (_nearEqual(displayAmount, parsed)) return true;
@@ -102,11 +102,19 @@ class GlobalSearchMatcher {
   }
 
   /// Parses a user-entered amount (display currency), tolerating symbols and separators.
-  static double? parseAmountQuery(String raw) {
+  static double? parseAmountQuery(String raw, {AppLocalizations? l10n}) {
     var s = _normalizeDigits(raw.trim().toLowerCase());
     if (s.isEmpty) return null;
 
     s = s.replaceAll(RegExp(r'[\s\u00A0]'), '');
+    if (l10n != null) {
+      s = s.replaceAll(
+        localizeCurrencySymbol(l10n, CurrencyConverter.defaultDisplayCode)
+            .toLowerCase(),
+        '',
+      );
+      s = s.replaceAll(l10n.currencyEgyptianPound.toLowerCase(), '');
+    }
     for (final currency in CurrencyConverter.currencies) {
       s = s.replaceAll(currency.symbol.toLowerCase(), '');
       s = s.replaceAll(currency.code.toLowerCase(), '');
@@ -160,8 +168,29 @@ class GlobalSearchMatcher {
     return s;
   }
 
-  static String _stripCurrencyDecorations(String formatted) {
+  static String _formatDisplayAmount(
+    AppLocalizations l10n,
+    double amount,
+    String displayCode,
+  ) {
+    final symbol = localizeCurrencySymbol(l10n, displayCode);
+    final value = amount == amount.roundToDouble()
+        ? amount.toInt().toString()
+        : amount.toStringAsFixed(2);
+    return '$symbol$value'.toLowerCase();
+  }
+
+  static String _stripCurrencyDecorations(
+    AppLocalizations l10n,
+    String formatted,
+  ) {
     var s = formatted;
+    s = s.replaceAll(
+      localizeCurrencySymbol(l10n, CurrencyConverter.defaultDisplayCode)
+          .toLowerCase(),
+      '',
+    );
+    s = s.replaceAll(l10n.currencyEgyptianPound.toLowerCase(), '');
     for (final currency in CurrencyConverter.currencies) {
       s = s.replaceAll(currency.symbol.toLowerCase(), '');
       s = s.replaceAll(currency.code.toLowerCase(), '');

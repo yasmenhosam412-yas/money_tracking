@@ -12,6 +12,33 @@ class AppLocalizationsEn extends AppLocalizations {
   String get appTitle => 'imrpo';
 
   @override
+  String get onboardingSkip => 'Skip';
+
+  @override
+  String get onboardingNext => 'Next';
+
+  @override
+  String get onboardingGetStarted => 'Get started';
+
+  @override
+  String get onboardingPage1Title => 'Your money, one place';
+
+  @override
+  String get onboardingPage1Body => 'Track income and expenses in Egyptian pounds. See your balance and stay on top of spending.';
+
+  @override
+  String get onboardingPage2Title => 'Ledgers & smart import';
+
+  @override
+  String get onboardingPage2Body => 'Use personal or shared ledgers. Import transactions from SMS or shared text and add them in seconds.';
+
+  @override
+  String get onboardingPage3Title => 'Reminders & insights';
+
+  @override
+  String get onboardingPage3Body => 'Get bill reminders before due dates and view 3-month charts for income, expenses, and categories.';
+
+  @override
   String get tabIncomes => 'Incomes';
 
   @override
@@ -22,6 +49,514 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get tabPlans => 'Plans';
+
+  @override
+  String get tabStatistics => 'Stats';
+
+  @override
+  String get statisticsLast3Months => 'Last 3 months';
+
+  @override
+  String get statisticsMonthlyTrend => 'Monthly income vs expenses';
+
+  @override
+  String get statisticsNetPerMonth => 'Net per month';
+
+  @override
+  String get statisticsTotalIncome => 'Total income';
+
+  @override
+  String get statisticsTotalExpenses => 'Total expenses';
+
+  @override
+  String get statisticsNet3Months => 'Net (3 months)';
+
+  @override
+  String statisticsAvgMonthlyNet(String amount) {
+    return 'Avg. per month: $amount';
+  }
+
+  @override
+  String get statisticsTopExpenses => 'Top expense categories (3 mo)';
+
+  @override
+  String get statisticsTopIncomeSources => 'Top income sources (3 mo)';
+
+  @override
+  String get statisticsEmpty => 'Add incomes and expenses to see your 3-month charts.';
+
+  @override
+  String get associationPersonal => 'Personal';
+
+  @override
+  String get currencyEgyptianPound => 'Egyptian pound';
+
+  @override
+  String get currencyEgpSymbol => 'E£';
+
+  @override
+  String get billRemindersTitle => 'Bill reminders';
+
+  @override
+  String get billRemindersSubtitle => 'Get notified before recurring bills are due';
+
+  @override
+  String get billRemindersEmpty => 'No bill reminders yet. Add electricity, rent, internet, and more.';
+
+  @override
+  String get billRemindersAdd => 'Add reminder';
+
+  @override
+  String get billRemindersEdit => 'Edit reminder';
+
+  @override
+  String get billRemindersTitleLabel => 'Bill name';
+
+  @override
+  String get billRemindersTitleHint => 'e.g. Electricity, Rent, Internet';
+
+  @override
+  String get billRemindersTitleRequired => 'Enter a name for the bill';
+
+  @override
+  String get billRemindersAmountLabel => 'Amount (optional)';
+
+  @override
+  String get billRemindersTimeLabel => 'Notification time';
+
+  @override
+  String get billRemindersDayOfMonth => 'Day of month';
+
+  @override
+  String get billRemindersDayOfMonthShortMonthHint => 'In shorter months, the reminder uses the last day of that month.';
+
+  @override
+  String billRemindersDayOfMonthValue(int day) {
+    return 'Day $day';
+  }
+
+  @override
+  String get billRemindersRemindBefore => 'Remind me';
+
+  @override
+  String get billRemindersRemindOnDay => 'On due day';
+
+  @override
+  String get billRemindersRemind1Day => '1 day before';
+
+  @override
+  String get billRemindersRemind3Days => '3 days before';
+
+  @override
+  String get billRemindersRemind7Days => '7 days before';
+
+  @override
+  String get billRemindersEnabled => 'Bill reminders';
+
+  @override
+  String get billRemindersPermissionDenied => 'Allow notifications in system settings to get bill reminders.';
+
+  @override
+  String get billRemindersSaved => 'Reminder saved';
+
+  @override
+  String get billRemindersDeleted => 'Reminder deleted';
+
+  @override
+  String get billRemindersTestNow => 'Test now';
+
+  @override
+  String get billRemindersTestNowSent => 'Test notification sent — check your notification shade';
+
+  @override
+  String billReminderNotificationTitle(String title) {
+    return 'Bill: $title';
+  }
+
+  @override
+  String billReminderNotificationDueTodayWithAmount(String amount) {
+    return 'Due today — $amount';
+  }
+
+  @override
+  String get billReminderNotificationDueTodayPlain => 'Due today';
+
+  @override
+  String billReminderNotificationDueInDaysWithAmount(int days, String amount) {
+    return 'Due in $days days — $amount';
+  }
+
+  @override
+  String billReminderNotificationDueInDaysPlain(int days) {
+    return 'Due in $days days';
+  }
+
+  @override
+  String get billRemindersPresetElectricity => 'Electricity';
+
+  @override
+  String get billRemindersPresetRent => 'Rent';
+
+  @override
+  String get billRemindersPresetInternet => 'Internet';
+
+  @override
+  String get billRemindersPresetWater => 'Water';
+
+  @override
+  String get associationSelect => 'Ledger';
+
+  @override
+  String get associationPickerTitle => 'Choose ledger';
+
+  @override
+  String get associationPickerSubtitle => 'Each ledger has its own income, expenses, budgets, and plans.';
+
+  @override
+  String get associationCreateTitle => 'New ledger';
+
+  @override
+  String get associationCreateAction => 'Create';
+
+  @override
+  String get associationNameHint => 'e.g. Family fund, Club treasury';
+
+  @override
+  String get associationNameRequired => 'Enter a name for the ledger';
+
+  @override
+  String associationCreated(String name) {
+    return 'Created \"$name\"';
+  }
+
+  @override
+  String get associationDeleteConfirmTitle => 'Delete ledger?';
+
+  @override
+  String associationDeleteConfirmMessage(String name) {
+    return 'Delete \"$name\" and all its income, expenses, budgets, and plans? This cannot be undone.';
+  }
+
+  @override
+  String get associationDeleteAction => 'Delete';
+
+  @override
+  String get associationDeletedSnack => 'Ledger deleted';
+
+  @override
+  String get associationCannotDeletePersonal => 'The personal ledger cannot be deleted';
+
+  @override
+  String get associationInviteTitle => 'Invite members';
+
+  @override
+  String associationInviteSubtitle(String name) {
+    return 'Search by username and invite people to \"$name\". They choose whether to join.';
+  }
+
+  @override
+  String get associationInviteSearchHint => 'Search username…';
+
+  @override
+  String get associationInviteSearchMinChars => 'Type at least 2 characters to search';
+
+  @override
+  String get associationInviteNoResults => 'No users found';
+
+  @override
+  String get associationInviteAction => 'Invite';
+
+  @override
+  String get associationInviteSentLabel => 'Invited';
+
+  @override
+  String associationInviteSent(String username) {
+    return 'Invitation sent to $username';
+  }
+
+  @override
+  String get associationInviteMembersAction => 'Invite members';
+
+  @override
+  String get associationInvitePendingTitle => 'Invitations for you';
+
+  @override
+  String get associationInviteAccept => 'Join';
+
+  @override
+  String get associationInviteReject => 'Decline';
+
+  @override
+  String get associationInviteAcceptedSnack => 'You joined the ledger';
+
+  @override
+  String get associationInviteRejectedSnack => 'Invitation declined';
+
+  @override
+  String get associationInviteDisclaimerTitle => 'Before you invite';
+
+  @override
+  String get associationInviteDisclaimerBody => 'Pocketly helps you organize shared ledgers. You are responsible for who you invite and how money is handled between members. The app does not hold funds, is not a bank, and is not liable for disputes between members. Only invite people you trust.';
+
+  @override
+  String get associationInviteDisclaimerAccept => 'I understand';
+
+  @override
+  String get associationInviteLegalNote => 'Pocketly is a record-keeping tool only — not financial advice, escrow, or legal counsel.';
+
+  @override
+  String get associationManageTitle => 'Manage ledger';
+
+  @override
+  String get associationManageOpen => 'Open';
+
+  @override
+  String get associationManageNotAvailable => 'Switch to a shared ledger first.';
+
+  @override
+  String get associationManageSubtitle => 'You are the treasurer. Record all income, expenses, plans, and dates here. Members only view.';
+
+  @override
+  String get associationManageIncomeHint => 'Add and edit income entries';
+
+  @override
+  String get associationManageExpenseHint => 'Add and edit expenses with dates';
+
+  @override
+  String get associationManageBalanceHint => 'See balance for this ledger';
+
+  @override
+  String get associationManageStatsHint => 'Charts for the last 3 months';
+
+  @override
+  String get associationManagePlansHint => 'Savings plans and goals';
+
+  @override
+  String get associationManageInviteHint => 'Invite people to view this ledger';
+
+  @override
+  String get associationManageTreasurerNote => 'Only you can add or change numbers. Invited members see the same ledger read-only.';
+
+  @override
+  String get associationTreasurerBannerTitle => 'You manage this ledger';
+
+  @override
+  String associationTreasurerBannerBody(String name) {
+    return 'All entries for $name are recorded by you.';
+  }
+
+  @override
+  String associationMemberReadOnlyBanner(String name) {
+    return 'View-only member of \"$name\". Ask the treasurer to add or edit entries.';
+  }
+
+  @override
+  String get associationManageHubAction => 'Manage ledger';
+
+  @override
+  String get associationHubTitle => 'Association';
+
+  @override
+  String get associationHubOpen => 'Open';
+
+  @override
+  String get associationHubNotAvailable => 'Choose a shared association first.';
+
+  @override
+  String get associationHubOwnerSubtitle => 'You manage this gom3eya: payout, installment, whose turn, and members.';
+
+  @override
+  String get associationHubMemberSubtitle => 'View-only: see payout, installment, and whose turn it is.';
+
+  @override
+  String get associationHubPayout => 'Payout (gom3eya amount)';
+
+  @override
+  String get associationHubPayoutHint => '12000';
+
+  @override
+  String get associationHubInstallment => 'Installment';
+
+  @override
+  String get associationHubInstallmentHint => '1000';
+
+  @override
+  String get associationHubMemberCount => 'Slots';
+
+  @override
+  String get associationHubCollectionDay => 'Collection day';
+
+  @override
+  String get associationHubCollectionDayHint => 'Day of month (1–31)';
+
+  @override
+  String get associationHubCollectionDayInvalid => 'Collection day must be between 1 and 31.';
+
+  @override
+  String associationHubDayOfMonth(int day) {
+    return 'Day $day';
+  }
+
+  @override
+  String get associationHubCurrentTurn => 'Current turn';
+
+  @override
+  String associationHubTurnNumber(int current, int total) {
+    return 'Turn $current of $total';
+  }
+
+  @override
+  String get associationHubTurnList => 'Turn order';
+
+  @override
+  String get associationHubEmptySetup => 'Set payout, installment, and who takes each turn.';
+
+  @override
+  String get associationHubEmptyTurnList => 'No slots yet. Tap Edit to add names.';
+
+  @override
+  String get associationHubEdit => 'Edit details';
+
+  @override
+  String get associationHubSave => 'Save';
+
+  @override
+  String get associationHubSaved => 'Association details saved.';
+
+  @override
+  String get associationHubSlotsRequired => 'Add at least one name for the turn order.';
+
+  @override
+  String get associationHubFormFixErrors => 'Fix the highlighted fields.';
+
+  @override
+  String get associationHubPaymentsTitle => 'Installment payments';
+
+  @override
+  String get associationHubPaymentsEmpty => 'No payments recorded yet.';
+
+  @override
+  String associationHubPaymentsTotal(String amount) {
+    return 'Total: $amount';
+  }
+
+  @override
+  String get associationHubRecordPayment => 'Record payment';
+
+  @override
+  String get associationHubPaymentRecorded => 'Payment recorded.';
+
+  @override
+  String get associationHubPaymentPayer => 'Who paid';
+
+  @override
+  String get associationHubPaymentPayerRequired => 'Choose who paid.';
+
+  @override
+  String get associationHubPaymentAmount => 'Amount paid';
+
+  @override
+  String get associationHubPaymentDate => 'Payment date';
+
+  @override
+  String associationHubPaymentPaidOn(String date) {
+    return 'Paid on $date';
+  }
+
+  @override
+  String get associationHubPaymentNote => 'Note (optional)';
+
+  @override
+  String get associationHubPaymentNoteHint => 'e.g. March installment';
+
+  @override
+  String get associationHubPaymentSave => 'Save payment';
+
+  @override
+  String get associationHubPaymentDeleteTitle => 'Delete payment?';
+
+  @override
+  String associationHubPaymentDeleteMessage(String name) {
+    return 'Remove payment record for $name?';
+  }
+
+  @override
+  String get associationHubPaymentDeleteConfirm => 'Delete';
+
+  @override
+  String get associationHubEndGam3eya => 'End gom3eya';
+
+  @override
+  String get associationHubEndGam3eyaTitle => 'End this gom3eya?';
+
+  @override
+  String get associationHubEndGam3eyaMessage => 'The association will be closed. You can still view turns and payments, but no more edits or new payments.';
+
+  @override
+  String get associationHubEndGam3eyaConfirm => 'End';
+
+  @override
+  String get associationHubEndGam3eyaDone => 'Gom3eya ended.';
+
+  @override
+  String associationHubEndedBanner(String date) {
+    return 'This gom3eya ended on $date. View only.';
+  }
+
+  @override
+  String get associationHubOwnerEndedSubtitle => 'This gom3eya is finished. Data is view-only.';
+
+  @override
+  String get associationHubMemberEndedSubtitle => 'The manager ended this gom3eya. View only.';
+
+  @override
+  String get associationHubAdvanceTurn => 'Next turn';
+
+  @override
+  String associationHubAdvanceTurnConfirm(String name) {
+    return 'Mark turn complete and move to the next person after $name?';
+  }
+
+  @override
+  String get associationHubReceived => 'Received';
+
+  @override
+  String get associationHubPending => 'Waiting';
+
+  @override
+  String get associationHubCurrentBadge => 'Current';
+
+  @override
+  String get associationHubInvite => 'Invite members';
+
+  @override
+  String get associationHubTreasurerNote => 'Financial entries (income/expenses) are still recorded by the manager on the home tabs. This page tracks the gom3eya schedule.';
+
+  @override
+  String get associationHubAppMembers => 'App members';
+
+  @override
+  String get associationHubRoleOwner => 'Manager';
+
+  @override
+  String get associationHubRoleAdmin => 'Admin';
+
+  @override
+  String get associationHubRoleMember => 'Member';
+
+  @override
+  String get associationHubAddSlot => 'Add slot';
+
+  @override
+  String get associationHubSlotName => 'Name';
+
+  @override
+  String get associationHubBannerTitle => 'Manage association';
+
+  @override
+  String associationHubBannerBody(String name) {
+    return 'Turn, payout & installment for $name.';
+  }
 
   @override
   String get homeWelcomeBack => 'Welcome back';
@@ -262,6 +797,21 @@ class AppLocalizationsEn extends AppLocalizations {
   String get recentExpenses => 'Recent Expenses';
 
   @override
+  String get expenseSortNewest => 'Newest';
+
+  @override
+  String get expenseSortHighestAmount => 'Highest amount';
+
+  @override
+  String get expenseDeletedSnack => 'Expense removed';
+
+  @override
+  String get expenseUndoAction => 'Undo';
+
+  @override
+  String get expenseRestoredSnack => 'Expense restored';
+
+  @override
   String get totalExpenses => 'Total Expenses';
 
   @override
@@ -290,6 +840,30 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get hintIncomeSource => 'e.g. Visa card, Rents, Salary';
+
+  @override
+  String get addIncomeSheetTitleHint => 'e.g. March salary, apartment rent';
+
+  @override
+  String get addIncomeSheetSourceHint => 'e.g. Visa, Vodafone Cash, salary, bank transfer';
+
+  @override
+  String get addExpenseSheetTitleHint => 'e.g. supermarket, eating out, Uber';
+
+  @override
+  String get addExpenseSheetPaidFromHint => 'Where you paid from: cash, Visa, Vodafone Cash…';
+
+  @override
+  String get addExpenseSheetOtherCategoryHint => 'e.g. gym, subscriptions, gifts';
+
+  @override
+  String get paymentPresetBankTransfer => 'Bank transfer';
+
+  @override
+  String get paymentPresetVodafoneCash => 'Vodafone Cash';
+
+  @override
+  String get paymentPresetInstaPay => 'InstaPay';
 
   @override
   String get incomeBySource => 'By source';
@@ -1008,6 +1582,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get smartImportSharedTextReady => 'Shared message loaded. Review below and add.';
 
   @override
+  String get smartImportScrollToTop => 'Back to top';
+
+  @override
   String get smartImportPasteFieldLabel => 'Message text';
 
   @override
@@ -1117,6 +1694,11 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get smartImportSmsLoadingMore => 'Loading more…';
+
+  @override
+  String smartImportSmsListCap(int count) {
+    return 'Showing the latest $count financial messages. Pull to refresh for a new scan.';
+  }
 
   @override
   String get smartImportUnknownSender => 'Unknown sender';

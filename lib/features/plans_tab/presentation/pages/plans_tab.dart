@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:imrpo/core/l10n/l10n_entity_strings.dart';
 import 'package:imrpo/core/theme/app_decorations.dart';
+import 'package:imrpo/core/helpers/association_ledger_access.dart';
+import 'package:imrpo/core/services/association_context.dart';
+import 'package:imrpo/core/services/service_locator.dart';
 import 'package:imrpo/core/utils/app_colors.dart';
 import 'package:imrpo/core/utils/money_format.dart';
 import 'package:imrpo/core/widgets/plans_balance_tab_loading_skeleton.dart';
@@ -38,21 +41,29 @@ class _PlansTabState extends State<PlansTab> with AutomaticKeepAliveClientMixin 
     final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       backgroundColor: Colors.transparent,
-      floatingActionButton: FloatingActionButton.extended(
-        heroTag: 'fab-plans',
-        onPressed: _openAddSheet,
-        backgroundColor: AppColors.plans,
-        elevation: 4,
-        highlightElevation: 6,
-        icon: const Icon(Icons.add_rounded, color: Colors.white),
-        label: Text(
-          l10n.planNewFab,
-          style: const TextStyle(
-            color: Colors.white,
-            fontWeight: FontWeight.w600,
-            letterSpacing: 0.2,
-          ),
-        ),
+      floatingActionButton: ListenableBuilder(
+        listenable: getIt<AssociationContext>(),
+        builder: (context, _) {
+          if (!AssociationLedgerAccess.canEdit) {
+            return const SizedBox.shrink();
+          }
+          return FloatingActionButton.extended(
+            heroTag: 'fab-plans',
+            onPressed: _openAddSheet,
+            backgroundColor: AppColors.plans,
+            elevation: 4,
+            highlightElevation: 6,
+            icon: const Icon(Icons.add_rounded, color: Colors.white),
+            label: Text(
+              l10n.planNewFab,
+              style: const TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.w600,
+                letterSpacing: 0.2,
+              ),
+            ),
+          );
+        },
       ),
       body: BlocConsumer<PlansTabBloc, PlansTabState>(
         listener: (context, state) {
@@ -256,15 +267,18 @@ class _PlansTabState extends State<PlansTab> with AutomaticKeepAliveClientMixin 
                       delegate: SliverChildBuilderDelegate(
                         (context, index) {
                           final plan = sorted[index];
+                          final canEdit = AssociationLedgerAccess.canEdit;
                           return PlanListTile(
                             plan: plan,
                             isDeleting: state.deletingPlanId == plan.id,
-                            onTap: () => _openEditSheet(plan),
-                            onDelete: () {
-                              context.read<PlansTabBloc>().add(
-                                DeletePlanEvent(plan.id),
-                              );
-                            },
+                            onTap: canEdit ? () => _openEditSheet(plan) : null,
+                            onDelete: canEdit
+                                ? () {
+                                    context.read<PlansTabBloc>().add(
+                                      DeletePlanEvent(plan.id),
+                                    );
+                                  }
+                                : null,
                           );
                         },
                         childCount: sorted.length,

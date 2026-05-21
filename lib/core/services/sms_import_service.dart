@@ -65,17 +65,23 @@ class SmsPageResult {
 }
 
 class SmsImportService {
+  /// Max financial SMS kept in Smart Import list (prevents OOM).
+  static const maxDisplayedMessages = 120;
+
   /// Financial messages returned per UI page (after scanning raw inbox).
-  static const defaultPageSize = 50;
+  static const defaultPageSize = 30;
 
   /// Raw inbox rows fetched per query call.
-  static const _rawBatchSize = 150;
+  static const _rawBatchSize = 60;
 
   /// Cap raw rows scanned per load call (avoids ANR on huge inboxes).
-  static const _maxRawScanPerCall = 2500;
+  static const _maxRawScanPerCall = 400;
 
-  /// On first refresh, scan deeper so older Vodafone/bank SMS appear.
-  static const _initialMaxRawScan = 2500;
+  /// On first refresh, scan enough inbox depth without blocking the UI.
+  static const _initialMaxRawScan = 500;
+
+  /// Yield to the UI thread while parsing large raw batches.
+  static const _parseYieldEvery = 40;
 
   bool get isSupported => !kIsWeb && Platform.isAndroid;
 
@@ -114,11 +120,18 @@ class SmsImportService {
     var rawScanned = 0;
 
     while (items.length < pageSize && hasMoreRaw && rawScanned < scanLimit) {
-      final batch = await query.querySms(
-        kinds: [SmsQueryKind.inbox],
-        start: offset,
-        count: _rawBatchSize,
-      );
+      List<SmsMessage> batch;
+      try {
+        batch = await query.querySms(
+          kinds: [SmsQueryKind.inbox],
+          start: offset,
+          count: _rawBatchSize,
+        );
+      } catch (e, st) {
+        debugPrint('SmsImportService.querySms failed: $e\n$st');
+        hasMoreRaw = false;
+        break;
+      }
 
       if (batch.isEmpty) {
         hasMoreRaw = false;
@@ -132,6 +145,9 @@ class SmsImportService {
       }
 
       for (var i = 0; i < batch.length; i++) {
+        if (i > 0 && i % _parseYieldEvery == 0) {
+          await Future<void>.delayed(Duration.zero);
+        }
         final msg = batch[i];
         final item = _mapMessage(msg, items.length + i);
         if (item == null) continue;
@@ -151,7 +167,7 @@ class SmsImportService {
 
   /// First load: gather more financial messages by scanning further back in inbox.
   Future<SmsPageResult> loadInitialFinancialMessages({
-    int targetCount = 80,
+    int targetCount = 40,
   }) async {
     return loadFinancialMessagesPage(
       rawStart: 0,

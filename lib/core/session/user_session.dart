@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:imrpo/core/helpers/supabase_auth_helper.dart';
 import 'package:imrpo/core/services/app_lock_service.dart';
+import 'package:imrpo/core/services/association_context.dart';
 import 'package:imrpo/core/services/home_date_filter.dart';
 import 'package:imrpo/core/services/service_locator.dart';
 import 'package:imrpo/features/auth/presentation/bloc/auth_bloc.dart';
@@ -11,13 +12,27 @@ import 'package:imrpo/features/budgets/presentation/bloc/budgets_bloc.dart';
 import 'package:imrpo/features/expenses_tab/presentation/bloc/expenses_tab_bloc.dart';
 import 'package:imrpo/features/incomes_tab/presentation/bloc/incomes_tab_bloc.dart';
 import 'package:imrpo/features/home/presentation/bloc/home_bloc.dart';
+import 'package:imrpo/core/services/bill_reminder_notification_service.dart';
+import 'package:imrpo/features/bill_reminders/data/bill_reminder_store.dart';
+import 'package:imrpo/features/bill_reminders/presentation/bloc/bill_reminders_bloc.dart';
 import 'package:imrpo/features/plans_tab/presentation/bloc/plans_tab_bloc.dart';
 
 /// Clears cached user-specific state when signing out or switching accounts.
 class UserSession {
   UserSession._();
 
+  static Future<void> ensureAssociationsLoaded() async {
+    await getIt<AssociationContext>().load();
+  }
+
   static void clearAll(BuildContext context) {
+    BillReminderNotificationService.instance.cancelAll();
+    final userId = SupabaseAuthHelper.userId;
+    if (userId != null) {
+      getIt<BillReminderStore>().clear(userId);
+    }
+    context.read<BillRemindersBloc>().add(const ResetBillRemindersEvent());
+    getIt<AssociationContext>().clear();
     getIt<AppLockService>().onLoggedOut();
     getIt<HomeDateFilter>().reset(notify: false);
     context.read<HomeBloc>().add(const ClearUserProfileEvent());
@@ -29,7 +44,35 @@ class UserSession {
     context.read<AuthBloc>().add(const ResetAuthEvent());
   }
 
+  /// Reloads all tabs after switching association ledger.
+  static void reloadForAssociationSwitch(BuildContext context) {
+    if (!SupabaseAuthHelper.isSignedIn) return;
+    context.read<IncomesTabBloc>().add(const LoadIncomesEvent(force: true));
+    context.read<ExpensesTabBloc>().add(const LoadExpensesEvent(force: true));
+    final dateFilter = getIt<HomeDateFilter>();
+    final budgetPeriod = BudgetPeriod.fromDateFilter(dateFilter);
+    context.read<BudgetsBloc>().add(
+          LoadBudgetsEvent(
+            year: budgetPeriod.year,
+            month: budgetPeriod.month,
+            force: true,
+          ),
+        );
+    context.read<BalanceTabBloc>().add(
+          LoadBalanceEvent(
+            reference: dateFilter.date,
+            filterByDay: dateFilter.isDayMode,
+            includeAllDates: dateFilter.isAllMode,
+          ),
+        );
+    context.read<PlansTabBloc>().add(const LoadPlansEvent(force: true));
+  }
+
   static void loadAll(BuildContext context) {
+    final associations = getIt<AssociationContext>();
+    if (associations.isAvailable && !associations.isReadyForData) {
+      return;
+    }
     context.read<HomeBloc>().add(const LoadUserProfileEvent());
     context.read<IncomesTabBloc>().add(const LoadIncomesEvent());
     context.read<ExpensesTabBloc>().add(const LoadExpensesEvent());

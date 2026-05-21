@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:imrpo/core/helpers/association_ledger_access.dart';
 import 'package:imrpo/core/l10n/l10n_entity_strings.dart';
 import 'package:imrpo/core/theme/app_decorations.dart';
 import 'package:imrpo/core/utils/app_colors.dart';
@@ -34,6 +35,7 @@ class BudgetOverviewSection extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     final budgetRows = _budgetRows;
+    final canEdit = AssociationLedgerAccess.canEdit;
     final totalLimit = BudgetCalculator.totalLimit(budgetRows);
     final totalSpent = BudgetCalculator.totalSpentWithBudget(budgetRows);
     final overallProgress = totalLimit > 0
@@ -74,12 +76,15 @@ class BudgetOverviewSection extends StatelessWidget {
                   ],
                 ),
               ),
-              TextButton.icon(
-                onPressed: isLoading ? null : () => _openSetBudget(context),
-                icon: const Icon(Icons.add_chart_rounded, size: 18),
-                label: Text(l10n.budgetSetAction),
-                style: TextButton.styleFrom(foregroundColor: AppColors.expense),
-              ),
+              if (canEdit)
+                TextButton.icon(
+                  onPressed: isLoading ? null : () => _openSetBudget(context),
+                  icon: const Icon(Icons.add_chart_rounded, size: 18),
+                  label: Text(l10n.budgetSetAction),
+                  style: TextButton.styleFrom(
+                    foregroundColor: AppColors.expense,
+                  ),
+                ),
             ],
           ),
           if (isLoading) ...[
@@ -105,7 +110,8 @@ class BudgetOverviewSection extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 12),
-            OutlinedButton.icon(
+            if (canEdit)
+              OutlinedButton.icon(
               onPressed: () => _openSetBudget(context),
               icon: const Icon(Icons.savings_outlined),
               label: Text(l10n.budgetSetFirst),
@@ -129,8 +135,8 @@ class BudgetOverviewSection extends StatelessWidget {
             ...budgetRows.map(
               (row) => _CategoryBudgetRow(
                 row: row,
-                onEdit: () => _openSetBudget(context, row: row),
-                onRemove: row.budgetId == null
+                onEdit: canEdit ? () => _openSetBudget(context, row: row) : null,
+                onRemove: !canEdit || row.budgetId == null
                     ? null
                     : () => _confirmDelete(context, row),
               ),
@@ -253,12 +259,12 @@ class _OverallBudgetBar extends StatelessWidget {
 
 class _CategoryBudgetRow extends StatelessWidget {
   final CategoryBudgetStatus row;
-  final VoidCallback onEdit;
+  final VoidCallback? onEdit;
   final VoidCallback? onRemove;
 
   const _CategoryBudgetRow({
     required this.row,
-    required this.onEdit,
+    this.onEdit,
     this.onRemove,
   });
 

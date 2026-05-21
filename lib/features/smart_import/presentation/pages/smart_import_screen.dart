@@ -53,11 +53,26 @@ class _SmartImportScreenState extends State<SmartImportScreen>
   String? _smsError;
 
   late final SharedTextImportStore _sharedTextStore;
+  late final ScrollController _pasteScrollController;
+  late final ScrollController _quickScrollController;
+  late final ScrollController _smsScrollController;
+  bool _showScrollToTop = false;
+  bool _smsLoadRequested = false;
+
+  static const _scrollToTopThreshold = 320.0;
+  static const _smsTabIndex = 2;
 
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 3, vsync: this);
+    _tabController.addListener(_onTabChanged);
+    _pasteScrollController = ScrollController()
+      ..addListener(_updateScrollToTopVisibility);
+    _quickScrollController = ScrollController()
+      ..addListener(_updateScrollToTopVisibility);
+    _smsScrollController = ScrollController()
+      ..addListener(_updateScrollToTopVisibility);
     _sharedTextStore = getIt<SharedTextImportStore>();
     _sharedTextStore.smartImportScreenOpen = true;
     _sharedTextStore.addListener(_onSharedTextPending);
@@ -68,9 +83,71 @@ class _SmartImportScreenState extends State<SmartImportScreen>
   void dispose() {
     _sharedTextStore.removeListener(_onSharedTextPending);
     _sharedTextStore.smartImportScreenOpen = false;
+    _tabController.removeListener(_onTabChanged);
     _tabController.dispose();
+    _pasteScrollController.dispose();
+    _quickScrollController.dispose();
+    _smsScrollController.dispose();
     _pasteController.dispose();
     super.dispose();
+  }
+
+  ScrollController get _activeScrollController {
+    switch (_tabController.index) {
+      case 1:
+        return _quickScrollController;
+      case 2:
+        return _smsScrollController;
+      case 0:
+      default:
+        return _pasteScrollController;
+    }
+  }
+
+  void _onTabChanged() {
+    if (_tabController.indexIsChanging) return;
+    _updateScrollToTopVisibility();
+    _ensureSmsLoadedIfNeeded();
+  }
+
+  void _ensureSmsLoadedIfNeeded() {
+    if (_tabController.index != _smsTabIndex) return;
+    if (_smsLoadRequested) return;
+    _smsLoadRequested = true;
+    _loadSms();
+  }
+
+  bool get _smsListAtCap =>
+      _smsMessages.length >= SmsImportService.maxDisplayedMessages;
+
+  List<SmsMessageItem> _trimSmsList(List<SmsMessageItem> items) {
+    if (items.length <= SmsImportService.maxDisplayedMessages) return items;
+    return items.take(SmsImportService.maxDisplayedMessages).toList();
+  }
+
+  bool _smsHasMoreAfterPage(SmsPageResult page, int listLength) {
+    if (listLength >= SmsImportService.maxDisplayedMessages) return false;
+    return page.hasMore;
+  }
+
+  void _updateScrollToTopVisibility() {
+    if (!mounted) return;
+    final controller = _activeScrollController;
+    final show =
+        controller.hasClients && controller.offset > _scrollToTopThreshold;
+    if (show != _showScrollToTop) {
+      setState(() => _showScrollToTop = show);
+    }
+  }
+
+  void _scrollToTop() {
+    final controller = _activeScrollController;
+    if (!controller.hasClients) return;
+    controller.animateTo(
+      0,
+      duration: const Duration(milliseconds: 450),
+      curve: Curves.easeOutCubic,
+    );
   }
 
   void _onSharedTextPending() => _applySharedTextIfAny();
@@ -97,6 +174,15 @@ class _SmartImportScreenState extends State<SmartImportScreen>
 
     return Scaffold(
       backgroundColor: AppColors.scaffold,
+      floatingActionButton: _showScrollToTop
+          ? FloatingActionButton.small(
+              onPressed: _scrollToTop,
+              backgroundColor: AppColors.primary,
+              foregroundColor: Colors.white,
+              tooltip: l10n.smartImportScrollToTop,
+              child: const Icon(Icons.keyboard_arrow_up_rounded),
+            )
+          : null,
       body: SafeArea(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -113,6 +199,7 @@ class _SmartImportScreenState extends State<SmartImportScreen>
                 controller: _tabController,
                 children: [
                   _PasteParseTab(
+                    scrollController: _pasteScrollController,
                     controller: _pasteController,
                     parsing: _pasteParsing,
                     bulkImporting: _pasteBulkImporting,
@@ -133,14 +220,17 @@ class _SmartImportScreenState extends State<SmartImportScreen>
                   ),
                   SmartImportQuickAddTab(
                     key: ValueKey(_quickAddVersion),
+                    scrollController: _quickScrollController,
                     saving: _quickAddSaving,
                     onAddNow: _quickAddNow,
                     onOpenFullForm: _quickAddOpenForm,
                   ),
                   _SmsImportTab(
+                    scrollController: _smsScrollController,
                     loading: _smsLoading,
                     loadingMore: _smsLoadingMore,
                     hasMore: _smsHasMore,
+                    listAtCap: _smsListAtCap,
                     bulkImporting: _bulkImporting,
                     messages: _smsMessages,
                     error: _smsError,
@@ -461,11 +551,12 @@ class _SmartImportScreenState extends State<SmartImportScreen>
     try {
       final page = await _smsService.loadInitialFinancialMessages();
       if (!mounted) return;
+      final items = _trimSmsList(page.items);
       setState(() {
-        _smsMessages = page.items;
+        _smsMessages = items;
         _smsRawCursor = page.nextRawStart;
-        _smsHasMore = page.hasMore;
-        if (page.items.isEmpty) {
+        _smsHasMore = _smsHasMoreAfterPage(page, items.length);
+        if (items.isEmpty) {
           _smsError = l10n.smartImportSmsEmpty;
         }
       });
@@ -482,24 +573,37 @@ class _SmartImportScreenState extends State<SmartImportScreen>
   }
 
   Future<void> _loadMoreSms() async {
-    if (_smsLoading || _smsLoadingMore || !_smsHasMore) return;
+    if (_smsLoading ||
+        _smsLoadingMore ||
+        !_smsHasMore ||
+        _smsListAtCap) {
+      return;
+    }
+
+    final remaining =
+        SmsImportService.maxDisplayedMessages - _smsMessages.length;
+    if (remaining <= 0) {
+      setState(() => _smsHasMore = false);
+      return;
+    }
 
     setState(() => _smsLoadingMore = true);
 
     try {
       final page = await _smsService.loadFinancialMessagesPage(
         rawStart: _smsRawCursor,
-        pageSize: 40,
+        pageSize: remaining.clamp(1, SmsImportService.defaultPageSize),
       );
       if (!mounted) return;
 
       final existingIds = _smsMessages.map((m) => m.id).toSet();
       final novel = page.items.where((m) => !existingIds.contains(m.id));
+      final merged = _trimSmsList([..._smsMessages, ...novel]);
 
       setState(() {
-        _smsMessages = [..._smsMessages, ...novel];
+        _smsMessages = merged;
         _smsRawCursor = page.nextRawStart;
-        _smsHasMore = page.hasMore;
+        _smsHasMore = _smsHasMoreAfterPage(page, merged.length);
       });
     } catch (_) {
       if (mounted) {
@@ -822,6 +926,7 @@ class _SmartImportHeader extends StatelessWidget {
 }
 
 class _PasteParseTab extends StatelessWidget {
+  final ScrollController scrollController;
   final TextEditingController controller;
   final bool parsing;
   final bool bulkImporting;
@@ -841,6 +946,7 @@ class _PasteParseTab extends StatelessWidget {
   final VoidCallback onTextChanged;
 
   const _PasteParseTab({
+    required this.scrollController,
     required this.controller,
     required this.parsing,
     required this.bulkImporting,
@@ -871,7 +977,8 @@ class _PasteParseTab extends StatelessWidget {
     final selectedCount = selectedIndices.length;
 
     return ListView(
-      padding: const EdgeInsets.fromLTRB(20, 4, 20, 28),
+      controller: scrollController,
+      padding: const EdgeInsets.fromLTRB(20, 4, 20, 88),
       children: [
         Container(
           width: double.infinity,
@@ -1289,9 +1396,11 @@ class _PasteResultListTile extends StatelessWidget {
 }
 
 class _SmsImportTab extends StatefulWidget {
+  final ScrollController scrollController;
   final bool loading;
   final bool loadingMore;
   final bool hasMore;
+  final bool listAtCap;
   final bool bulkImporting;
   final List<SmsMessageItem> messages;
   final String? error;
@@ -1309,9 +1418,11 @@ class _SmsImportTab extends StatefulWidget {
   final VoidCallback onClearAllAdded;
 
   const _SmsImportTab({
+    required this.scrollController,
     required this.loading,
     required this.loadingMore,
     required this.hasMore,
+    required this.listAtCap,
     required this.bulkImporting,
     required this.messages,
     required this.error,
@@ -1328,9 +1439,7 @@ class _SmsImportTab extends StatefulWidget {
 }
 
 class _SmsImportTabState extends State<_SmsImportTab> {
-  bool _requested = false;
   final Set<String> _selectedIds = {};
-  late final ScrollController _scrollController;
   bool _loadMoreScheduled = false;
   final _bulkImportService = getIt<SmsBulkImportService>();
   final _importedRegistry = getIt<SmsImportedRegistry>();
@@ -1338,23 +1447,24 @@ class _SmsImportTabState extends State<_SmsImportTab> {
   @override
   void initState() {
     super.initState();
-    _scrollController = ScrollController()..addListener(_onScroll);
+    widget.scrollController.addListener(_onScroll);
   }
 
   @override
   void dispose() {
-    _scrollController.dispose();
+    widget.scrollController.removeListener(_onScroll);
     super.dispose();
   }
 
   void _onScroll() {
     if (!widget.hasMore ||
+        widget.listAtCap ||
         widget.loadingMore ||
         widget.loading ||
         widget.bulkImporting) {
       return;
     }
-    final position = _scrollController.position;
+    final position = widget.scrollController.position;
     if (position.pixels < position.maxScrollExtent - 240) return;
     if (_loadMoreScheduled) return;
     _loadMoreScheduled = true;
@@ -1385,15 +1495,6 @@ class _SmsImportTabState extends State<_SmsImportTab> {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.messages != widget.messages) {
       _selectedIds.removeWhere((id) => !widget.messages.any((m) => m.id == id));
-    }
-  }
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    if (!_requested && widget.smsSupported) {
-      _requested = true;
-      WidgetsBinding.instance.addPostFrameCallback((_) => widget.onRefresh());
     }
   }
 
@@ -1481,7 +1582,7 @@ class _SmsImportTabState extends State<_SmsImportTab> {
         listenable: _importedRegistry,
         builder: (context, _) {
           return CustomScrollView(
-            controller: _scrollController,
+            controller: widget.scrollController,
             physics: const AlwaysScrollableScrollPhysics(),
             slivers: [
               SliverToBoxAdapter(
@@ -1510,7 +1611,7 @@ class _SmsImportTabState extends State<_SmsImportTab> {
                 ),
               ),
               SliverPadding(
-                padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
+                padding: const EdgeInsets.fromLTRB(16, 0, 16, 88),
                 sliver: SliverList.separated(
                   itemCount: widget.messages.length,
                   separatorBuilder: (_, _) => const SizedBox(height: 10),
@@ -1537,7 +1638,14 @@ class _SmsImportTabState extends State<_SmsImportTab> {
                   },
                 ),
               ),
-              if (widget.hasMore || widget.loadingMore)
+              if (widget.listAtCap)
+                SliverToBoxAdapter(
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
+                    child: _SmsListCapBanner(),
+                  ),
+                )
+              else if (widget.hasMore || widget.loadingMore)
                 SliverToBoxAdapter(
                   child: Padding(
                     padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
@@ -1758,6 +1866,36 @@ class _SmsSkeletonTile extends StatelessWidget {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _SmsListCapBanner extends StatelessWidget {
+  const _SmsListCapBanner();
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+      decoration: BoxDecoration(
+        color: AppColors.primary.withValues(alpha: 0.08),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: AppColors.primary.withValues(alpha: 0.2),
+        ),
+      ),
+      child: Text(
+        l10n.smartImportSmsListCap(SmsImportService.maxDisplayedMessages),
+        textAlign: TextAlign.center,
+        style: TextStyle(
+          fontSize: 13,
+          fontWeight: FontWeight.w600,
+          color: AppColors.textColor.withValues(alpha: 0.75),
+          height: 1.35,
+        ),
       ),
     );
   }

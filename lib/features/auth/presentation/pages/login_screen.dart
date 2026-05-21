@@ -25,6 +25,7 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   late final TextEditingController _emailController;
   late final TextEditingController _passController;
+  bool _obscurePassword = true;
 
   @override
   void initState() {
@@ -57,7 +58,7 @@ class _LoginScreenState extends State<LoginScreen> {
         ),
       ),
       child: BlocConsumer<AuthBloc, AuthState>(
-        listener: (context, state) {
+        listener: (context, state) async {
           if (state.status == AuthStatus.errorLogin) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
@@ -71,6 +72,8 @@ class _LoginScreenState extends State<LoginScreen> {
             );
           } else if (state.status == AuthStatus.successLogin) {
             getIt<AppLockService>().onAuthenticated();
+            await UserSession.ensureAssociationsLoaded();
+            if (!context.mounted) return;
             UserSession.loadAll(context);
             Navigator.pushAndRemoveUntil(
               context,
@@ -95,8 +98,13 @@ class _LoginScreenState extends State<LoginScreen> {
                 label: l10n.labelPassword,
                 hint: l10n.hintPasswordDots,
                 controller: _passController,
-                obscure: true,
+                obscure: _obscurePassword,
                 icon: Icons.lock_outline_rounded,
+                suffixIcon: CustomFormField.visibilityToggle(
+                  obscure: _obscurePassword,
+                  onToggle: () =>
+                      setState(() => _obscurePassword = !_obscurePassword),
+                ),
               ),
               Align(
                 alignment: Alignment.centerRight,

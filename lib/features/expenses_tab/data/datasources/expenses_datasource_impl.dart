@@ -1,10 +1,12 @@
+import 'package:imrpo/core/helpers/association_datasource_mixin.dart';
 import 'package:imrpo/core/helpers/supabase_auth_helper.dart';
 import 'package:imrpo/core/helpers/supabase_delete_helper.dart';
 import 'package:imrpo/features/expenses_tab/data/datasources/expenses_datasource.dart';
 import 'package:imrpo/features/expenses_tab/data/models/expense_model.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-class ExpensesDatasourceImpl extends ExpensesDatasource {
+class ExpensesDatasourceImpl extends ExpensesDatasource
+    with AssociationDatasourceMixin {
   final SupabaseClient supabaseClient;
 
   ExpensesDatasourceImpl({required this.supabaseClient});
@@ -17,13 +19,13 @@ class ExpensesDatasourceImpl extends ExpensesDatasource {
     String? incomeSource,
   }) async {
     final trimmed = incomeSource?.trim();
-    final row = <String, dynamic>{
+    final row = scopedFinancialRow({
       "title": title,
       "amount": amount,
       "category": category,
       "date": date.toIso8601String(),
       "user_id": SupabaseAuthHelper.requireUserId(),
-    };
+    });
     if (trimmed != null && trimmed.isNotEmpty) {
       row["income_source"] = trimmed;
     }
@@ -34,12 +36,13 @@ class ExpensesDatasourceImpl extends ExpensesDatasource {
   Future<void> deleteExpense(String expanseId) async {
     final userId = SupabaseAuthHelper.requireUserId();
 
-    final deleted = await supabaseClient
+    var deleteQuery = supabaseClient
         .from('expenses')
         .delete()
         .eq('expense_id', expanseId)
-        .eq('user_id', userId)
-        .select('expense_id');
+        .eq('user_id', userId);
+    deleteQuery = scopeFinancialQuery(deleteQuery);
+    final deleted = await deleteQuery.select('expense_id');
 
     ensureDeleteSucceeded(deleted);
   }
@@ -48,16 +51,19 @@ class ExpensesDatasourceImpl extends ExpensesDatasource {
   Future<void> deleteAllExpenses() async {
     final userId = SupabaseAuthHelper.requireUserId();
 
-    await supabaseClient.from('expenses').delete().eq('user_id', userId);
+    var deleteQuery =
+        supabaseClient.from('expenses').delete().eq('user_id', userId);
+    deleteQuery = scopeFinancialQuery(deleteQuery);
+    await deleteQuery;
   }
 
   @override
   Future<List<ExpenseModel>> getExpenses() async {
     final userId = SupabaseAuthHelper.requireUserId();
-    final response = await supabaseClient
-        .from('expenses')
-        .select()
-        .eq('user_id', userId);
+    var selectQuery =
+        supabaseClient.from('expenses').select().eq('user_id', userId);
+    selectQuery = scopeFinancialQuery(selectQuery);
+    final response = await selectQuery;
 
     return response.map((e) => ExpenseModel.fromMap(e)).toList();
   }
@@ -83,21 +89,25 @@ class ExpensesDatasourceImpl extends ExpensesDatasource {
     } else {
       update['income_source'] = trimmed;
     }
-    await supabaseClient
+    var updateQuery = supabaseClient
         .from("expenses")
         .update(update)
-        .eq("expense_id", expenseId);
+        .eq("expense_id", expenseId)
+        .eq('user_id', SupabaseAuthHelper.requireUserId());
+    updateQuery = scopeFinancialQuery(updateQuery);
+    await updateQuery;
   }
 
   @override
   Future<int> renameCategory(String fromCategory, String toCategory) async {
     final userId = SupabaseAuthHelper.requireUserId();
-    final updated = await supabaseClient
+    var updateQuery = supabaseClient
         .from('expenses')
         .update({'category': toCategory})
         .eq('user_id', userId)
-        .eq('category', fromCategory)
-        .select('expense_id');
+        .eq('category', fromCategory);
+    updateQuery = scopeFinancialQuery(updateQuery);
+    final updated = await updateQuery.select('expense_id');
 
     return (updated as List).length;
   }
@@ -105,12 +115,13 @@ class ExpensesDatasourceImpl extends ExpensesDatasource {
   @override
   Future<int> deleteByCategory(String category) async {
     final userId = SupabaseAuthHelper.requireUserId();
-    final deleted = await supabaseClient
+    var deleteQuery = supabaseClient
         .from('expenses')
         .delete()
         .eq('user_id', userId)
-        .eq('category', category)
-        .select('expense_id');
+        .eq('category', category);
+    deleteQuery = scopeFinancialQuery(deleteQuery);
+    final deleted = await deleteQuery.select('expense_id');
 
     return (deleted as List).length;
   }

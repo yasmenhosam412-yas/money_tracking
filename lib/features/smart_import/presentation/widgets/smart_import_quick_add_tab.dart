@@ -27,12 +27,14 @@ typedef QuickAddPayload = ({
 });
 
 class SmartImportQuickAddTab extends StatefulWidget {
+  final ScrollController scrollController;
   final bool saving;
   final Future<void> Function(QuickAddPayload payload) onAddNow;
   final Future<void> Function(QuickAddPayload payload) onOpenFullForm;
 
   const SmartImportQuickAddTab({
     super.key,
+    required this.scrollController,
     required this.saving,
     required this.onAddNow,
     required this.onOpenFullForm,
@@ -162,7 +164,8 @@ class _SmartImportQuickAddTabState extends State<SmartImportQuickAddTab> {
     final accent = _isExpense ? AppColors.expense : AppColors.income;
 
     return ListView(
-      padding: const EdgeInsets.fromLTRB(20, 4, 20, 28),
+      controller: widget.scrollController,
+      padding: const EdgeInsets.fromLTRB(20, 4, 20, 88),
       children: [
         Container(
           width: double.infinity,

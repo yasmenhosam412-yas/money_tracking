@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:imrpo/core/l10n/l10n_entity_strings.dart';
 import 'package:imrpo/core/models/currency.dart';
 import 'package:imrpo/core/services/currency_converter.dart';
 import 'package:imrpo/core/utils/app_colors.dart';
 import 'package:imrpo/l10n/app_localizations.dart';
-
 class CurrencyAmountField extends StatefulWidget {
   final String label;
   final TextEditingController controller;
@@ -57,11 +57,7 @@ class _CurrencyAmountFieldState extends State<CurrencyAmountField> {
 
   @override
   Widget build(BuildContext context) {
-    final amount = enteredAmount;
-    final showConversion =
-        amount != null && amount > 0 && _selected.code != CurrencyConverter.baseCode;
-    final showSameBase =
-        amount != null && amount > 0 && _selected.code == CurrencyConverter.baseCode;
+    final singleCurrency = CurrencyConverter.currencies.length == 1;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -78,14 +74,17 @@ class _CurrencyAmountFieldState extends State<CurrencyAmountField> {
         Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _CurrencySelector(
-              selected: _selected,
-              accentColor: widget.accentColor,
-              onChanged: (currency) {
-                setState(() => _selected = currency);
-                widget.onCurrencyChanged?.call(currency);
-              },
-            ),
+            if (singleCurrency)
+              _CurrencyLabel(currency: _selected, accentColor: widget.accentColor)
+            else
+              _CurrencySelector(
+                selected: _selected,
+                accentColor: widget.accentColor,
+                onChanged: (currency) {
+                  setState(() => _selected = currency);
+                  widget.onCurrencyChanged?.call(currency);
+                },
+              ),
             const SizedBox(width: 10),
             Expanded(
               child: TextFormField(
@@ -121,15 +120,42 @@ class _CurrencyAmountFieldState extends State<CurrencyAmountField> {
             ),
           ],
         ),
-        if (showConversion || showSameBase) ...[
-          const SizedBox(height: 10),
-          _ConversionBanner(
-            accentColor: widget.accentColor,
-            fromAmount: amount,
-            fromCode: _selected.code,
-          ),
-        ],
       ],
+    );
+  }
+}
+
+class _CurrencyLabel extends StatelessWidget {
+  final Currency currency;
+  final Color accentColor;
+
+  const _CurrencyLabel({
+    required this.currency,
+    required this.accentColor,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    final label = localizeCurrencyLabel(l10n, currency.code);
+
+    return Container(
+      height: 56,
+      padding: const EdgeInsets.symmetric(horizontal: 14),
+      alignment: Alignment.center,
+      decoration: BoxDecoration(
+        color: AppColors.card,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: AppColors.border),
+      ),
+      child: Text(
+        label,
+        style: TextStyle(
+          fontWeight: FontWeight.w700,
+          fontSize: 15,
+          color: accentColor,
+        ),
+      ),
     );
   }
 }
@@ -147,6 +173,8 @@ class _CurrencySelector extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 4),
       decoration: BoxDecoration(
@@ -163,7 +191,7 @@ class _CurrencySelector extends StatelessWidget {
             return DropdownMenuItem(
               value: currency.code,
               child: Text(
-                currency.code,
+                localizeCurrencyLabel(l10n, currency.code),
                 style: const TextStyle(
                   fontWeight: FontWeight.w700,
                   fontSize: 15,
@@ -176,66 +204,6 @@ class _CurrencySelector extends StatelessWidget {
             onChanged(CurrencyConverter.byCode(code));
           },
         ),
-      ),
-    );
-  }
-}
-
-class _ConversionBanner extends StatelessWidget {
-  final double fromAmount;
-  final String fromCode;
-  final Color accentColor;
-
-  const _ConversionBanner({
-    required this.fromAmount,
-    required this.fromCode,
-    required this.accentColor,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final inBase = CurrencyConverter.toBase(fromAmount, fromCode);
-    final base = CurrencyConverter.base;
-
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-      decoration: BoxDecoration(
-        color: accentColor.withValues(alpha: 0.08),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: accentColor.withValues(alpha: 0.2)),
-      ),
-      child: Row(
-        children: [
-          Icon(Icons.currency_exchange_rounded, size: 20, color: accentColor),
-          const SizedBox(width: 10),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  '${CurrencyConverter.format(fromAmount, fromCode)} = '
-                  '${CurrencyConverter.format(inBase, base.code)}',
-                  style: const TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                    color: AppColors.textPrimary,
-                  ),
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  AppLocalizations.of(context)!.storedAsBase(
-                    CurrencyConverter.format(inBase, base.code),
-                  ),
-                  style: const TextStyle(
-                    fontSize: 12,
-                    color: AppColors.textSecondary,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
       ),
     );
   }

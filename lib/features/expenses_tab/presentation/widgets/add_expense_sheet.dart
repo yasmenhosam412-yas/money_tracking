@@ -192,7 +192,7 @@ class _AddExpenseSheetState extends State<AddExpenseSheet> {
                     const SizedBox(height: 24),
                     CustomFormField(
                       label: l10n.titleField,
-                      hint: l10n.hintExpenseTitle,
+                      hint: l10n.addExpenseSheetTitleHint,
                       controller: _titleController,
                       obscure: false,
                       icon: Icons.label_outline_rounded,
@@ -241,7 +241,7 @@ class _AddExpenseSheetState extends State<AddExpenseSheet> {
                       const SizedBox(height: 16),
                       CustomFormField(
                         label: l10n.otherCategoryField,
-                        hint: l10n.otherCategoryHint,
+                        hint: l10n.addExpenseSheetOtherCategoryHint,
                         controller: _otherCategoryController,
                         obscure: false,
                         icon: Icons.category_outlined,
@@ -249,6 +249,7 @@ class _AddExpenseSheetState extends State<AddExpenseSheet> {
                     ],
                     PaymentMethodChipsSection(
                       label: l10n.expensePaidFromField,
+                      hint: l10n.addExpenseSheetPaidFromHint,
                       selected: _paidFromSource ?? '',
                       allowNone: true,
                       onClearSelection: () =>

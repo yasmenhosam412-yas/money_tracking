@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:imrpo/core/helpers/association_ledger_access.dart';
 import 'package:imrpo/core/l10n/l10n_entity_strings.dart';
+import 'package:imrpo/core/services/association_context.dart';
 import 'package:imrpo/core/services/home_date_filter.dart';
 import 'package:imrpo/core/services/service_locator.dart';
 import 'package:imrpo/core/theme/app_decorations.dart';
@@ -48,19 +50,27 @@ class _IncomesTabState extends State<IncomesTab>
     final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       backgroundColor: Colors.transparent,
-      floatingActionButton: FloatingActionButton.extended(
-        heroTag: 'fab-incomes',
-        onPressed: _openAddSheet,
-        backgroundColor: AppColors.income,
-        elevation: 2,
-        icon: const Icon(Icons.add_rounded, color: Colors.white),
-        label: Text(
-          l10n.addIncome,
-          style: const TextStyle(
-            color: Colors.white,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
+      floatingActionButton: ListenableBuilder(
+        listenable: getIt<AssociationContext>(),
+        builder: (context, _) {
+          if (!AssociationLedgerAccess.canEdit) {
+            return const SizedBox.shrink();
+          }
+          return FloatingActionButton.extended(
+            heroTag: 'fab-incomes',
+            onPressed: _openAddSheet,
+            backgroundColor: AppColors.income,
+            elevation: 2,
+            icon: const Icon(Icons.add_rounded, color: Colors.white),
+            label: Text(
+              l10n.addIncome,
+              style: const TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          );
+        },
       ),
       body: MultiBlocListener(
         listeners: [
@@ -241,12 +251,16 @@ class _IncomesTabState extends State<IncomesTab>
                               activeSource == source ? null : source;
                         });
                       },
-                      onRenameSource: (source) => _renameIncomeSource(
-                        source,
-                        availableSources,
-                      ),
-                      onRemoveSource: (source, count) =>
-                          _removeIncomeSource(source, count),
+                      onRenameSource: AssociationLedgerAccess.canEdit
+                          ? (source) => _renameIncomeSource(
+                              source,
+                              availableSources,
+                            )
+                          : null,
+                      onRemoveSource: AssociationLedgerAccess.canEdit
+                          ? (source, count) =>
+                              _removeIncomeSource(source, count)
+                          : null,
                     ),
                   ),
                 ),
@@ -266,7 +280,8 @@ class _IncomesTabState extends State<IncomesTab>
                           ),
                         ),
                       ),
-                      if (sorted.isNotEmpty) ...[
+                      if (sorted.isNotEmpty &&
+                          AssociationLedgerAccess.canEdit) ...[
                         TextButton(
                           onPressed: isClearingAll
                               ? null
@@ -313,14 +328,17 @@ class _IncomesTabState extends State<IncomesTab>
                     delegate: SliverChildBuilderDelegate((context, index) {
                       final income = filtered[index];
 
+                      final canEdit = AssociationLedgerAccess.canEdit;
                       return IncomeListTile(
                         income: income,
-                        onTap: () => _openEditSheet(income),
-                        onDelete: () {
-                          context.read<IncomesTabBloc>().add(
-                            DeleteIncomeEvent(income.id),
-                          );
-                        },
+                        onTap: canEdit ? () => _openEditSheet(income) : null,
+                        onDelete: canEdit
+                            ? () {
+                                context.read<IncomesTabBloc>().add(
+                                  DeleteIncomeEvent(income.id),
+                                );
+                              }
+                            : null,
                       );
                     }, childCount: filtered.length),
                   ),
@@ -651,8 +669,8 @@ class _SourceBreakdown extends StatelessWidget {
   final String? selectedSource;
   final bool isBusy;
   final ValueChanged<String> onSourceSelected;
-  final ValueChanged<String> onRenameSource;
-  final void Function(String source, int entryCount) onRemoveSource;
+  final ValueChanged<String>? onRenameSource;
+  final void Function(String source, int entryCount)? onRemoveSource;
 
   const _SourceBreakdown({
     required this.sourceTotals,
@@ -660,8 +678,8 @@ class _SourceBreakdown extends StatelessWidget {
     required this.selectedSource,
     required this.isBusy,
     required this.onSourceSelected,
-    required this.onRenameSource,
-    required this.onRemoveSource,
+    this.onRenameSource,
+    this.onRemoveSource,
   });
 
   @override
@@ -753,7 +771,8 @@ class _SourceBreakdown extends StatelessWidget {
                         color: AppColors.income,
                       ),
                     ),
-                    PopupMenuButton<String>(
+                    if (onRenameSource != null || onRemoveSource != null)
+                      PopupMenuButton<String>(
                       enabled: !isBusy,
                       icon: Icon(
                         Icons.more_vert_rounded,
@@ -761,9 +780,9 @@ class _SourceBreakdown extends StatelessWidget {
                       ),
                       onSelected: (value) {
                         if (value == 'edit') {
-                          onRenameSource(entry.key);
+                          onRenameSource?.call(entry.key);
                         } else if (value == 'remove') {
-                          onRemoveSource(entry.key, count);
+                          onRemoveSource?.call(entry.key, count);
                         }
                       },
                       itemBuilder: (context) => [

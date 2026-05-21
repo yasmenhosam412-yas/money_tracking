@@ -199,8 +199,6 @@ class ExpensesTabBloc extends Bloc<ExpensesTabEvent, ExpensesTabState> {
         error: '',
       ),
     );
-
-    add(const LoadExpensesEvent(force: true));
   }
 
   Future<void> _onClearAll(

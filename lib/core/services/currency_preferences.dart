@@ -1,5 +1,9 @@
 import 'package:flutter/foundation.dart';
+import 'package:imrpo/core/l10n/l10n_entity_strings.dart';
 import 'package:imrpo/core/services/currency_converter.dart';
+import 'package:imrpo/core/services/locale_preferences.dart';
+import 'package:imrpo/core/services/service_locator.dart';
+import 'package:imrpo/l10n/app_localizations.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class CurrencyPreferences extends ChangeNotifier {
@@ -9,21 +13,20 @@ class CurrencyPreferences extends ChangeNotifier {
 
   String get displayCode => _displayCode;
 
-  /// Loads the last selected currency from device storage.
+  /// Loads display currency (always EGP).
   Future<void> load() async {
+    _displayCode = CurrencyConverter.defaultDisplayCode;
     final prefs = await SharedPreferences.getInstance();
-    final saved = prefs.getString(_storageKey);
-    if (saved != null && _isSupported(saved)) {
-      _displayCode = saved;
-      notifyListeners();
-    }
+    await prefs.setString(_storageKey, _displayCode);
+    notifyListeners();
   }
 
   set displayCode(String code) {
-    if (!_isSupported(code) || _displayCode == code) return;
-    _displayCode = code;
+    final normalized = CurrencyConverter.defaultDisplayCode;
+    if (_displayCode == normalized) return;
+    _displayCode = normalized;
     notifyListeners();
-    _persist(code);
+    _persist(normalized);
   }
 
   Future<void> _persist(String code) async {
@@ -31,14 +34,21 @@ class CurrencyPreferences extends ChangeNotifier {
     await prefs.setString(_storageKey, code);
   }
 
-  bool _isSupported(String code) =>
-      CurrencyConverter.currencies.any((c) => c.code == code);
-
   double displayAmount(double baseAmount) =>
       CurrencyConverter.fromBase(baseAmount, _displayCode);
 
-  String formatBase(double baseAmount) => CurrencyConverter.format(
-        displayAmount(baseAmount),
-        _displayCode,
-      );
+  String formatBase(double baseAmount) {
+    final amount = displayAmount(baseAmount);
+    return formatDisplayAmount(amount);
+  }
+
+  /// Formats [amount] already in display currency (EGP), without USD conversion.
+  String formatDisplayAmount(double amount) {
+    final l10n = lookupAppLocalizations(getIt<LocalePreferences>().locale);
+    final symbol = localizeCurrencySymbol(l10n, _displayCode);
+    final value = amount == amount.roundToDouble()
+        ? amount.toInt().toString()
+        : amount.toStringAsFixed(2);
+    return '$symbol$value';
+  }
 }

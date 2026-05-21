@@ -1,6 +1,12 @@
 import 'package:get_it/get_it.dart';
 import 'package:imrpo/core/services/app_lock_service.dart';
+import 'package:imrpo/core/services/association_context.dart';
+import 'package:imrpo/core/services/bill_reminder_preferences.dart';
 import 'package:imrpo/core/services/auto_sms_import_preferences.dart';
+import 'package:imrpo/features/bill_reminders/data/bill_reminder_store.dart';
+import 'package:imrpo/features/bill_reminders/data/repositories/bill_reminder_repository_impl.dart';
+import 'package:imrpo/features/bill_reminders/domain/repositories/bill_reminder_repository.dart';
+import 'package:imrpo/features/bill_reminders/presentation/bloc/bill_reminders_bloc.dart';
 import 'package:imrpo/core/services/auto_sms_import_service.dart';
 import 'package:imrpo/core/services/currency_preferences.dart';
 import 'package:imrpo/core/services/home_date_filter.dart';
@@ -9,6 +15,8 @@ import 'package:imrpo/core/services/smart_import_draft_store.dart';
 import 'package:imrpo/core/services/shared_text_import_store.dart';
 import 'package:imrpo/core/services/payment_methods_store.dart';
 import 'package:imrpo/core/services/locale_preferences.dart';
+import 'package:imrpo/core/services/association_invite_disclaimer_prefs.dart';
+import 'package:imrpo/core/services/onboarding_preferences.dart';
 import 'package:imrpo/core/services/sms_bulk_import_service.dart';
 import 'package:imrpo/core/services/sms_import_service.dart';
 import 'package:imrpo/core/services/sms_imported_registry.dart';
@@ -90,7 +98,19 @@ void setupServiceLocator() {
 
   getIt.registerLazySingleton<LocalePreferences>(() => LocalePreferences());
 
+  getIt.registerLazySingleton<OnboardingPreferences>(
+    () => OnboardingPreferences(),
+  );
+
+  getIt.registerLazySingleton<AssociationInviteDisclaimerPrefs>(
+    () => AssociationInviteDisclaimerPrefs(),
+  );
+
   getIt.registerLazySingleton<HomeDateFilter>(() => HomeDateFilter());
+
+  getIt.registerLazySingleton<AssociationContext>(
+    () => AssociationContext(client: getIt<SupabaseClient>()),
+  );
 
   getIt.registerLazySingleton<SmartImportDraftStore>(
     () => SmartImportDraftStore(),
@@ -114,6 +134,20 @@ void setupServiceLocator() {
 
   getIt.registerLazySingleton<AutoSmsImportPreferences>(
     () => AutoSmsImportPreferences(),
+  );
+
+  getIt.registerLazySingleton<BillReminderPreferences>(
+    () => BillReminderPreferences(),
+  );
+
+  getIt.registerLazySingleton<BillReminderStore>(() => BillReminderStore());
+
+  getIt.registerLazySingleton<BillReminderRepository>(
+    () => BillReminderRepositoryImpl(store: getIt<BillReminderStore>()),
+  );
+
+  getIt.registerLazySingleton<BillRemindersBloc>(
+    () => BillRemindersBloc(repository: getIt<BillReminderRepository>()),
   );
 
   getIt.registerLazySingleton<AutoSmsImportService>(

@@ -7,33 +7,32 @@ class CurrencyConverter {
   /// Internal storage currency (amounts saved in DB).
   static const String baseCode = 'USD';
 
-  /// Default currency shown in the UI for new users.
+  /// Only currency shown and entered in the app UI.
   static const String defaultDisplayCode = 'EGP';
 
+  static const Currency _storageCurrency = Currency(
+    code: 'USD',
+    name: 'US Dollar',
+    symbol: r'$',
+    rateToUsd: 1.0,
+  );
+
   static const List<Currency> currencies = [
-    Currency(code: 'USD', name: 'US Dollar', symbol: '\$', rateToUsd: 1.0),
-    Currency(code: 'EUR', name: 'Euro', symbol: '€', rateToUsd: 1.08),
-    Currency(code: 'GBP', name: 'British Pound', symbol: '£', rateToUsd: 1.27),
-    Currency(code: 'JPY', name: 'Japanese Yen', symbol: '¥', rateToUsd: 0.0067),
-    Currency(code: 'CAD', name: 'Canadian Dollar', symbol: 'C\$', rateToUsd: 0.74),
-    Currency(code: 'AUD', name: 'Australian Dollar', symbol: 'A\$', rateToUsd: 0.65),
-    Currency(code: 'CHF', name: 'Swiss Franc', symbol: 'CHF', rateToUsd: 1.12),
-    Currency(code: 'CNY', name: 'Chinese Yuan', symbol: '¥', rateToUsd: 0.14),
-    Currency(code: 'INR', name: 'Indian Rupee', symbol: '₹', rateToUsd: 0.012),
-    Currency(code: 'SAR', name: 'Saudi Riyal', symbol: '﷼', rateToUsd: 0.27),
-    Currency(code: 'AED', name: 'UAE Dirham', symbol: 'د.إ', rateToUsd: 0.27),
-    Currency(code: 'EGP', name: 'Egyptian Pound', symbol: 'E£', rateToUsd: 0.021),
-    Currency(code: 'TRY', name: 'Turkish Lira', symbol: '₺', rateToUsd: 0.031),
-    Currency(code: 'MXN', name: 'Mexican Peso', symbol: '\$', rateToUsd: 0.058),
-    Currency(code: 'BRL', name: 'Brazilian Real', symbol: 'R\$', rateToUsd: 0.20),
+    Currency(
+      code: 'EGP',
+      name: 'Egyptian Pound',
+      symbol: 'E£',
+      rateToUsd: 0.021,
+    ),
   ];
 
-  static Currency get base => currencies.first;
+  static Currency get base => _storageCurrency;
 
   static Currency byCode(String code) {
+    if (code == baseCode) return _storageCurrency;
     return currencies.firstWhere(
       (c) => c.code == code,
-      orElse: () => base,
+      orElse: () => currencies.first,
     );
   }
 

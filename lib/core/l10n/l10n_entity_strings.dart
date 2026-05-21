@@ -1,6 +1,23 @@
 import 'package:imrpo/core/helpers/network_error_classifier.dart';
 import 'package:imrpo/core/l10n/l10n_error_tokens.dart';
+import 'package:imrpo/core/services/currency_converter.dart';
 import 'package:imrpo/l10n/app_localizations.dart';
+
+/// Localized label for the amount field currency chip (EGP only).
+String localizeCurrencyLabel(AppLocalizations l10n, String code) {
+  if (code == CurrencyConverter.defaultDisplayCode) {
+    return l10n.currencyEgyptianPound;
+  }
+  return code;
+}
+
+/// Localized symbol shown before formatted amounts (e.g. E£ / ج.م).
+String localizeCurrencySymbol(AppLocalizations l10n, String code) {
+  if (code == CurrencyConverter.defaultDisplayCode) {
+    return l10n.currencyEgpSymbol;
+  }
+  return CurrencyConverter.byCode(code).symbol;
+}
 
 String localizeExpenseCategory(AppLocalizations l10n, String stored) {
   switch (stored) {
@@ -43,6 +60,12 @@ String localizeIncomeCategory(AppLocalizations l10n, String stored) {
       return l10n.incomeSourceVisaCard;
     case 'Cash':
       return l10n.incomeSourceCash;
+    case 'Bank transfer':
+      return l10n.paymentPresetBankTransfer;
+    case 'Vodafone Cash':
+      return l10n.paymentPresetVodafoneCash;
+    case 'InstaPay':
+      return l10n.paymentPresetInstaPay;
     default:
       return stored;
   }

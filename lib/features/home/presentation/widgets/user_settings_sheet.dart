@@ -15,6 +15,11 @@ import 'package:imrpo/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:imrpo/features/auth/presentation/widgets/custom_text_field.dart';
 import 'package:imrpo/features/home/domain/entities/user_profile.dart';
 import 'package:imrpo/features/home/presentation/bloc/home_bloc.dart';
+import 'package:imrpo/core/services/bill_reminder_debug_log.dart';
+import 'package:imrpo/core/services/bill_reminder_notification_service.dart';
+import 'package:imrpo/core/services/bill_reminder_preferences.dart';
+import 'package:imrpo/features/bill_reminders/domain/repositories/bill_reminder_repository.dart';
+import 'package:imrpo/features/bill_reminders/presentation/pages/bill_reminders_screen.dart';
 import 'package:imrpo/features/incomes_tab/presentation/bloc/incomes_tab_bloc.dart';
 import 'package:imrpo/l10n/app_localizations.dart';
 
@@ -233,6 +238,95 @@ class _UserSettingsSheetState extends State<UserSettingsSheet> {
                                 AppRoutes.monthlyReport,
                               );
                             },
+                    ),
+                    ListenableBuilder(
+                      listenable: getIt<BillReminderPreferences>(),
+                      builder: (context, _) {
+                        final billPrefs = getIt<BillReminderPreferences>();
+
+                        return Column(
+                          children: [
+                            _SettingsTile(
+                              icon: Icons.notifications_active_outlined,
+                              label: l10n.billRemindersEnabled,
+                              trailing: Switch.adaptive(
+                                value: billPrefs.enabled,
+                                activeThumbColor: AppColors.primary,
+                                onChanged: actionsLocked
+                                    ? null
+                                    : (enabled) async {
+                                        billReminderLog(
+                                          'settings: toggle enabled=$enabled',
+                                        );
+                                        await billPrefs.setEnabled(enabled);
+                                        if (enabled) {
+                                          final granted =
+                                              await BillReminderNotificationService
+                                                  .instance
+                                                  .requestPermissionIfNeeded();
+                                          billReminderLog(
+                                            'settings: permission granted=$granted',
+                                          );
+                                        }
+                                        final repo =
+                                            getIt<BillReminderRepository>();
+                                        final result = await repo.getAll();
+                                        result.fold(
+                                          (f) => billReminderLog(
+                                            'settings: load failed ${f.error}',
+                                          ),
+                                          (list) async {
+                                            billReminderLog(
+                                              'settings: ${list.length} reminder(s)',
+                                            );
+                                            if (enabled) {
+                                              await BillReminderNotificationService
+                                                  .instance
+                                                  .rescheduleAll(list);
+                                            } else {
+                                              await BillReminderNotificationService
+                                                  .instance
+                                                  .cancelAll();
+                                            }
+                                          },
+                                        );
+                                      },
+                              ),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.only(
+                                left: 48,
+                                right: 4,
+                                bottom: 4,
+                              ),
+                              child: Align(
+                                alignment: Alignment.centerLeft,
+                                child: Text(
+                                  l10n.billRemindersSubtitle,
+                                  style: TextStyle(
+                                    fontSize: 13,
+                                    color: AppColors.textColor.withValues(
+                                      alpha: 0.55,
+                                    ),
+                                    height: 1.35,
+                                  ),
+                                ),
+                              ),
+                            ),
+                            if (billPrefs.enabled)
+                              _SettingsTile(
+                                icon: Icons.event_repeat_rounded,
+                                label: l10n.billRemindersTitle,
+                                onTap: actionsLocked
+                                    ? null
+                                    : () async {
+                                        Navigator.of(context).pop();
+                                        await openBillRemindersScreen();
+                                      },
+                              ),
+                          ],
+                        );
+                      },
                     ),
                     _SettingsTile(
                       icon: Icons.calculate_rounded,

@@ -1,0 +1,508 @@
+-- Egyptian-style association (gom3eya): payout, installment, turn order.
+-- Run after associations.sql. Uses is_association_owner from association_treasurer_rls.sql
+-- (run that file first if you use treasurer mode).
+
+create or replace function public.is_association_owner(p_association_id uuid)
+returns boolean
+language sql
+stable
+security definer
+set search_path = public
+as $$
+  select exists (
+    select 1
+    from public.association_members m
+    where m.association_id = p_association_id
+      and m.user_id = auth.uid()
+      and m.role = 'owner'
+  );
+$$;
+
+alter table public.associations
+  add column if not exists payout_amount numeric(14, 2),
+  add column if not exists installment_amount numeric(14, 2),
+  add column if not exists member_slots int not null default 0,
+  add column if not exists current_turn_index int not null default 0,
+  add column if not exists collection_day int,
+  add column if not exists gom3eya_ended_at timestamptz;
+
+alter table public.associations
+  drop constraint if exists associations_collection_day_check;
+
+alter table public.associations
+  add constraint associations_collection_day_check
+  check (collection_day is null or collection_day between 1 and 31);
+
+create or replace function public.is_gom3eya_active(p_association_id uuid)
+returns boolean
+language sql
+stable
+security definer
+set search_path = public
+as $$
+  select coalesce(
+    (
+      select a.gom3eya_ended_at is null
+      from public.associations a
+      where a.id = p_association_id
+        and a.is_personal = false
+    ),
+    false
+  );
+$$;
+
+create table if not exists public.association_turn_slots (
+  id uuid primary key default gen_random_uuid(),
+  association_id uuid not null references public.associations (id) on delete cascade,
+  slot_index int not null check (slot_index >= 0),
+  holder_name text not null,
+  user_id uuid references auth.users (id) on delete set null,
+  received_at timestamptz,
+  unique (association_id, slot_index)
+);
+
+create index if not exists association_turn_slots_assoc_idx
+  on public.association_turn_slots (association_id, slot_index);
+
+alter table public.association_turn_slots enable row level security;
+
+drop policy if exists "Members read turn slots" on public.association_turn_slots;
+create policy "Members read turn slots"
+  on public.association_turn_slots for select
+  using (public.is_association_member(association_id));
+
+drop policy if exists "Owners manage turn slots" on public.association_turn_slots;
+create policy "Owners manage turn slots"
+  on public.association_turn_slots for all
+  using (public.is_association_owner(association_id))
+  with check (public.is_association_owner(association_id));
+
+-- ---------------------------------------------------------------------------
+-- Installment payments: who paid how much and when
+-- ---------------------------------------------------------------------------
+
+create table if not exists public.association_installment_payments (
+  id uuid primary key default gen_random_uuid(),
+  association_id uuid not null references public.associations (id) on delete cascade,
+  payer_name text not null,
+  turn_slot_id uuid references public.association_turn_slots (id) on delete set null,
+  amount numeric(14, 2) not null check (amount > 0),
+  paid_at timestamptz not null default now(),
+  note text,
+  created_by uuid not null references auth.users (id) on delete cascade,
+  created_at timestamptz not null default now()
+);
+
+create index if not exists association_installment_payments_assoc_idx
+  on public.association_installment_payments (association_id, paid_at desc);
+
+alter table public.association_installment_payments enable row level security;
+
+drop policy if exists "Members read installment payments" on public.association_installment_payments;
+create policy "Members read installment payments"
+  on public.association_installment_payments for select
+  using (public.is_association_member(association_id));
+
+drop policy if exists "Owners manage installment payments" on public.association_installment_payments;
+create policy "Owners manage installment payments"
+  on public.association_installment_payments for all
+  using (public.is_association_owner(association_id))
+  with check (public.is_association_owner(association_id));
+
+-- ---------------------------------------------------------------------------
+-- RPC: load hub payload
+-- ---------------------------------------------------------------------------
+
+create or replace function public.get_association_hub(p_association_id uuid)
+returns jsonb
+language plpgsql
+stable
+security definer
+set search_path = public
+as $$
+declare
+  uid uuid := auth.uid();
+  assoc jsonb;
+  slots jsonb;
+  members jsonb;
+  payments jsonb;
+begin
+  if uid is null then
+    raise exception 'Not authenticated';
+  end if;
+
+  if not public.is_association_member(p_association_id) then
+    raise exception 'Not a member of this association';
+  end if;
+
+  select jsonb_build_object(
+    'id', a.id,
+    'name', a.name,
+    'is_personal', a.is_personal,
+    'payout_amount', a.payout_amount,
+    'installment_amount', a.installment_amount,
+    'member_slots', a.member_slots,
+    'current_turn_index', a.current_turn_index,
+    'collection_day', a.collection_day,
+    'gom3eya_ended_at', a.gom3eya_ended_at
+  )
+  into assoc
+  from public.associations a
+  where a.id = p_association_id;
+
+  select coalesce(
+    jsonb_agg(
+      jsonb_build_object(
+        'id', s.id,
+        'slot_index', s.slot_index,
+        'holder_name', s.holder_name,
+        'user_id', s.user_id,
+        'received_at', s.received_at
+      )
+      order by s.slot_index
+    ),
+    '[]'::jsonb
+  )
+  into slots
+  from public.association_turn_slots s
+  where s.association_id = p_association_id;
+
+  select coalesce(
+    jsonb_agg(
+      jsonb_build_object(
+        'user_id', m.user_id,
+        'role', m.role,
+        'username', coalesce(p.username, '')
+      )
+      order by m.joined_at
+    ),
+    '[]'::jsonb
+  )
+  into members
+  from public.association_members m
+  left join public.profiles p on p.id = m.user_id
+  where m.association_id = p_association_id;
+
+  select coalesce(
+    jsonb_agg(
+      jsonb_build_object(
+        'id', pay.id,
+        'payer_name', pay.payer_name,
+        'turn_slot_id', pay.turn_slot_id,
+        'amount', pay.amount,
+        'paid_at', pay.paid_at,
+        'note', pay.note
+      )
+      order by pay.paid_at desc, pay.created_at desc
+    ),
+    '[]'::jsonb
+  )
+  into payments
+  from public.association_installment_payments pay
+  where pay.association_id = p_association_id;
+
+  return jsonb_build_object(
+    'association', assoc,
+    'slots', slots,
+    'members', members,
+    'payments', payments,
+    'is_owner', public.is_association_owner(p_association_id)
+  );
+end;
+$$;
+
+revoke all on function public.get_association_hub(uuid) from public;
+grant execute on function public.get_association_hub(uuid) to authenticated;
+
+create or replace function public.add_association_payment(
+  p_association_id uuid,
+  p_payer_name text,
+  p_amount numeric,
+  p_paid_at timestamptz,
+  p_turn_slot_id uuid default null,
+  p_note text default null
+)
+returns uuid
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  uid uuid := auth.uid();
+  pid uuid;
+  trimmed text := trim(coalesce(p_payer_name, ''));
+begin
+  if uid is null then
+    raise exception 'Not authenticated';
+  end if;
+
+  if not public.is_association_owner(p_association_id) then
+    raise exception 'Only the association owner can record payments';
+  end if;
+
+  if not public.is_gom3eya_active(p_association_id) then
+    raise exception 'This gom3eya has already ended';
+  end if;
+
+  if trimmed = '' then
+    raise exception 'Payer name is required';
+  end if;
+
+  if p_amount is null or p_amount <= 0 then
+    raise exception 'Amount must be greater than zero';
+  end if;
+
+  insert into public.association_installment_payments (
+    association_id,
+    payer_name,
+    turn_slot_id,
+    amount,
+    paid_at,
+    note,
+    created_by
+  ) values (
+    p_association_id,
+    trimmed,
+    p_turn_slot_id,
+    p_amount,
+    coalesce(p_paid_at, now()),
+    nullif(trim(coalesce(p_note, '')), ''),
+    uid
+  )
+  returning id into pid;
+
+  return pid;
+end;
+$$;
+
+revoke all on function public.add_association_payment(uuid, text, numeric, timestamptz, uuid, text) from public;
+grant execute on function public.add_association_payment(uuid, text, numeric, timestamptz, uuid, text) to authenticated;
+
+create or replace function public.delete_association_payment(p_payment_id uuid)
+returns void
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  uid uuid := auth.uid();
+  aid uuid;
+begin
+  if uid is null then
+    raise exception 'Not authenticated';
+  end if;
+
+  select pay.association_id into aid
+  from public.association_installment_payments pay
+  where pay.id = p_payment_id;
+
+  if aid is null then
+    raise exception 'Payment not found';
+  end if;
+
+  if not public.is_association_owner(aid) then
+    raise exception 'Not allowed to delete this payment';
+  end if;
+
+  if not public.is_gom3eya_active(aid) then
+    raise exception 'This gom3eya has already ended';
+  end if;
+
+  delete from public.association_installment_payments
+  where id = p_payment_id;
+end;
+$$;
+
+revoke all on function public.delete_association_payment(uuid) from public;
+grant execute on function public.delete_association_payment(uuid) to authenticated;
+
+-- ---------------------------------------------------------------------------
+-- RPC: save gom3eya settings + turn order (owner only)
+-- ---------------------------------------------------------------------------
+
+create or replace function public.save_association_gom3eya(
+  p_association_id uuid,
+  p_payout_amount numeric,
+  p_installment_amount numeric,
+  p_collection_day int,
+  p_slots jsonb
+)
+returns void
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  uid uuid := auth.uid();
+  slot_count int;
+  elem jsonb;
+  idx int;
+  name text;
+begin
+  if uid is null then
+    raise exception 'Not authenticated';
+  end if;
+
+  if not public.is_association_owner(p_association_id) then
+    raise exception 'Only the association owner can edit settings';
+  end if;
+
+  if not public.is_gom3eya_active(p_association_id) then
+    raise exception 'This gom3eya has already ended';
+  end if;
+
+  if exists (
+    select 1 from public.associations a
+    where a.id = p_association_id and a.is_personal = true
+  ) then
+    raise exception 'Cannot configure personal ledger as gom3eya';
+  end if;
+
+  if p_collection_day is not null
+     and (p_collection_day < 1 or p_collection_day > 31) then
+    raise exception 'Collection day must be between 1 and 31';
+  end if;
+
+  slot_count := coalesce(jsonb_array_length(p_slots), 0);
+
+  update public.associations
+  set
+    payout_amount = nullif(p_payout_amount, 0),
+    installment_amount = nullif(p_installment_amount, 0),
+    collection_day = p_collection_day,
+    member_slots = slot_count,
+    current_turn_index = least(
+      current_turn_index,
+      greatest(slot_count - 1, 0)
+    )
+  where id = p_association_id;
+
+  delete from public.association_turn_slots
+  where association_id = p_association_id;
+
+  for elem in select * from jsonb_array_elements(coalesce(p_slots, '[]'::jsonb))
+  loop
+    idx := (elem->>'slot_index')::int;
+    name := trim(coalesce(elem->>'holder_name', ''));
+    if name = '' then
+      continue;
+    end if;
+    insert into public.association_turn_slots (
+      association_id, slot_index, holder_name
+    ) values (p_association_id, idx, name);
+  end loop;
+
+  update public.associations
+  set member_slots = (
+    select count(*)::int
+    from public.association_turn_slots s
+    where s.association_id = p_association_id
+  )
+  where id = p_association_id;
+end;
+$$;
+
+revoke all on function public.save_association_gom3eya(uuid, numeric, numeric, int, jsonb) from public;
+grant execute on function public.save_association_gom3eya(uuid, numeric, numeric, int, jsonb) to authenticated;
+
+-- ---------------------------------------------------------------------------
+-- RPC: advance to next turn (owner only)
+-- ---------------------------------------------------------------------------
+
+create or replace function public.advance_association_turn(p_association_id uuid)
+returns int
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  uid uuid := auth.uid();
+  slot_count int;
+  cur int;
+  next_idx int;
+begin
+  if uid is null then
+    raise exception 'Not authenticated';
+  end if;
+
+  if not public.is_association_owner(p_association_id) then
+    raise exception 'Only the association owner can advance the turn';
+  end if;
+
+  if not public.is_gom3eya_active(p_association_id) then
+    raise exception 'This gom3eya has already ended';
+  end if;
+
+  select a.member_slots, a.current_turn_index
+  into slot_count, cur
+  from public.associations a
+  where a.id = p_association_id;
+
+  if slot_count is null or slot_count < 1 then
+    raise exception 'Add turn slots first';
+  end if;
+
+  update public.association_turn_slots
+  set received_at = coalesce(received_at, now())
+  where association_id = p_association_id
+    and slot_index = cur;
+
+  next_idx := (cur + 1) % slot_count;
+
+  update public.associations
+  set current_turn_index = next_idx
+  where id = p_association_id;
+
+  return next_idx;
+end;
+$$;
+
+revoke all on function public.advance_association_turn(uuid) from public;
+grant execute on function public.advance_association_turn(uuid) to authenticated;
+
+-- ---------------------------------------------------------------------------
+-- RPC: end gom3eya (owner only, read-only after)
+-- ---------------------------------------------------------------------------
+
+create or replace function public.end_association_gom3eya(p_association_id uuid)
+returns timestamptz
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  uid uuid := auth.uid();
+  ended timestamptz;
+begin
+  if uid is null then
+    raise exception 'Not authenticated';
+  end if;
+
+  if not public.is_association_owner(p_association_id) then
+    raise exception 'Only the association owner can end the gom3eya';
+  end if;
+
+  select a.gom3eya_ended_at into ended
+  from public.associations a
+  where a.id = p_association_id
+    and a.is_personal = false;
+
+  if not found then
+    raise exception 'Association not found';
+  end if;
+
+  if ended is not null then
+    raise exception 'Gom3eya already ended';
+  end if;
+
+  update public.associations
+  set gom3eya_ended_at = now()
+  where id = p_association_id
+  returning gom3eya_ended_at into ended;
+
+  return ended;
+end;
+$$;
+
+revoke all on function public.end_association_gom3eya(uuid) from public;
+grant execute on function public.end_association_gom3eya(uuid) to authenticated;

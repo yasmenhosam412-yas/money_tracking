@@ -154,7 +154,7 @@ class _AddIncomeSheetState extends State<AddIncomeSheet> {
                     const SizedBox(height: 24),
                     PaymentMethodChipsSection(
                       label: l10n.incomeSourceField,
-                      hint: l10n.hintIncomeSource,
+                      hint: l10n.addIncomeSheetSourceHint,
                       selected: _sourceController.text.trim().isEmpty
                           ? PaymentMethodsStore.defaultPresets.first
                           : _sourceController.text.trim(),
@@ -165,7 +165,7 @@ class _AddIncomeSheetState extends State<AddIncomeSheet> {
                     const SizedBox(height: 16),
                     CustomFormField(
                       label: l10n.titleField,
-                      hint: l10n.hintIncomeTitle,
+                      hint: l10n.addIncomeSheetTitleHint,
                       controller: _titleController,
                       obscure: false,
                       icon: Icons.label_outline_rounded,

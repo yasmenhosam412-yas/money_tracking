@@ -826,7 +826,7 @@ class TransactionTextParser {
   /// Parse bank/wallet SMS into an entry, or null if not a transaction.
   static ParsedFinancialEntry? parseSms(
     String text, {
-    String defaultCurrencyCode = CurrencyConverter.baseCode,
+    String defaultCurrencyCode = CurrencyConverter.defaultDisplayCode,
     DateTime? smsReceivedAt,
     String? sender,
   }) {
@@ -860,7 +860,7 @@ class TransactionTextParser {
   /// OCR / invoice parsing (broader than SMS).
   static ParsedFinancialEntry parse(
     String text, {
-    String defaultCurrencyCode = CurrencyConverter.baseCode,
+    String defaultCurrencyCode = CurrencyConverter.defaultDisplayCode,
   }) {
     final normalized = text.replaceAll('\r', '').trim();
     final lower = normalized.toLowerCase();
@@ -886,7 +886,7 @@ class TransactionTextParser {
   /// Splits pasted text into blocks and parses each financial message.
   static List<ParsedFinancialEntry> parseMultiplePasted(
     String text, {
-    String defaultCurrencyCode = CurrencyConverter.baseCode,
+    String defaultCurrencyCode = CurrencyConverter.defaultDisplayCode,
   }) {
     final chunks = _splitPastedMessageChunks(text);
     final results = <ParsedFinancialEntry>[];
@@ -1145,22 +1145,19 @@ class TransactionTextParser {
   }
 
   static String? _extractCurrency(String text) {
-    const patterns = <String, List<String>>{
-      'EGP': [r'EGP', r'\bLE\b', r'ج\.?\s*م', r'جم\b', r'جنيه', r'جنية'],
-      'SAR': [r'SAR', r'ر\.س', r'ريال\s*سعود'],
-      'AED': [r'AED', r'د\.إ', r'درهم'],
-      'USD': [r'USD', r'US\$', r'\$'],
-      'EUR': [r'EUR', r'€'],
-      'GBP': [r'GBP', r'£'],
-      'TRY': [r'TRY', r'₺', r'ليرة'],
-      'INR': [r'INR', r'₹', r'روبية'],
-    };
+    const patterns = [
+      r'EGP',
+      r'\bLE\b',
+      r'ج\.?\s*م',
+      r'جم\b',
+      r'جنيه',
+      r'جنية',
+      r'جميه',
+    ];
 
-    for (final entry in patterns.entries) {
-      for (final pattern in entry.value) {
-        if (RegExp(pattern, caseSensitive: false).hasMatch(text)) {
-          return entry.key;
-        }
+    for (final pattern in patterns) {
+      if (RegExp(pattern, caseSensitive: false).hasMatch(text)) {
+        return CurrencyConverter.defaultDisplayCode;
       }
     }
     return null;

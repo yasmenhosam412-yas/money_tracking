@@ -8,9 +8,8 @@ import 'package:imrpo/core/utils/app_colors.dart';
 import 'package:imrpo/core/utils/money_format.dart';
 import 'package:imrpo/features/budgets/domain/services/budget_calculator.dart';
 import 'package:imrpo/core/l10n/l10n_entity_strings.dart';
+import 'package:imrpo/core/widgets/payment_method_badge.dart';
 import 'package:imrpo/l10n/app_localizations.dart';
-import 'package:skeletonizer/skeletonizer.dart';
-
 class ExpenseListTile extends StatelessWidget {
   final ExpenseModel expense;
   final VoidCallback? onTap;
@@ -123,37 +122,24 @@ class ExpenseListTile extends StatelessWidget {
                       ],
                     ),
                     if (paidFrom != null) ...[
-                      const SizedBox(height: 4),
+                      const SizedBox(height: 6),
                       Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
-                          Padding(
-                            padding: const EdgeInsets.only(top: 1),
-                            child: Icon(
-                              Icons.payments_outlined,
-                              size: 14,
-                              color: iconMetaColor,
+                          Text(
+                            '${l10n.expensePaidFromField}: ',
+                            style: TextStyle(
+                              fontSize: 11.5,
+                              fontWeight: FontWeight.w500,
+                              color: AppColors.textColor.withValues(
+                                alpha: 0.45,
+                              ),
                             ),
                           ),
-                          const SizedBox(width: 6),
-                          Expanded(
-                            child: Text.rich(
-                              TextSpan(
-                                style: metaStyle,
-                                children: [
-                                  TextSpan(
-                                    text: '${l10n.expensePaidFromField}: ',
-                                    style: TextStyle(
-                                      color: AppColors.textColor.withValues(
-                                        alpha: 0.5,
-                                      ),
-                                    ),
-                                  ),
-                                  TextSpan(text: paidFrom),
-                                ],
-                              ),
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
+                          Flexible(
+                            child: PaymentMethodBadge(
+                              label: paidFrom,
+                              storedSource: paidFromRaw,
                             ),
                           ),
                         ],
@@ -186,16 +172,22 @@ class ExpenseListTile extends StatelessWidget {
                         state.deletingExpenseId == expense.id;
                     return IconButton(
                       onPressed: isDeleting ? null : onDelete,
-                      icon: Skeletonizer(
-                        enabled: isDeleting,
-                        child: Icon(
-                          Icons.close_rounded,
-                          size: 20,
-                          color: AppColors.textColor.withValues(
-                            alpha: 0.35,
-                          ),
-                        ),
-                      ),
+                      icon: isDeleting
+                          ? SizedBox(
+                              width: 18,
+                              height: 18,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                color: _expenseColor.withValues(alpha: 0.7),
+                              ),
+                            )
+                          : Icon(
+                              Icons.close_rounded,
+                              size: 20,
+                              color: AppColors.textColor.withValues(
+                                alpha: 0.35,
+                              ),
+                            ),
                       visualDensity: VisualDensity.compact,
                       padding: EdgeInsets.zero,
                       constraints: const BoxConstraints(

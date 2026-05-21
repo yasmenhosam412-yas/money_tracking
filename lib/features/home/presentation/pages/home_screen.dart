@@ -7,13 +7,18 @@ import 'package:imrpo/features/home/presentation/widgets/user_settings_sheet.dar
 import 'package:imrpo/core/services/currency_preferences.dart';
 import 'package:imrpo/core/services/home_date_filter.dart';
 import 'package:imrpo/core/services/service_locator.dart';
+import 'package:imrpo/core/helpers/supabase_auth_helper.dart';
+import 'package:imrpo/core/services/association_context.dart';
+import 'package:imrpo/core/session/user_session.dart';
+import 'package:imrpo/features/associations/presentation/widgets/association_ledger_banner.dart';
+import 'package:imrpo/features/home/presentation/widgets/association_selector.dart';
 import 'package:imrpo/features/home/presentation/widgets/home_date_filter_sheet.dart';
 import 'package:imrpo/core/utils/app_colors.dart';
-import 'package:imrpo/core/widgets/display_currency_selector.dart';
 import 'package:imrpo/features/balance_tab/presentation/pages/balance_tab.dart';
 import 'package:imrpo/features/expenses_tab/presentation/pages/expenses_tab.dart';
 import 'package:imrpo/features/incomes_tab/presentation/pages/incomes_tab.dart';
 import 'package:imrpo/features/plans_tab/presentation/pages/plans_tab.dart';
+import 'package:imrpo/features/statistics_tab/presentation/pages/statistics_tab.dart';
 import 'package:imrpo/core/config/app_router.dart';
 import 'package:imrpo/l10n/app_localizations.dart';
 
@@ -26,13 +31,26 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   late TabController _tabController;
+  bool _tabsLoaded = false;
 
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 4, vsync: this);
+    _tabController = TabController(length: 5, vsync: this);
+    WidgetsBinding.instance.addPostFrameCallback((_) => _bootstrapSession());
+  }
 
-    context.read<HomeBloc>().add(LoadUserProfileEvent());
+  Future<void> _bootstrapSession() async {
+    context.read<HomeBloc>().add(const LoadUserProfileEvent());
+    if (SupabaseAuthHelper.isSignedIn) {
+      final associations = getIt<AssociationContext>();
+      if (!associations.isLoaded) {
+        await associations.load();
+      }
+    }
+    if (!mounted || _tabsLoaded) return;
+    _tabsLoaded = true;
+    UserSession.loadAll(context);
   }
 
   @override
@@ -74,6 +92,11 @@ class _HomeTabBodyState extends State<_HomeTabBody> {
           color: AppColors.balance,
         ),
         _HomeTabItem(
+          label: l10n.tabStatistics,
+          icon: Icons.bar_chart_rounded,
+          color: AppColors.secondary,
+        ),
+        _HomeTabItem(
           label: l10n.tabPlans,
           icon: Icons.flag_outlined,
           color: AppColors.plans,
@@ -111,7 +134,13 @@ class _HomeTabBodyState extends State<_HomeTabBody> {
           body: NestedScrollView(
             headerSliverBuilder: (context, innerBoxIsScrolled) => [
               SliverToBoxAdapter(
-                child: _HomeHeader(selectedTab: selectedTab),
+                child: _HomeHeader(
+                  selectedTab: selectedTab,
+                  tabController: widget.tabController,
+                ),
+              ),
+              const SliverToBoxAdapter(
+                child: AssociationLedgerBanner(),
               ),
               SliverToBoxAdapter(
                 child: Padding(
@@ -144,6 +173,7 @@ class _HomeTabBodyState extends State<_HomeTabBody> {
                 IncomesTab(),
                 ExpensesTab(),
                 BalanceTab(),
+                StatisticsTab(),
                 PlansTab(),
               ],
             ),
@@ -168,8 +198,12 @@ class _HomeTabItem {
 
 class _HomeHeader extends StatelessWidget {
   final _HomeTabItem selectedTab;
+  final TabController tabController;
 
-  const _HomeHeader({required this.selectedTab});
+  const _HomeHeader({
+    required this.selectedTab,
+    required this.tabController,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -312,6 +346,8 @@ class _HomeHeader extends StatelessWidget {
                         scrollDirection: Axis.horizontal,
                         child: Row(
                           children: [
+                            const AssociationSelector(),
+                            const SizedBox(width: 8),
                             ListenableBuilder(
                               listenable: dateFilter,
                               builder: (context, _) {
@@ -338,8 +374,6 @@ class _HomeHeader extends StatelessWidget {
                                 AppRoutes.smartImport,
                               ),
                             ),
-                            const SizedBox(width: 8),
-                            const DisplayCurrencySelector(lightStyle: true),
                           ],
                         ),
                       ),

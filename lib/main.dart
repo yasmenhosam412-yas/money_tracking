@@ -11,6 +11,12 @@ import 'package:imrpo/core/services/currency_preferences.dart';
 import 'package:imrpo/core/services/expense_shortcuts_store.dart';
 import 'package:imrpo/core/services/payment_methods_store.dart';
 import 'package:imrpo/core/widgets/app_lock_gate.dart';
+import 'package:imrpo/core/helpers/supabase_auth_helper.dart';
+import 'package:imrpo/core/services/association_context.dart';
+import 'package:imrpo/core/services/bill_reminder_bootstrap.dart';
+import 'package:imrpo/core/services/bill_reminder_preferences.dart';
+import 'package:imrpo/core/widgets/bill_reminder_gate.dart';
+import 'package:imrpo/features/bill_reminders/presentation/bloc/bill_reminders_bloc.dart';
 import 'package:imrpo/core/services/locale_preferences.dart';
 import 'package:imrpo/core/services/service_locator.dart';
 import 'package:imrpo/core/services/sms_imported_registry.dart';
@@ -20,7 +26,9 @@ import 'package:imrpo/features/auth/presentation/pages/login_screen.dart';
 import 'package:imrpo/features/balance_tab/presentation/bloc/balance_tab_bloc.dart';
 import 'package:imrpo/features/budgets/presentation/bloc/budgets_bloc.dart';
 import 'package:imrpo/features/expenses_tab/presentation/bloc/expenses_tab_bloc.dart';
+import 'package:imrpo/core/services/onboarding_preferences.dart';
 import 'package:imrpo/features/home/presentation/pages/home_screen.dart';
+import 'package:imrpo/features/onboarding/presentation/pages/onboarding_screen.dart';
 import 'package:imrpo/features/incomes_tab/presentation/bloc/incomes_tab_bloc.dart';
 import 'package:imrpo/features/home/presentation/bloc/home_bloc.dart';
 import 'package:imrpo/features/plans_tab/presentation/bloc/plans_tab_bloc.dart';
@@ -47,8 +55,14 @@ Future<void> main() async {
   await getIt<PaymentMethodsStore>().load();
   await getIt<SmsImportedRegistry>().load();
   await getIt<AutoSmsImportPreferences>().load();
+  await getIt<BillReminderPreferences>().load();
+  await getIt<OnboardingPreferences>().load();
   await getIt<AppLockService>().load();
   await ShareTextImportBridge.instance.startListening();
+  if (SupabaseAuthHelper.isSignedIn) {
+    await getIt<AssociationContext>().load();
+  }
+  await bootstrapBillReminders();
   runApp(
     MultiBlocProvider(
       providers: [
@@ -59,6 +73,7 @@ Future<void> main() async {
         BlocProvider(create: (_) => getIt<ExpensesTabBloc>()),
         BlocProvider(create: (_) => getIt<BudgetsBloc>()),
         BlocProvider(create: (_) => getIt<PlansTabBloc>()),
+        BlocProvider.value(value: getIt<BillRemindersBloc>()),
       ],
       child: const MainApp(),
     ),
@@ -67,6 +82,24 @@ Future<void> main() async {
 
 class MainApp extends StatelessWidget {
   const MainApp({super.key});
+
+  static String _initialRoute() {
+    if (!getIt<OnboardingPreferences>().completed) {
+      return AppRoutes.onboarding;
+    }
+    return getIt<SupabaseClient>().auth.currentUser != null
+        ? AppRoutes.home
+        : AppRoutes.login;
+  }
+
+  static Widget _initialHome() {
+    if (!getIt<OnboardingPreferences>().completed) {
+      return const OnboardingScreen();
+    }
+    return getIt<SupabaseClient>().auth.currentUser != null
+        ? const HomeScreen()
+        : const LoginScreen();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -81,9 +114,7 @@ class MainApp extends StatelessWidget {
           onGenerateTitle: (context) => AppLocalizations.of(context)!.appTitle,
           theme: AppTheme.light,
           debugShowCheckedModeBanner: false,
-          initialRoute: getIt<SupabaseClient>().auth.currentUser != null
-              ? AppRoutes.home
-              : AppRoutes.login,
+          initialRoute: _initialRoute(),
           onGenerateRoute: AppRouter.generateRoute,
           supportedLocales: AppLocalizations.supportedLocales,
           localizationsDelegates: const [
@@ -99,14 +130,14 @@ class MainApp extends StatelessWidget {
                   : TextDirection.ltr,
               child: AppLockGate(
                 child: SharedTextImportGate(
-                  child: AutoSmsImportGate(child: child!),
+                  child: AutoSmsImportGate(
+                    child: BillReminderGate(child: child!),
+                  ),
                 ),
               ),
             );
           },
-          home: getIt<SupabaseClient>().auth.currentUser != null
-              ? HomeScreen()
-              : LoginScreen(),
+          home: _initialHome(),
         );
       },
     );

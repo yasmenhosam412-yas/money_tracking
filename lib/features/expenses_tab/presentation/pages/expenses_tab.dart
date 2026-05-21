@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:imrpo/core/services/smart_import_draft_store.dart';
@@ -8,6 +10,8 @@ import 'package:imrpo/features/incomes_tab/presentation/bloc/incomes_tab_bloc.da
 import 'package:imrpo/features/expenses_tab/data/models/expense_model.dart';
 import 'package:imrpo/core/l10n/l10n_entity_strings.dart';
 import 'package:imrpo/core/services/currency_preferences.dart';
+import 'package:imrpo/core/helpers/association_ledger_access.dart';
+import 'package:imrpo/core/services/association_context.dart';
 import 'package:imrpo/core/services/home_date_filter.dart';
 import 'package:imrpo/core/services/service_locator.dart';
 import 'package:imrpo/core/theme/app_decorations.dart';
@@ -27,6 +31,8 @@ import 'package:imrpo/features/expenses_tab/presentation/widgets/manage_expense_
 import 'package:imrpo/l10n/app_localizations.dart';
 import 'package:intl/intl.dart';
 
+enum ExpenseListSort { newest, highestAmount }
+
 class ExpensesTab extends StatefulWidget {
   const ExpensesTab({super.key});
 
@@ -37,10 +43,15 @@ class ExpensesTab extends StatefulWidget {
 class _ExpensesTabState extends State<ExpensesTab>
     with AutomaticKeepAliveClientMixin {
   static const _expenseColor = AppColors.expense;
+  static const _undoDuration = Duration(seconds: 5);
 
   String? _selectedCategory;
   String? _pendingShortcutLogLabel;
   bool _initialLoadDone = false;
+  ExpenseListSort _listSort = ExpenseListSort.newest;
+  ExpenseModel? _pendingUndoExpense;
+  bool _isRestoringUndo = false;
+  Timer? _undoTimer;
   late final HomeDateFilter _dateFilter;
 
   @override
@@ -62,8 +73,71 @@ class _ExpensesTabState extends State<ExpensesTab>
 
   @override
   void dispose() {
+    _undoTimer?.cancel();
     _dateFilter.removeListener(_onDateFilterChanged);
     super.dispose();
+  }
+
+  static List<ExpenseModel> _sortExpenses(
+    List<ExpenseModel> expenses,
+    ExpenseListSort sort,
+  ) {
+    final copy = List<ExpenseModel>.from(expenses);
+    switch (sort) {
+      case ExpenseListSort.newest:
+        copy.sort((a, b) => b.date.compareTo(a.date));
+      case ExpenseListSort.highestAmount:
+        copy.sort((a, b) {
+          final byAmount = b.amount.compareTo(a.amount);
+          if (byAmount != 0) return byAmount;
+          return b.date.compareTo(a.date);
+        });
+    }
+    return copy;
+  }
+
+  void _deleteExpense(ExpenseModel expense) {
+    _undoTimer?.cancel();
+    _pendingUndoExpense = expense;
+    context.read<ExpensesTabBloc>().add(DeleteExpenseEvent(expense.id));
+  }
+
+  void _restorePendingExpense() {
+    final expense = _pendingUndoExpense;
+    if (expense == null) return;
+    _undoTimer?.cancel();
+    ScaffoldMessenger.of(context).hideCurrentSnackBar();
+    _isRestoringUndo = true;
+    context.read<ExpensesTabBloc>().add(
+      AddExpenseEvent(
+        title: expense.title,
+        category: expense.category,
+        amount: expense.amount,
+        date: expense.date,
+        incomeSource: expense.incomeSource,
+      ),
+    );
+  }
+
+  void _showUndoSnackBar(AppLocalizations l10n) {
+    if (_pendingUndoExpense == null) return;
+    _undoTimer?.cancel();
+    _undoTimer = Timer(_undoDuration, () {
+      if (mounted) setState(() => _pendingUndoExpense = null);
+    });
+    ScaffoldMessenger.of(context).hideCurrentSnackBar();
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(l10n.expenseDeletedSnack),
+        duration: _undoDuration,
+        behavior: SnackBarBehavior.floating,
+        action: SnackBarAction(
+          label: l10n.expenseUndoAction,
+          textColor: Colors.white,
+          onPressed: _restorePendingExpense,
+        ),
+      ),
+    );
   }
 
   void _onDateFilterChanged() {
@@ -85,22 +159,86 @@ class _ExpensesTabState extends State<ExpensesTab>
     final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       backgroundColor: Colors.transparent,
-      floatingActionButton: FloatingActionButton.extended(
-        heroTag: 'fab-expenses',
-        onPressed: _onExpenseFabPressed,
-        backgroundColor: _expenseColor,
-        elevation: 2,
-        icon: const Icon(Icons.add_rounded, color: Colors.white),
-        label: Text(
-          l10n.addExpense,
-          style: const TextStyle(
-            color: Colors.white,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
+      floatingActionButton: ListenableBuilder(
+        listenable: getIt<AssociationContext>(),
+        builder: (context, _) {
+          if (!AssociationLedgerAccess.canEdit) {
+            return const SizedBox.shrink();
+          }
+          return FloatingActionButton.extended(
+            heroTag: 'fab-expenses',
+            onPressed: _onExpenseFabPressed,
+            backgroundColor: _expenseColor,
+            elevation: 2,
+            icon: const Icon(Icons.add_rounded, color: Colors.white),
+            label: Text(
+              l10n.addExpense,
+              style: const TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          );
+        },
       ),
       body: MultiBlocListener(
         listeners: [
+          BlocListener<ExpensesTabBloc, ExpensesTabState>(
+            listenWhen: (previous, current) =>
+                previous.status == ExpensesTabStatus.loadingDelete &&
+                current.status == ExpensesTabStatus.loaded &&
+                _pendingUndoExpense != null,
+            listener: (context, state) {
+              final pending = _pendingUndoExpense!;
+              if (state.expenses.any((e) => e.id == pending.id)) {
+                setState(() => _pendingUndoExpense = null);
+                return;
+              }
+              _showUndoSnackBar(l10n);
+            },
+          ),
+          BlocListener<ExpensesTabBloc, ExpensesTabState>(
+            listenWhen: (previous, current) =>
+                current.status == ExpensesTabStatus.errorDelete,
+            listener: (context, state) {
+              _undoTimer?.cancel();
+              setState(() => _pendingUndoExpense = null);
+            },
+          ),
+          BlocListener<ExpensesTabBloc, ExpensesTabState>(
+            listenWhen: (previous, current) =>
+                _isRestoringUndo &&
+                previous.status == ExpensesTabStatus.loadingAdd &&
+                current.status == ExpensesTabStatus.loaded,
+            listener: (context, state) {
+              _undoTimer?.cancel();
+              setState(() {
+                _pendingUndoExpense = null;
+                _isRestoringUndo = false;
+              });
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(l10n.expenseRestoredSnack),
+                  backgroundColor: AppColors.success,
+                  behavior: SnackBarBehavior.floating,
+                ),
+              );
+            },
+          ),
+          BlocListener<ExpensesTabBloc, ExpensesTabState>(
+            listenWhen: (previous, current) =>
+                _isRestoringUndo && current.status == ExpensesTabStatus.errorAdd,
+            listener: (context, state) {
+              setState(() => _isRestoringUndo = false);
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(localizeApiError(l10n, state.error)),
+                  backgroundColor: AppColors.error,
+                  behavior: SnackBarBehavior.floating,
+                ),
+              );
+            },
+          ),
           BlocListener<ExpensesTabBloc, ExpensesTabState>(
             listenWhen: (previous, current) =>
                 current.status == ExpensesTabStatus.errorDelete ||
@@ -281,12 +419,10 @@ class _ExpensesTabState extends State<ExpensesTab>
               );
             }
 
-            final sorted = List.of(state.expenses)
-              ..sort((a, b) => b.date.compareTo(a.date));
-
             final isRefreshing =
                 state.expenses.isNotEmpty &&
-                state.status == ExpensesTabStatus.loadingAll;
+                state.status == ExpensesTabStatus.loadingAll &&
+                (state.deletingExpenseId ?? '').isEmpty;
             final isClearingAll =
                 state.status == ExpensesTabStatus.loadingClearAll;
 
@@ -298,7 +434,7 @@ class _ExpensesTabState extends State<ExpensesTab>
                 final monthLabel = DateFormat.yMMMM(
                   Localizations.localeOf(context).toString(),
                 ).format(DateTime(budgetPeriod.year, budgetPeriod.month));
-                final dateFiltered = sorted
+                final dateFiltered = state.expenses
                     .where((expense) => dateFilter.matches(expense.date))
                     .toList();
                 final availableCategories =
@@ -308,14 +444,18 @@ class _ExpensesTabState extends State<ExpensesTab>
                         availableCategories.contains(_selectedCategory)
                     ? _selectedCategory
                     : null;
-                final filtered = activeCategory == null
-                    ? dateFiltered
-                    : dateFiltered
-                          .where(
-                            (expense) =>
-                                _categoryKey(expense) == activeCategory,
-                          )
-                          .toList();
+                final filtered = _sortExpenses(
+                  activeCategory == null
+                      ? dateFiltered
+                      : dateFiltered
+                            .where(
+                              (expense) =>
+                                  _categoryKey(expense) == activeCategory,
+                            )
+                            .toList(),
+                  _listSort,
+                );
+                final hasExpensesInPeriod = dateFiltered.isNotEmpty;
                 final periodTotal = filtered.fold<double>(
                   0,
                   (sum, expense) => sum + expense.amount,
@@ -512,12 +652,13 @@ class _ExpensesTabState extends State<ExpensesTab>
                                         ),
                                       ),
                                     ),
-                                    if (sorted.isNotEmpty) ...[
+                                    if (hasExpensesInPeriod &&
+                                        AssociationLedgerAccess.canEdit) ...[
                                       TextButton(
                                         onPressed: isClearingAll
                                             ? null
                                             : () => _confirmClearAll(
-                                                sorted.length,
+                                                state.expenses.length,
                                               ),
                                         style: TextButton.styleFrom(
                                           foregroundColor: AppColors.expense,
@@ -544,10 +685,27 @@ class _ExpensesTabState extends State<ExpensesTab>
                               ),
                             ),
 
+                            if (hasExpensesInPeriod && filtered.isNotEmpty)
+                              SliverToBoxAdapter(
+                                child: Padding(
+                                  padding: const EdgeInsets.fromLTRB(
+                                    20,
+                                    0,
+                                    20,
+                                    4,
+                                  ),
+                                  child: _ExpenseSortBar(
+                                    sort: _listSort,
+                                    onSortChanged: (sort) =>
+                                        setState(() => _listSort = sort),
+                                  ),
+                                ),
+                              ),
+
                             if (filtered.isEmpty)
                               SliverFillRemaining(
                                 hasScrollBody: false,
-                                child: sorted.isEmpty
+                                child: state.expenses.isEmpty
                                     ? _EmptyState(onAdd: _openAddSheet)
                                     : _FilteredEmptyState(
                                         message: activeCategory != null
@@ -575,14 +733,15 @@ class _ExpensesTabState extends State<ExpensesTab>
                                   ) {
                                     final expense = filtered[index];
 
+                                    final canEdit = AssociationLedgerAccess.canEdit;
                                     return ExpenseListTile(
                                       expense: expense,
-                                      onTap: () => _openEditSheet(expense),
-                                      onDelete: () {
-                                        context.read<ExpensesTabBloc>().add(
-                                          DeleteExpenseEvent(expense.id),
-                                        );
-                                      },
+                                      onTap: canEdit
+                                          ? () => _openEditSheet(expense)
+                                          : null,
+                                      onDelete: canEdit
+                                          ? () => _deleteExpense(expense)
+                                          : null,
                                     );
                                   }, childCount: filtered.length),
                                 ),
@@ -1397,6 +1556,68 @@ class _EmptyState extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+}
+
+class _ExpenseSortBar extends StatelessWidget {
+  final ExpenseListSort sort;
+  final ValueChanged<ExpenseListSort> onSortChanged;
+
+  static const _expenseColor = AppColors.expense;
+
+  const _ExpenseSortBar({
+    required this.sort,
+    required this.onSortChanged,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    return Row(
+      children: [
+        Icon(
+          Icons.sort_rounded,
+          size: 18,
+          color: AppColors.textColor.withValues(alpha: 0.45),
+        ),
+        const SizedBox(width: 8),
+        ChoiceChip(
+          label: Text(l10n.expenseSortNewest),
+          selected: sort == ExpenseListSort.newest,
+          onSelected: (_) => onSortChanged(ExpenseListSort.newest),
+          selectedColor: _expenseColor,
+          labelStyle: TextStyle(
+            color: sort == ExpenseListSort.newest
+                ? Colors.white
+                : AppColors.textColor,
+            fontWeight: FontWeight.w600,
+            fontSize: 13,
+          ),
+          backgroundColor: AppColors.surface,
+          side: BorderSide.none,
+          padding: const EdgeInsets.symmetric(horizontal: 4),
+          visualDensity: VisualDensity.compact,
+        ),
+        const SizedBox(width: 8),
+        ChoiceChip(
+          label: Text(l10n.expenseSortHighestAmount),
+          selected: sort == ExpenseListSort.highestAmount,
+          onSelected: (_) => onSortChanged(ExpenseListSort.highestAmount),
+          selectedColor: _expenseColor,
+          labelStyle: TextStyle(
+            color: sort == ExpenseListSort.highestAmount
+                ? Colors.white
+                : AppColors.textColor,
+            fontWeight: FontWeight.w600,
+            fontSize: 13,
+          ),
+          backgroundColor: AppColors.surface,
+          side: BorderSide.none,
+          padding: const EdgeInsets.symmetric(horizontal: 4),
+          visualDensity: VisualDensity.compact,
+        ),
+      ],
     );
   }
 }

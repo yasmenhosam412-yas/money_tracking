@@ -1,3 +1,4 @@
+import 'package:imrpo/core/helpers/association_datasource_mixin.dart';
 import 'package:imrpo/core/helpers/supabase_auth_helper.dart';
 import 'package:imrpo/core/helpers/supabase_delete_helper.dart';
 import 'package:imrpo/features/budgets/data/datasources/budget_datasource.dart';
@@ -5,7 +6,8 @@ import 'package:imrpo/features/budgets/data/models/budget_model.dart';
 import 'package:imrpo/features/budgets/domain/services/budget_calculator.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-class BudgetDatasourceImpl implements BudgetDatasource {
+class BudgetDatasourceImpl extends BudgetDatasource
+    with AssociationDatasourceMixin {
   final SupabaseClient supabaseClient;
 
   BudgetDatasourceImpl({required this.supabaseClient});
@@ -16,12 +18,14 @@ class BudgetDatasourceImpl implements BudgetDatasource {
     required int month,
   }) async {
     final userId = SupabaseAuthHelper.requireUserId();
-    final response = await supabaseClient
+    var selectQuery = supabaseClient
         .from('budgets')
         .select()
         .eq('user_id', userId)
         .eq('year', year)
         .eq('month', month);
+    selectQuery = scopeFinancialQuery(selectQuery);
+    final response = await selectQuery;
 
     return response.map((row) => BudgetModel.fromMap(row)).toList();
   }
@@ -38,19 +42,18 @@ class BudgetDatasourceImpl implements BudgetDatasource {
     final normalizedCategory = BudgetCalculator.categoryKey(category);
 
     if (budgetId != null && budgetId.isNotEmpty) {
-      final updated = await supabaseClient
+      var updateQuery = supabaseClient
           .from('budgets')
           .update({
             'category': normalizedCategory,
             'amount': amount,
           })
           .eq('budget_id', budgetId)
-          .eq('user_id', userId)
-          .select()
-          .single();
+          .eq('user_id', userId);
+      updateQuery = scopeFinancialQuery(updateQuery);
+      final updated = await updateQuery.select().single();
 
-      // Drop duplicate rows for the same category/period (keeps this edit).
-      await supabaseClient
+      var deleteDupQuery = supabaseClient
           .from('budgets')
           .delete()
           .eq('user_id', userId)
@@ -58,38 +61,43 @@ class BudgetDatasourceImpl implements BudgetDatasource {
           .eq('month', month)
           .eq('category', normalizedCategory)
           .neq('budget_id', budgetId);
+      deleteDupQuery = scopeFinancialQuery(deleteDupQuery);
+      await deleteDupQuery;
 
       return BudgetModel.fromMap(updated);
     }
 
-    final existing = await supabaseClient
+    var existingQuery = supabaseClient
         .from('budgets')
         .select()
         .eq('user_id', userId)
         .eq('category', normalizedCategory)
         .eq('year', year)
-        .eq('month', month)
-        .maybeSingle();
+        .eq('month', month);
+    existingQuery = scopeFinancialQuery(existingQuery);
+    final existing = await existingQuery.maybeSingle();
 
     if (existing != null) {
-      final updated = await supabaseClient
+      var updateQuery = supabaseClient
           .from('budgets')
           .update({'amount': amount})
-          .eq('budget_id', existing['budget_id'] as String)
-          .select()
-          .single();
+          .eq('budget_id', existing['budget_id'] as String);
+      updateQuery = scopeFinancialQuery(updateQuery);
+      final updated = await updateQuery.select().single();
       return BudgetModel.fromMap(updated);
     }
 
     final inserted = await supabaseClient
         .from('budgets')
-        .insert({
-          'user_id': userId,
-          'category': normalizedCategory,
-          'amount': amount,
-          'year': year,
-          'month': month,
-        })
+        .insert(
+          scopedFinancialRow({
+            'user_id': userId,
+            'category': normalizedCategory,
+            'amount': amount,
+            'year': year,
+            'month': month,
+          }),
+        )
         .select()
         .single();
     return BudgetModel.fromMap(inserted);
@@ -98,12 +106,13 @@ class BudgetDatasourceImpl implements BudgetDatasource {
   @override
   Future<void> deleteBudget(String budgetId) async {
     final userId = SupabaseAuthHelper.requireUserId();
-    final deleted = await supabaseClient
+    var deleteQuery = supabaseClient
         .from('budgets')
         .delete()
         .eq('budget_id', budgetId)
-        .eq('user_id', userId)
-        .select('budget_id');
+        .eq('user_id', userId);
+    deleteQuery = scopeFinancialQuery(deleteQuery);
+    final deleted = await deleteQuery.select('budget_id');
 
     ensureDeleteSucceeded(deleted);
   }
@@ -112,10 +121,12 @@ class BudgetDatasourceImpl implements BudgetDatasource {
   Future<void> renameCategory(String fromCategory, String toCategory) async {
     if (fromCategory == toCategory) return;
     final userId = SupabaseAuthHelper.requireUserId();
-    await supabaseClient
+    var updateQuery = supabaseClient
         .from('budgets')
         .update({'category': toCategory})
         .eq('user_id', userId)
         .eq('category', fromCategory);
+    updateQuery = scopeFinancialQuery(updateQuery);
+    await updateQuery;
   }
 }

@@ -101,6 +101,60 @@ abstract class AppLocalizations {
   /// **'imrpo'**
   String get appTitle;
 
+  /// No description provided for @onboardingSkip.
+  ///
+  /// In en, this message translates to:
+  /// **'Skip'**
+  String get onboardingSkip;
+
+  /// No description provided for @onboardingNext.
+  ///
+  /// In en, this message translates to:
+  /// **'Next'**
+  String get onboardingNext;
+
+  /// No description provided for @onboardingGetStarted.
+  ///
+  /// In en, this message translates to:
+  /// **'Get started'**
+  String get onboardingGetStarted;
+
+  /// No description provided for @onboardingPage1Title.
+  ///
+  /// In en, this message translates to:
+  /// **'Your money, one place'**
+  String get onboardingPage1Title;
+
+  /// No description provided for @onboardingPage1Body.
+  ///
+  /// In en, this message translates to:
+  /// **'Track income and expenses in Egyptian pounds. See your balance and stay on top of spending.'**
+  String get onboardingPage1Body;
+
+  /// No description provided for @onboardingPage2Title.
+  ///
+  /// In en, this message translates to:
+  /// **'Ledgers & smart import'**
+  String get onboardingPage2Title;
+
+  /// No description provided for @onboardingPage2Body.
+  ///
+  /// In en, this message translates to:
+  /// **'Use personal or shared ledgers. Import transactions from SMS or shared text and add them in seconds.'**
+  String get onboardingPage2Body;
+
+  /// No description provided for @onboardingPage3Title.
+  ///
+  /// In en, this message translates to:
+  /// **'Reminders & insights'**
+  String get onboardingPage3Title;
+
+  /// No description provided for @onboardingPage3Body.
+  ///
+  /// In en, this message translates to:
+  /// **'Get bill reminders before due dates and view 3-month charts for income, expenses, and categories.'**
+  String get onboardingPage3Body;
+
   /// No description provided for @tabIncomes.
   ///
   /// In en, this message translates to:
@@ -124,6 +178,942 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Plans'**
   String get tabPlans;
+
+  /// No description provided for @tabStatistics.
+  ///
+  /// In en, this message translates to:
+  /// **'Stats'**
+  String get tabStatistics;
+
+  /// No description provided for @statisticsLast3Months.
+  ///
+  /// In en, this message translates to:
+  /// **'Last 3 months'**
+  String get statisticsLast3Months;
+
+  /// No description provided for @statisticsMonthlyTrend.
+  ///
+  /// In en, this message translates to:
+  /// **'Monthly income vs expenses'**
+  String get statisticsMonthlyTrend;
+
+  /// No description provided for @statisticsNetPerMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'Net per month'**
+  String get statisticsNetPerMonth;
+
+  /// No description provided for @statisticsTotalIncome.
+  ///
+  /// In en, this message translates to:
+  /// **'Total income'**
+  String get statisticsTotalIncome;
+
+  /// No description provided for @statisticsTotalExpenses.
+  ///
+  /// In en, this message translates to:
+  /// **'Total expenses'**
+  String get statisticsTotalExpenses;
+
+  /// No description provided for @statisticsNet3Months.
+  ///
+  /// In en, this message translates to:
+  /// **'Net (3 months)'**
+  String get statisticsNet3Months;
+
+  /// No description provided for @statisticsAvgMonthlyNet.
+  ///
+  /// In en, this message translates to:
+  /// **'Avg. per month: {amount}'**
+  String statisticsAvgMonthlyNet(String amount);
+
+  /// No description provided for @statisticsTopExpenses.
+  ///
+  /// In en, this message translates to:
+  /// **'Top expense categories (3 mo)'**
+  String get statisticsTopExpenses;
+
+  /// No description provided for @statisticsTopIncomeSources.
+  ///
+  /// In en, this message translates to:
+  /// **'Top income sources (3 mo)'**
+  String get statisticsTopIncomeSources;
+
+  /// No description provided for @statisticsEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'Add incomes and expenses to see your 3-month charts.'**
+  String get statisticsEmpty;
+
+  /// No description provided for @associationPersonal.
+  ///
+  /// In en, this message translates to:
+  /// **'Personal'**
+  String get associationPersonal;
+
+  /// No description provided for @currencyEgyptianPound.
+  ///
+  /// In en, this message translates to:
+  /// **'Egyptian pound'**
+  String get currencyEgyptianPound;
+
+  /// No description provided for @currencyEgpSymbol.
+  ///
+  /// In en, this message translates to:
+  /// **'E£'**
+  String get currencyEgpSymbol;
+
+  /// No description provided for @billRemindersTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Bill reminders'**
+  String get billRemindersTitle;
+
+  /// No description provided for @billRemindersSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Get notified before recurring bills are due'**
+  String get billRemindersSubtitle;
+
+  /// No description provided for @billRemindersEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No bill reminders yet. Add electricity, rent, internet, and more.'**
+  String get billRemindersEmpty;
+
+  /// No description provided for @billRemindersAdd.
+  ///
+  /// In en, this message translates to:
+  /// **'Add reminder'**
+  String get billRemindersAdd;
+
+  /// No description provided for @billRemindersEdit.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit reminder'**
+  String get billRemindersEdit;
+
+  /// No description provided for @billRemindersTitleLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Bill name'**
+  String get billRemindersTitleLabel;
+
+  /// No description provided for @billRemindersTitleHint.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. Electricity, Rent, Internet'**
+  String get billRemindersTitleHint;
+
+  /// No description provided for @billRemindersTitleRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a name for the bill'**
+  String get billRemindersTitleRequired;
+
+  /// No description provided for @billRemindersAmountLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Amount (optional)'**
+  String get billRemindersAmountLabel;
+
+  /// No description provided for @billRemindersTimeLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Notification time'**
+  String get billRemindersTimeLabel;
+
+  /// No description provided for @billRemindersDayOfMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'Day of month'**
+  String get billRemindersDayOfMonth;
+
+  /// No description provided for @billRemindersDayOfMonthShortMonthHint.
+  ///
+  /// In en, this message translates to:
+  /// **'In shorter months, the reminder uses the last day of that month.'**
+  String get billRemindersDayOfMonthShortMonthHint;
+
+  /// No description provided for @billRemindersDayOfMonthValue.
+  ///
+  /// In en, this message translates to:
+  /// **'Day {day}'**
+  String billRemindersDayOfMonthValue(int day);
+
+  /// No description provided for @billRemindersRemindBefore.
+  ///
+  /// In en, this message translates to:
+  /// **'Remind me'**
+  String get billRemindersRemindBefore;
+
+  /// No description provided for @billRemindersRemindOnDay.
+  ///
+  /// In en, this message translates to:
+  /// **'On due day'**
+  String get billRemindersRemindOnDay;
+
+  /// No description provided for @billRemindersRemind1Day.
+  ///
+  /// In en, this message translates to:
+  /// **'1 day before'**
+  String get billRemindersRemind1Day;
+
+  /// No description provided for @billRemindersRemind3Days.
+  ///
+  /// In en, this message translates to:
+  /// **'3 days before'**
+  String get billRemindersRemind3Days;
+
+  /// No description provided for @billRemindersRemind7Days.
+  ///
+  /// In en, this message translates to:
+  /// **'7 days before'**
+  String get billRemindersRemind7Days;
+
+  /// No description provided for @billRemindersEnabled.
+  ///
+  /// In en, this message translates to:
+  /// **'Bill reminders'**
+  String get billRemindersEnabled;
+
+  /// No description provided for @billRemindersPermissionDenied.
+  ///
+  /// In en, this message translates to:
+  /// **'Allow notifications in system settings to get bill reminders.'**
+  String get billRemindersPermissionDenied;
+
+  /// No description provided for @billRemindersSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Reminder saved'**
+  String get billRemindersSaved;
+
+  /// No description provided for @billRemindersDeleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Reminder deleted'**
+  String get billRemindersDeleted;
+
+  /// No description provided for @billRemindersTestNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Test now'**
+  String get billRemindersTestNow;
+
+  /// No description provided for @billRemindersTestNowSent.
+  ///
+  /// In en, this message translates to:
+  /// **'Test notification sent — check your notification shade'**
+  String get billRemindersTestNowSent;
+
+  /// No description provided for @billReminderNotificationTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Bill: {title}'**
+  String billReminderNotificationTitle(String title);
+
+  /// No description provided for @billReminderNotificationDueTodayWithAmount.
+  ///
+  /// In en, this message translates to:
+  /// **'Due today — {amount}'**
+  String billReminderNotificationDueTodayWithAmount(String amount);
+
+  /// No description provided for @billReminderNotificationDueTodayPlain.
+  ///
+  /// In en, this message translates to:
+  /// **'Due today'**
+  String get billReminderNotificationDueTodayPlain;
+
+  /// No description provided for @billReminderNotificationDueInDaysWithAmount.
+  ///
+  /// In en, this message translates to:
+  /// **'Due in {days} days — {amount}'**
+  String billReminderNotificationDueInDaysWithAmount(int days, String amount);
+
+  /// No description provided for @billReminderNotificationDueInDaysPlain.
+  ///
+  /// In en, this message translates to:
+  /// **'Due in {days} days'**
+  String billReminderNotificationDueInDaysPlain(int days);
+
+  /// No description provided for @billRemindersPresetElectricity.
+  ///
+  /// In en, this message translates to:
+  /// **'Electricity'**
+  String get billRemindersPresetElectricity;
+
+  /// No description provided for @billRemindersPresetRent.
+  ///
+  /// In en, this message translates to:
+  /// **'Rent'**
+  String get billRemindersPresetRent;
+
+  /// No description provided for @billRemindersPresetInternet.
+  ///
+  /// In en, this message translates to:
+  /// **'Internet'**
+  String get billRemindersPresetInternet;
+
+  /// No description provided for @billRemindersPresetWater.
+  ///
+  /// In en, this message translates to:
+  /// **'Water'**
+  String get billRemindersPresetWater;
+
+  /// No description provided for @associationSelect.
+  ///
+  /// In en, this message translates to:
+  /// **'Ledger'**
+  String get associationSelect;
+
+  /// No description provided for @associationPickerTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose ledger'**
+  String get associationPickerTitle;
+
+  /// No description provided for @associationPickerSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Each ledger has its own income, expenses, budgets, and plans.'**
+  String get associationPickerSubtitle;
+
+  /// No description provided for @associationCreateTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'New ledger'**
+  String get associationCreateTitle;
+
+  /// No description provided for @associationCreateAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Create'**
+  String get associationCreateAction;
+
+  /// No description provided for @associationNameHint.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. Family fund, Club treasury'**
+  String get associationNameHint;
+
+  /// No description provided for @associationNameRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a name for the ledger'**
+  String get associationNameRequired;
+
+  /// No description provided for @associationCreated.
+  ///
+  /// In en, this message translates to:
+  /// **'Created \"{name}\"'**
+  String associationCreated(String name);
+
+  /// No description provided for @associationDeleteConfirmTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete ledger?'**
+  String get associationDeleteConfirmTitle;
+
+  /// No description provided for @associationDeleteConfirmMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete \"{name}\" and all its income, expenses, budgets, and plans? This cannot be undone.'**
+  String associationDeleteConfirmMessage(String name);
+
+  /// No description provided for @associationDeleteAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get associationDeleteAction;
+
+  /// No description provided for @associationDeletedSnack.
+  ///
+  /// In en, this message translates to:
+  /// **'Ledger deleted'**
+  String get associationDeletedSnack;
+
+  /// No description provided for @associationCannotDeletePersonal.
+  ///
+  /// In en, this message translates to:
+  /// **'The personal ledger cannot be deleted'**
+  String get associationCannotDeletePersonal;
+
+  /// No description provided for @associationInviteTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Invite members'**
+  String get associationInviteTitle;
+
+  /// No description provided for @associationInviteSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Search by username and invite people to \"{name}\". They choose whether to join.'**
+  String associationInviteSubtitle(String name);
+
+  /// No description provided for @associationInviteSearchHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search username…'**
+  String get associationInviteSearchHint;
+
+  /// No description provided for @associationInviteSearchMinChars.
+  ///
+  /// In en, this message translates to:
+  /// **'Type at least 2 characters to search'**
+  String get associationInviteSearchMinChars;
+
+  /// No description provided for @associationInviteNoResults.
+  ///
+  /// In en, this message translates to:
+  /// **'No users found'**
+  String get associationInviteNoResults;
+
+  /// No description provided for @associationInviteAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Invite'**
+  String get associationInviteAction;
+
+  /// No description provided for @associationInviteSentLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Invited'**
+  String get associationInviteSentLabel;
+
+  /// No description provided for @associationInviteSent.
+  ///
+  /// In en, this message translates to:
+  /// **'Invitation sent to {username}'**
+  String associationInviteSent(String username);
+
+  /// No description provided for @associationInviteMembersAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Invite members'**
+  String get associationInviteMembersAction;
+
+  /// No description provided for @associationInvitePendingTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Invitations for you'**
+  String get associationInvitePendingTitle;
+
+  /// No description provided for @associationInviteAccept.
+  ///
+  /// In en, this message translates to:
+  /// **'Join'**
+  String get associationInviteAccept;
+
+  /// No description provided for @associationInviteReject.
+  ///
+  /// In en, this message translates to:
+  /// **'Decline'**
+  String get associationInviteReject;
+
+  /// No description provided for @associationInviteAcceptedSnack.
+  ///
+  /// In en, this message translates to:
+  /// **'You joined the ledger'**
+  String get associationInviteAcceptedSnack;
+
+  /// No description provided for @associationInviteRejectedSnack.
+  ///
+  /// In en, this message translates to:
+  /// **'Invitation declined'**
+  String get associationInviteRejectedSnack;
+
+  /// No description provided for @associationInviteDisclaimerTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Before you invite'**
+  String get associationInviteDisclaimerTitle;
+
+  /// No description provided for @associationInviteDisclaimerBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Pocketly helps you organize shared ledgers. You are responsible for who you invite and how money is handled between members. The app does not hold funds, is not a bank, and is not liable for disputes between members. Only invite people you trust.'**
+  String get associationInviteDisclaimerBody;
+
+  /// No description provided for @associationInviteDisclaimerAccept.
+  ///
+  /// In en, this message translates to:
+  /// **'I understand'**
+  String get associationInviteDisclaimerAccept;
+
+  /// No description provided for @associationInviteLegalNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Pocketly is a record-keeping tool only — not financial advice, escrow, or legal counsel.'**
+  String get associationInviteLegalNote;
+
+  /// No description provided for @associationManageTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Manage ledger'**
+  String get associationManageTitle;
+
+  /// No description provided for @associationManageOpen.
+  ///
+  /// In en, this message translates to:
+  /// **'Open'**
+  String get associationManageOpen;
+
+  /// No description provided for @associationManageNotAvailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Switch to a shared ledger first.'**
+  String get associationManageNotAvailable;
+
+  /// No description provided for @associationManageSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'You are the treasurer. Record all income, expenses, plans, and dates here. Members only view.'**
+  String get associationManageSubtitle;
+
+  /// No description provided for @associationManageIncomeHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Add and edit income entries'**
+  String get associationManageIncomeHint;
+
+  /// No description provided for @associationManageExpenseHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Add and edit expenses with dates'**
+  String get associationManageExpenseHint;
+
+  /// No description provided for @associationManageBalanceHint.
+  ///
+  /// In en, this message translates to:
+  /// **'See balance for this ledger'**
+  String get associationManageBalanceHint;
+
+  /// No description provided for @associationManageStatsHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Charts for the last 3 months'**
+  String get associationManageStatsHint;
+
+  /// No description provided for @associationManagePlansHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Savings plans and goals'**
+  String get associationManagePlansHint;
+
+  /// No description provided for @associationManageInviteHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Invite people to view this ledger'**
+  String get associationManageInviteHint;
+
+  /// No description provided for @associationManageTreasurerNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Only you can add or change numbers. Invited members see the same ledger read-only.'**
+  String get associationManageTreasurerNote;
+
+  /// No description provided for @associationTreasurerBannerTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'You manage this ledger'**
+  String get associationTreasurerBannerTitle;
+
+  /// No description provided for @associationTreasurerBannerBody.
+  ///
+  /// In en, this message translates to:
+  /// **'All entries for {name} are recorded by you.'**
+  String associationTreasurerBannerBody(String name);
+
+  /// No description provided for @associationMemberReadOnlyBanner.
+  ///
+  /// In en, this message translates to:
+  /// **'View-only member of \"{name}\". Ask the treasurer to add or edit entries.'**
+  String associationMemberReadOnlyBanner(String name);
+
+  /// No description provided for @associationManageHubAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Manage ledger'**
+  String get associationManageHubAction;
+
+  /// No description provided for @associationHubTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Association'**
+  String get associationHubTitle;
+
+  /// No description provided for @associationHubOpen.
+  ///
+  /// In en, this message translates to:
+  /// **'Open'**
+  String get associationHubOpen;
+
+  /// No description provided for @associationHubNotAvailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a shared association first.'**
+  String get associationHubNotAvailable;
+
+  /// No description provided for @associationHubOwnerSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'You manage this gom3eya: payout, installment, whose turn, and members.'**
+  String get associationHubOwnerSubtitle;
+
+  /// No description provided for @associationHubMemberSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'View-only: see payout, installment, and whose turn it is.'**
+  String get associationHubMemberSubtitle;
+
+  /// No description provided for @associationHubPayout.
+  ///
+  /// In en, this message translates to:
+  /// **'Payout (gom3eya amount)'**
+  String get associationHubPayout;
+
+  /// No description provided for @associationHubPayoutHint.
+  ///
+  /// In en, this message translates to:
+  /// **'12000'**
+  String get associationHubPayoutHint;
+
+  /// No description provided for @associationHubInstallment.
+  ///
+  /// In en, this message translates to:
+  /// **'Installment'**
+  String get associationHubInstallment;
+
+  /// No description provided for @associationHubInstallmentHint.
+  ///
+  /// In en, this message translates to:
+  /// **'1000'**
+  String get associationHubInstallmentHint;
+
+  /// No description provided for @associationHubMemberCount.
+  ///
+  /// In en, this message translates to:
+  /// **'Slots'**
+  String get associationHubMemberCount;
+
+  /// No description provided for @associationHubCollectionDay.
+  ///
+  /// In en, this message translates to:
+  /// **'Collection day'**
+  String get associationHubCollectionDay;
+
+  /// No description provided for @associationHubCollectionDayHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Day of month (1–31)'**
+  String get associationHubCollectionDayHint;
+
+  /// No description provided for @associationHubCollectionDayInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Collection day must be between 1 and 31.'**
+  String get associationHubCollectionDayInvalid;
+
+  /// No description provided for @associationHubDayOfMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'Day {day}'**
+  String associationHubDayOfMonth(int day);
+
+  /// No description provided for @associationHubCurrentTurn.
+  ///
+  /// In en, this message translates to:
+  /// **'Current turn'**
+  String get associationHubCurrentTurn;
+
+  /// No description provided for @associationHubTurnNumber.
+  ///
+  /// In en, this message translates to:
+  /// **'Turn {current} of {total}'**
+  String associationHubTurnNumber(int current, int total);
+
+  /// No description provided for @associationHubTurnList.
+  ///
+  /// In en, this message translates to:
+  /// **'Turn order'**
+  String get associationHubTurnList;
+
+  /// No description provided for @associationHubEmptySetup.
+  ///
+  /// In en, this message translates to:
+  /// **'Set payout, installment, and who takes each turn.'**
+  String get associationHubEmptySetup;
+
+  /// No description provided for @associationHubEmptyTurnList.
+  ///
+  /// In en, this message translates to:
+  /// **'No slots yet. Tap Edit to add names.'**
+  String get associationHubEmptyTurnList;
+
+  /// No description provided for @associationHubEdit.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit details'**
+  String get associationHubEdit;
+
+  /// No description provided for @associationHubSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get associationHubSave;
+
+  /// No description provided for @associationHubSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Association details saved.'**
+  String get associationHubSaved;
+
+  /// No description provided for @associationHubSlotsRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Add at least one name for the turn order.'**
+  String get associationHubSlotsRequired;
+
+  /// No description provided for @associationHubFormFixErrors.
+  ///
+  /// In en, this message translates to:
+  /// **'Fix the highlighted fields.'**
+  String get associationHubFormFixErrors;
+
+  /// No description provided for @associationHubPaymentsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Installment payments'**
+  String get associationHubPaymentsTitle;
+
+  /// No description provided for @associationHubPaymentsEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No payments recorded yet.'**
+  String get associationHubPaymentsEmpty;
+
+  /// No description provided for @associationHubPaymentsTotal.
+  ///
+  /// In en, this message translates to:
+  /// **'Total: {amount}'**
+  String associationHubPaymentsTotal(String amount);
+
+  /// No description provided for @associationHubRecordPayment.
+  ///
+  /// In en, this message translates to:
+  /// **'Record payment'**
+  String get associationHubRecordPayment;
+
+  /// No description provided for @associationHubPaymentRecorded.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment recorded.'**
+  String get associationHubPaymentRecorded;
+
+  /// No description provided for @associationHubPaymentPayer.
+  ///
+  /// In en, this message translates to:
+  /// **'Who paid'**
+  String get associationHubPaymentPayer;
+
+  /// No description provided for @associationHubPaymentPayerRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose who paid.'**
+  String get associationHubPaymentPayerRequired;
+
+  /// No description provided for @associationHubPaymentAmount.
+  ///
+  /// In en, this message translates to:
+  /// **'Amount paid'**
+  String get associationHubPaymentAmount;
+
+  /// No description provided for @associationHubPaymentDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment date'**
+  String get associationHubPaymentDate;
+
+  /// No description provided for @associationHubPaymentPaidOn.
+  ///
+  /// In en, this message translates to:
+  /// **'Paid on {date}'**
+  String associationHubPaymentPaidOn(String date);
+
+  /// No description provided for @associationHubPaymentNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Note (optional)'**
+  String get associationHubPaymentNote;
+
+  /// No description provided for @associationHubPaymentNoteHint.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. March installment'**
+  String get associationHubPaymentNoteHint;
+
+  /// No description provided for @associationHubPaymentSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Save payment'**
+  String get associationHubPaymentSave;
+
+  /// No description provided for @associationHubPaymentDeleteTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete payment?'**
+  String get associationHubPaymentDeleteTitle;
+
+  /// No description provided for @associationHubPaymentDeleteMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove payment record for {name}?'**
+  String associationHubPaymentDeleteMessage(String name);
+
+  /// No description provided for @associationHubPaymentDeleteConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get associationHubPaymentDeleteConfirm;
+
+  /// No description provided for @associationHubEndGam3eya.
+  ///
+  /// In en, this message translates to:
+  /// **'End gom3eya'**
+  String get associationHubEndGam3eya;
+
+  /// No description provided for @associationHubEndGam3eyaTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'End this gom3eya?'**
+  String get associationHubEndGam3eyaTitle;
+
+  /// No description provided for @associationHubEndGam3eyaMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'The association will be closed. You can still view turns and payments, but no more edits or new payments.'**
+  String get associationHubEndGam3eyaMessage;
+
+  /// No description provided for @associationHubEndGam3eyaConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'End'**
+  String get associationHubEndGam3eyaConfirm;
+
+  /// No description provided for @associationHubEndGam3eyaDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Gom3eya ended.'**
+  String get associationHubEndGam3eyaDone;
+
+  /// No description provided for @associationHubEndedBanner.
+  ///
+  /// In en, this message translates to:
+  /// **'This gom3eya ended on {date}. View only.'**
+  String associationHubEndedBanner(String date);
+
+  /// No description provided for @associationHubOwnerEndedSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'This gom3eya is finished. Data is view-only.'**
+  String get associationHubOwnerEndedSubtitle;
+
+  /// No description provided for @associationHubMemberEndedSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'The manager ended this gom3eya. View only.'**
+  String get associationHubMemberEndedSubtitle;
+
+  /// No description provided for @associationHubAdvanceTurn.
+  ///
+  /// In en, this message translates to:
+  /// **'Next turn'**
+  String get associationHubAdvanceTurn;
+
+  /// No description provided for @associationHubAdvanceTurnConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Mark turn complete and move to the next person after {name}?'**
+  String associationHubAdvanceTurnConfirm(String name);
+
+  /// No description provided for @associationHubReceived.
+  ///
+  /// In en, this message translates to:
+  /// **'Received'**
+  String get associationHubReceived;
+
+  /// No description provided for @associationHubPending.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting'**
+  String get associationHubPending;
+
+  /// No description provided for @associationHubCurrentBadge.
+  ///
+  /// In en, this message translates to:
+  /// **'Current'**
+  String get associationHubCurrentBadge;
+
+  /// No description provided for @associationHubInvite.
+  ///
+  /// In en, this message translates to:
+  /// **'Invite members'**
+  String get associationHubInvite;
+
+  /// No description provided for @associationHubTreasurerNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Financial entries (income/expenses) are still recorded by the manager on the home tabs. This page tracks the gom3eya schedule.'**
+  String get associationHubTreasurerNote;
+
+  /// No description provided for @associationHubAppMembers.
+  ///
+  /// In en, this message translates to:
+  /// **'App members'**
+  String get associationHubAppMembers;
+
+  /// No description provided for @associationHubRoleOwner.
+  ///
+  /// In en, this message translates to:
+  /// **'Manager'**
+  String get associationHubRoleOwner;
+
+  /// No description provided for @associationHubRoleAdmin.
+  ///
+  /// In en, this message translates to:
+  /// **'Admin'**
+  String get associationHubRoleAdmin;
+
+  /// No description provided for @associationHubRoleMember.
+  ///
+  /// In en, this message translates to:
+  /// **'Member'**
+  String get associationHubRoleMember;
+
+  /// No description provided for @associationHubAddSlot.
+  ///
+  /// In en, this message translates to:
+  /// **'Add slot'**
+  String get associationHubAddSlot;
+
+  /// No description provided for @associationHubSlotName.
+  ///
+  /// In en, this message translates to:
+  /// **'Name'**
+  String get associationHubSlotName;
+
+  /// No description provided for @associationHubBannerTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Manage association'**
+  String get associationHubBannerTitle;
+
+  /// No description provided for @associationHubBannerBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Turn, payout & installment for {name}.'**
+  String associationHubBannerBody(String name);
 
   /// No description provided for @homeWelcomeBack.
   ///
@@ -593,6 +1583,36 @@ abstract class AppLocalizations {
   /// **'Recent Expenses'**
   String get recentExpenses;
 
+  /// No description provided for @expenseSortNewest.
+  ///
+  /// In en, this message translates to:
+  /// **'Newest'**
+  String get expenseSortNewest;
+
+  /// No description provided for @expenseSortHighestAmount.
+  ///
+  /// In en, this message translates to:
+  /// **'Highest amount'**
+  String get expenseSortHighestAmount;
+
+  /// No description provided for @expenseDeletedSnack.
+  ///
+  /// In en, this message translates to:
+  /// **'Expense removed'**
+  String get expenseDeletedSnack;
+
+  /// No description provided for @expenseUndoAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Undo'**
+  String get expenseUndoAction;
+
+  /// No description provided for @expenseRestoredSnack.
+  ///
+  /// In en, this message translates to:
+  /// **'Expense restored'**
+  String get expenseRestoredSnack;
+
   /// No description provided for @totalExpenses.
   ///
   /// In en, this message translates to:
@@ -652,6 +1672,54 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'e.g. Visa card, Rents, Salary'**
   String get hintIncomeSource;
+
+  /// No description provided for @addIncomeSheetTitleHint.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. March salary, apartment rent'**
+  String get addIncomeSheetTitleHint;
+
+  /// No description provided for @addIncomeSheetSourceHint.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. Visa, Vodafone Cash, salary, bank transfer'**
+  String get addIncomeSheetSourceHint;
+
+  /// No description provided for @addExpenseSheetTitleHint.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. supermarket, eating out, Uber'**
+  String get addExpenseSheetTitleHint;
+
+  /// No description provided for @addExpenseSheetPaidFromHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Where you paid from: cash, Visa, Vodafone Cash…'**
+  String get addExpenseSheetPaidFromHint;
+
+  /// No description provided for @addExpenseSheetOtherCategoryHint.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. gym, subscriptions, gifts'**
+  String get addExpenseSheetOtherCategoryHint;
+
+  /// No description provided for @paymentPresetBankTransfer.
+  ///
+  /// In en, this message translates to:
+  /// **'Bank transfer'**
+  String get paymentPresetBankTransfer;
+
+  /// No description provided for @paymentPresetVodafoneCash.
+  ///
+  /// In en, this message translates to:
+  /// **'Vodafone Cash'**
+  String get paymentPresetVodafoneCash;
+
+  /// No description provided for @paymentPresetInstaPay.
+  ///
+  /// In en, this message translates to:
+  /// **'InstaPay'**
+  String get paymentPresetInstaPay;
 
   /// No description provided for @incomeBySource.
   ///
@@ -1961,6 +3029,12 @@ abstract class AppLocalizations {
   /// **'Shared message loaded. Review below and add.'**
   String get smartImportSharedTextReady;
 
+  /// No description provided for @smartImportScrollToTop.
+  ///
+  /// In en, this message translates to:
+  /// **'Back to top'**
+  String get smartImportScrollToTop;
+
   /// No description provided for @smartImportPasteFieldLabel.
   ///
   /// In en, this message translates to:
@@ -2170,6 +3244,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Loading more…'**
   String get smartImportSmsLoadingMore;
+
+  /// No description provided for @smartImportSmsListCap.
+  ///
+  /// In en, this message translates to:
+  /// **'Showing the latest {count} financial messages. Pull to refresh for a new scan.'**
+  String smartImportSmsListCap(int count);
 
   /// No description provided for @smartImportUnknownSender.
   ///

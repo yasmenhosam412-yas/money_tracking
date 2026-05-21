@@ -22,7 +22,7 @@ class ParsedFinancialEntry {
   });
 
   String get sourceCurrencyCode =>
-      currencyCode ?? CurrencyConverter.baseCode;
+      currencyCode ?? CurrencyConverter.defaultDisplayCode;
 
   double? get amountInBase {
     if (amount == null) return null;

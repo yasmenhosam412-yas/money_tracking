@@ -12,10 +12,37 @@ class AppLocalizationsAr extends AppLocalizations {
   String get appTitle => 'imrpo';
 
   @override
+  String get onboardingSkip => 'تخطي';
+
+  @override
+  String get onboardingNext => 'التالي';
+
+  @override
+  String get onboardingGetStarted => 'يلا نبدأ';
+
+  @override
+  String get onboardingPage1Title => 'فلوسك في مكان واحد';
+
+  @override
+  String get onboardingPage1Body => 'سجّل الدخل والمصاريف بالجنيه. شوف رصيدك وتابع صرفك بسهولة.';
+
+  @override
+  String get onboardingPage2Title => 'دفاتر واستيراد ذكي';
+
+  @override
+  String get onboardingPage2Body => 'دفتر شخصي أو جمعية. استورد من الرسائل أو النص المشارَك وضيف المعاملات بسرعة.';
+
+  @override
+  String get onboardingPage3Title => 'تذكيرات وإحصائيات';
+
+  @override
+  String get onboardingPage3Body => 'هنفكرك قبل مواعيد الفواتير، وتشوف رسوم آخر 3 شهور للدخل والمصاريف والتصنيفات.';
+
+  @override
   String get tabIncomes => 'الدخل';
 
   @override
-  String get tabExpenses => 'المصروفات';
+  String get tabExpenses => 'المصاريف';
 
   @override
   String get tabBalance => 'الرصيد';
@@ -24,18 +51,526 @@ class AppLocalizationsAr extends AppLocalizations {
   String get tabPlans => 'الخطط';
 
   @override
-  String get homeWelcomeBack => 'مرحبًا بعودتك';
+  String get tabStatistics => 'إحصائيات';
 
   @override
-  String homeWelcomeUser(String name) {
-    return 'مرحبًا بعودتك، $name';
+  String get statisticsLast3Months => 'آخر 3 شهور';
+
+  @override
+  String get statisticsMonthlyTrend => 'الدخل والمصاريف كل شهر';
+
+  @override
+  String get statisticsNetPerMonth => 'الصافي كل شهر';
+
+  @override
+  String get statisticsTotalIncome => 'مجموع الدخل';
+
+  @override
+  String get statisticsTotalExpenses => 'مجموع المصاريف';
+
+  @override
+  String get statisticsNet3Months => 'الصافي (3 شهور)';
+
+  @override
+  String statisticsAvgMonthlyNet(String amount) {
+    return 'المتوسط كل شهر: $amount';
   }
 
   @override
-  String get homeFinanceOverview => 'نظرة مالية';
+  String get statisticsTopExpenses => 'أكتر مصاريف (3 شهور)';
 
   @override
-  String get homeDateFilterTitle => 'تصفية حسب التاريخ';
+  String get statisticsTopIncomeSources => 'أكتر مصادر دخل (3 شهور)';
+
+  @override
+  String get statisticsEmpty => 'سجّل دخل ومصاريف عشان تشوف رسوم آخر 3 شهور.';
+
+  @override
+  String get associationPersonal => 'شخصي';
+
+  @override
+  String get currencyEgyptianPound => 'جنيه مصري';
+
+  @override
+  String get currencyEgpSymbol => 'ج.م';
+
+  @override
+  String get billRemindersTitle => 'تذكيرات الفواتير';
+
+  @override
+  String get billRemindersSubtitle => 'هنفكرك قبل مواعيد الفواتير الشهرية';
+
+  @override
+  String get billRemindersEmpty => 'مفيش تذكيرات لسه. ضيف كهرباء، إيجار، نت، ومياه.';
+
+  @override
+  String get billRemindersAdd => 'تذكير جديد';
+
+  @override
+  String get billRemindersEdit => 'تعديل التذكير';
+
+  @override
+  String get billRemindersTitleLabel => 'اسم الفاتورة';
+
+  @override
+  String get billRemindersTitleHint => 'زي: كهرباء، إيجار، نت';
+
+  @override
+  String get billRemindersTitleRequired => 'اكتب اسم الفاتورة';
+
+  @override
+  String get billRemindersAmountLabel => 'المبلغ (اختياري)';
+
+  @override
+  String get billRemindersTimeLabel => 'وقت التذكير';
+
+  @override
+  String get billRemindersDayOfMonth => 'يوم الشهر';
+
+  @override
+  String get billRemindersDayOfMonthShortMonthHint => 'في الشهور الأقصر، التذكير هيكون في آخر يوم في الشهر.';
+
+  @override
+  String billRemindersDayOfMonthValue(int day) {
+    return 'يوم $day';
+  }
+
+  @override
+  String get billRemindersRemindBefore => 'فكرني';
+
+  @override
+  String get billRemindersRemindOnDay => 'يوم الاستحقاق';
+
+  @override
+  String get billRemindersRemind1Day => 'قبلها بيوم';
+
+  @override
+  String get billRemindersRemind3Days => 'قبلها بـ 3 أيام';
+
+  @override
+  String get billRemindersRemind7Days => 'قبلها بـ 7 أيام';
+
+  @override
+  String get billRemindersEnabled => 'تذكيرات الفواتير';
+
+  @override
+  String get billRemindersPermissionDenied => 'فعّل الإشعارات من إعدادات الموبايل عشان التذكيرات تشتغل.';
+
+  @override
+  String get billRemindersSaved => 'اتحفظ التذكير';
+
+  @override
+  String get billRemindersDeleted => 'اتمسح التذكير';
+
+  @override
+  String get billRemindersTestNow => 'جرب دلوقتي';
+
+  @override
+  String get billRemindersTestNowSent => 'اتبعت إشعار تجربة — شوف شريط الإشعارات';
+
+  @override
+  String billReminderNotificationTitle(String title) {
+    return 'فاتورة: $title';
+  }
+
+  @override
+  String billReminderNotificationDueTodayWithAmount(String amount) {
+    return 'النهاردة موعد الدفع — $amount';
+  }
+
+  @override
+  String get billReminderNotificationDueTodayPlain => 'النهاردة موعد الدفع';
+
+  @override
+  String billReminderNotificationDueInDaysWithAmount(int days, String amount) {
+    return 'باقي $days يوم على الدفع — $amount';
+  }
+
+  @override
+  String billReminderNotificationDueInDaysPlain(int days) {
+    return 'باقي $days يوم على الدفع';
+  }
+
+  @override
+  String get billRemindersPresetElectricity => 'كهرباء';
+
+  @override
+  String get billRemindersPresetRent => 'إيجار';
+
+  @override
+  String get billRemindersPresetInternet => 'نت';
+
+  @override
+  String get billRemindersPresetWater => 'مياه';
+
+  @override
+  String get associationSelect => 'دفتر';
+
+  @override
+  String get associationPickerTitle => 'اختار الدفتر';
+
+  @override
+  String get associationPickerSubtitle => 'كل دفتر له دخل ومصاريف وميزانيات وخطط لوحده.';
+
+  @override
+  String get associationCreateTitle => 'دفتر جديد';
+
+  @override
+  String get associationCreateAction => 'اعمل';
+
+  @override
+  String get associationNameHint => 'زي: جمعية العيلة، صندوق النادي';
+
+  @override
+  String get associationNameRequired => 'اكتب اسم للدفتر';
+
+  @override
+  String associationCreated(String name) {
+    return 'اتعمل \"$name\"';
+  }
+
+  @override
+  String get associationDeleteConfirmTitle => 'تمسح الدفتر؟';
+
+  @override
+  String associationDeleteConfirmMessage(String name) {
+    return 'تمسح \"$name\" وكل الدخل والمصاريف والميزانيات والخطط اللي فيه؟ مفيش رجوع.';
+  }
+
+  @override
+  String get associationDeleteAction => 'امسح';
+
+  @override
+  String get associationDeletedSnack => 'اتمسح الدفتر';
+
+  @override
+  String get associationCannotDeletePersonal => 'الدفتر الشخصي ما ينفعش يتمسح';
+
+  @override
+  String get associationInviteTitle => 'دعوة أعضاء';
+
+  @override
+  String associationInviteSubtitle(String name) {
+    return 'دور على اسم المستخدم وابعت دعوة لـ \"$name\". هو يختار ينضم ولا لأ.';
+  }
+
+  @override
+  String get associationInviteSearchHint => 'دور بالاسم…';
+
+  @override
+  String get associationInviteSearchMinChars => 'اكتب حرفين على الأقل للبحث';
+
+  @override
+  String get associationInviteNoResults => 'مفيش مستخدمين';
+
+  @override
+  String get associationInviteAction => 'ابعت دعوة';
+
+  @override
+  String get associationInviteSentLabel => 'اتبعت';
+
+  @override
+  String associationInviteSent(String username) {
+    return 'اتبعت دعوة لـ $username';
+  }
+
+  @override
+  String get associationInviteMembersAction => 'دعوة أعضاء';
+
+  @override
+  String get associationInvitePendingTitle => 'دعوات وصلتلك';
+
+  @override
+  String get associationInviteAccept => 'انضم';
+
+  @override
+  String get associationInviteReject => 'ارفض';
+
+  @override
+  String get associationInviteAcceptedSnack => 'انضميت للدفتر';
+
+  @override
+  String get associationInviteRejectedSnack => 'اترفضت الدعوة';
+
+  @override
+  String get associationInviteDisclaimerTitle => 'قبل ما تبعت دعوة';
+
+  @override
+  String get associationInviteDisclaimerBody => 'Pocketly بيساعدك تنظم دفاتر مشتركة. إنت المسؤول عن مين تدعو وإزاي الفلوس تتسجّل بينكم. التطبيق ما بيحتفظش بفلوس، مش بنك، ومش مسؤول عن أي خلاف بين الأعضاء. ادعُ بس ناس تثق فيهم.';
+
+  @override
+  String get associationInviteDisclaimerAccept => 'فاهم';
+
+  @override
+  String get associationInviteLegalNote => 'Pocketly أداة تسجيل بس — مش استشارة مالية ولا ضمان ولا محامي.';
+
+  @override
+  String get associationManageTitle => 'إدارة الدفتر';
+
+  @override
+  String get associationManageOpen => 'افتح';
+
+  @override
+  String get associationManageNotAvailable => 'اختار دفتر جمعية الأول.';
+
+  @override
+  String get associationManageSubtitle => 'إنت أمين الصندوق. سجّل هنا كل الدخل والمصاريف والخطط والتواريخ. الأعضاء بس يشوفوا.';
+
+  @override
+  String get associationManageIncomeHint => 'ضيف وعدّل الدخل';
+
+  @override
+  String get associationManageExpenseHint => 'ضيف وعدّل المصاريف بالتواريخ';
+
+  @override
+  String get associationManageBalanceHint => 'شوف الرصيد للدفتر ده';
+
+  @override
+  String get associationManageStatsHint => 'رسوم آخر 3 شهور';
+
+  @override
+  String get associationManagePlansHint => 'خطط التوفير والأهداف';
+
+  @override
+  String get associationManageInviteHint => 'ادعُ ناس تشوف الدفتر';
+
+  @override
+  String get associationManageTreasurerNote => 'إنت بس اللي تضيف أو تعدّل الأرقام. اللي اتدعوا يشوفوا بس.';
+
+  @override
+  String get associationTreasurerBannerTitle => 'إنت مدير الدفتر';
+
+  @override
+  String associationTreasurerBannerBody(String name) {
+    return 'كل حاجة في $name بتتسجّل منك.';
+  }
+
+  @override
+  String associationMemberReadOnlyBanner(String name) {
+    return 'عضو مشاهدة في \"$name\". اطلب من المدير يضيف أو يعدّل.';
+  }
+
+  @override
+  String get associationManageHubAction => 'إدارة الدفتر';
+
+  @override
+  String get associationHubTitle => 'إدارة الجمعية';
+
+  @override
+  String get associationHubOpen => 'افتح';
+
+  @override
+  String get associationHubNotAvailable => 'اختار جمعية مشتركة الأول.';
+
+  @override
+  String get associationHubOwnerSubtitle => 'إنت مدير الجمعية: الجمعية بكام، القسط، مين عليه الدور، والأعضاء.';
+
+  @override
+  String get associationHubMemberSubtitle => 'مشاهدة بس: شوف المبلغ والقسط ومين عليه الدور.';
+
+  @override
+  String get associationHubPayout => 'الجمعية بكام';
+
+  @override
+  String get associationHubPayoutHint => '12000';
+
+  @override
+  String get associationHubInstallment => 'القسط';
+
+  @override
+  String get associationHubInstallmentHint => '1000';
+
+  @override
+  String get associationHubMemberCount => 'عدد الحصص';
+
+  @override
+  String get associationHubCollectionDay => 'يوم التحصيل';
+
+  @override
+  String get associationHubCollectionDayHint => 'يوم في الشهر (1–31)';
+
+  @override
+  String get associationHubCollectionDayInvalid => 'يوم التحصيل لازم يكون من 1 لـ 31.';
+
+  @override
+  String associationHubDayOfMonth(int day) {
+    return 'يوم $day';
+  }
+
+  @override
+  String get associationHubCurrentTurn => 'عليه الدور';
+
+  @override
+  String associationHubTurnNumber(int current, int total) {
+    return 'الدور $current من $total';
+  }
+
+  @override
+  String get associationHubTurnList => 'ترتيب الدور';
+
+  @override
+  String get associationHubEmptySetup => 'حدّد الجمعية بكام، القسط، ومين ياخد كل دور.';
+
+  @override
+  String get associationHubEmptyTurnList => 'مفيش حصص لسه. اضغط تعديل عشان تضيف الأسماء.';
+
+  @override
+  String get associationHubEdit => 'تعديل البيانات';
+
+  @override
+  String get associationHubSave => 'احفظ';
+
+  @override
+  String get associationHubSaved => 'اتحفظت بيانات الجمعية.';
+
+  @override
+  String get associationHubSlotsRequired => 'ضيف اسم واحد على الأقل لترتيب الدور.';
+
+  @override
+  String get associationHubFormFixErrors => 'صحّح الحقول اللي عليها خطأ.';
+
+  @override
+  String get associationHubPaymentsTitle => 'مدفوعات الأقساط';
+
+  @override
+  String get associationHubPaymentsEmpty => 'مفيش مدفوعات مسجّلة لسه.';
+
+  @override
+  String associationHubPaymentsTotal(String amount) {
+    return 'الإجمالي: $amount';
+  }
+
+  @override
+  String get associationHubRecordPayment => 'سجّل دفع';
+
+  @override
+  String get associationHubPaymentRecorded => 'اتسجّل الدفع.';
+
+  @override
+  String get associationHubPaymentPayer => 'مين اللي دفع';
+
+  @override
+  String get associationHubPaymentPayerRequired => 'اختار مين اللي دفع.';
+
+  @override
+  String get associationHubPaymentAmount => 'دفع قد إيه';
+
+  @override
+  String get associationHubPaymentDate => 'تاريخ الدفع';
+
+  @override
+  String associationHubPaymentPaidOn(String date) {
+    return 'دفع يوم $date';
+  }
+
+  @override
+  String get associationHubPaymentNote => 'ملاحظة (اختياري)';
+
+  @override
+  String get associationHubPaymentNoteHint => 'مثال: قسط مارس';
+
+  @override
+  String get associationHubPaymentSave => 'احفظ الدفع';
+
+  @override
+  String get associationHubPaymentDeleteTitle => 'تمسح الدفع؟';
+
+  @override
+  String associationHubPaymentDeleteMessage(String name) {
+    return 'تمسح تسجيل دفع $name؟';
+  }
+
+  @override
+  String get associationHubPaymentDeleteConfirm => 'امسح';
+
+  @override
+  String get associationHubEndGam3eya => 'إنهاء الجمعية';
+
+  @override
+  String get associationHubEndGam3eyaTitle => 'إنهاء الجمعية؟';
+
+  @override
+  String get associationHubEndGam3eyaMessage => 'الجمعية هتتقفل. تقدروا تشوفوا الدور والمدفوعات بس، من غير تعديل أو دفع جديد.';
+
+  @override
+  String get associationHubEndGam3eyaConfirm => 'إنهاء';
+
+  @override
+  String get associationHubEndGam3eyaDone => 'اتنهت الجمعية.';
+
+  @override
+  String associationHubEndedBanner(String date) {
+    return 'الجمعية انتهت يوم $date. مشاهدة بس.';
+  }
+
+  @override
+  String get associationHubOwnerEndedSubtitle => 'الجمعية خلصت. البيانات للمشاهدة بس.';
+
+  @override
+  String get associationHubMemberEndedSubtitle => 'المدير أنهى الجمعية. مشاهدة بس.';
+
+  @override
+  String get associationHubAdvanceTurn => 'الدور التالي';
+
+  @override
+  String associationHubAdvanceTurnConfirm(String name) {
+    return 'نكمّل دور $name وننقل للي بعده؟';
+  }
+
+  @override
+  String get associationHubReceived => 'استلم';
+
+  @override
+  String get associationHubPending => 'لسه';
+
+  @override
+  String get associationHubCurrentBadge => 'الدور دلوقتي';
+
+  @override
+  String get associationHubInvite => 'دعوة أعضاء';
+
+  @override
+  String get associationHubTreasurerNote => 'تسجيل الدخل والمصاريف لسه من المدير في التابات الرئيسية. الصفحة دي لمتابعة الجمعية والدور.';
+
+  @override
+  String get associationHubAppMembers => 'أعضاء التطبيق';
+
+  @override
+  String get associationHubRoleOwner => 'مدير';
+
+  @override
+  String get associationHubRoleAdmin => 'مساعد';
+
+  @override
+  String get associationHubRoleMember => 'عضو';
+
+  @override
+  String get associationHubAddSlot => 'ضيف حصة';
+
+  @override
+  String get associationHubSlotName => 'الاسم';
+
+  @override
+  String get associationHubBannerTitle => 'إدارة الجمعية';
+
+  @override
+  String associationHubBannerBody(String name) {
+    return 'الدور والجمعية والقسط لـ $name.';
+  }
+
+  @override
+  String get homeWelcomeBack => 'أهلاً بيك تاني';
+
+  @override
+  String homeWelcomeUser(String name) {
+    return 'أهلاً بيك تاني، $name';
+  }
+
+  @override
+  String get homeFinanceOverview => 'ملخص فلوسك';
+
+  @override
+  String get homeDateFilterTitle => 'فلتر بالتاريخ';
 
   @override
   String get homeFilterAllMonths => 'كل الشهور';
@@ -47,25 +582,25 @@ class AppLocalizationsAr extends AppLocalizations {
   String get homeFilterByDay => 'يوم';
 
   @override
-  String get homeFilterThisMonth => 'هذا الشهر';
+  String get homeFilterThisMonth => 'الشهر ده';
 
   @override
-  String get homeFilterPickMonth => 'اختر الشهر';
+  String get homeFilterPickMonth => 'اختار الشهر';
 
   @override
-  String get homeFilterPickDay => 'اختر اليوم';
+  String get homeFilterPickDay => 'اختار اليوم';
 
   @override
-  String get homeFilterToday => 'اليوم';
+  String get homeFilterToday => 'النهاردة';
 
   @override
-  String get homeFilterNoEntries => 'لا توجد عناصر لهذه الفترة';
+  String get homeFilterNoEntries => 'مفيش حاجة في الفترة دي';
 
   @override
   String get accountSettingsTitle => 'إعدادات الحساب';
 
   @override
-  String get changeUsername => 'تغيير اسم المستخدم';
+  String get changeUsername => 'غيّر اسم المستخدم';
 
   @override
   String get settingsLanguage => 'اللغة';
@@ -77,22 +612,22 @@ class AppLocalizationsAr extends AppLocalizations {
   String get calculatorTitle => 'الآلة الحاسبة';
 
   @override
-  String get languageEnglish => 'الإنجليزية';
+  String get languageEnglish => 'إنجليزي';
 
   @override
-  String get languageArabic => 'العربية';
+  String get languageArabic => 'عربي';
 
   @override
-  String get logout => 'تسجيل الخروج';
+  String get logout => 'خروج';
 
   @override
-  String get deleteAccount => 'حذف الحساب';
+  String get deleteAccount => 'امسح الحساب';
 
   @override
-  String get deleteAccountConfirmTitle => 'حذف الحساب؟';
+  String get deleteAccountConfirmTitle => 'تمسح الحساب؟';
 
   @override
-  String get deleteAccountConfirmMessage => 'سيتم حذف ملفك الشخصي والدخل والمصروفات والخطط نهائيًا. لا يمكن التراجع عن هذا الإجراء.';
+  String get deleteAccountConfirmMessage => 'هيتمسح حسابك والدخل والمصاريف والخطط خالص. مفيش رجوع.';
 
   @override
   String get cancel => 'إلغاء';
@@ -101,180 +636,195 @@ class AppLocalizationsAr extends AppLocalizations {
   String get save => 'حفظ';
 
   @override
-  String get usernameUpdated => 'تم تحديث اسم المستخدم';
+  String get usernameUpdated => 'اتغيّر اسم المستخدم';
 
   @override
-  String get errorEnterUsername => 'يرجى إدخال اسم المستخدم';
+  String get errorEnterUsername => 'اكتب اسم المستخدم';
 
   @override
-  String get logoutConfirmTitle => 'تسجيل الخروج؟';
+  String get logoutConfirmTitle => 'تخرج؟';
 
   @override
-  String get logoutConfirmMessage => 'ستحتاج إلى تسجيل الدخول مرة أخرى لاستخدام التطبيق.';
+  String get logoutConfirmMessage => 'هتحتاج تسجّل دخول تاني عشان تستخدم التطبيق.';
 
   @override
-  String get loginWelcomeTitle => 'مرحبًا بعودتك 👋';
+  String get loginWelcomeTitle => 'أهلاً بيك تاني 👋';
 
   @override
-  String get loginWelcomeSubtitle => 'سجّل الدخول لمتابعة استخدام حسابك';
+  String get loginWelcomeSubtitle => 'سجّل دخولك عشان تكمل';
 
   @override
-  String get labelEmail => 'البريد الإلكتروني';
+  String get labelEmail => 'الإيميل';
 
   @override
   String get hintEmail => 'example@gmail.com';
 
   @override
-  String get labelPassword => 'كلمة المرور';
+  String get labelPassword => 'الباسورد';
 
   @override
   String get hintPasswordDots => '••••••••';
 
   @override
-  String get forgotPasswordQuestion => 'نسيت كلمة المرور؟';
+  String get forgotPasswordQuestion => 'نسيت الباسورد؟';
 
   @override
-  String get loginButton => 'تسجيل الدخول';
+  String get loginButton => 'دخول';
 
   @override
   String get orDivider => 'أو';
 
   @override
-  String get noAccountPrompt => 'ليس لديك حساب؟';
+  String get noAccountPrompt => 'معندكش حساب؟';
 
   @override
-  String get signUpLink => 'إنشاء حساب';
+  String get signUpLink => 'اعمل حساب';
 
   @override
-  String get messageEnterEmailPassword => 'أدخل البريد الإلكتروني وكلمة المرور';
+  String get messageEnterEmailPassword => 'اكتب الإيميل والباسورد';
 
   @override
-  String get messageLoginFailed => 'فشل تسجيل الدخول';
+  String get messageLoginFailed => 'الدخول فشل';
 
   @override
-  String get messageLoginSuccess => 'تم تسجيل الدخول بنجاح';
+  String get messageLoginSuccess => 'دخلت بنجاح';
 
   @override
-  String get signupCreateTitle => 'إنشاء حساب 🚀';
+  String get signupCreateTitle => 'اعمل حساب 🚀';
 
   @override
-  String get signupCreateSubtitle => 'أنشئ حسابك للمتابعة';
+  String get signupCreateSubtitle => 'اعمل حسابك عشان تكمل';
 
   @override
   String get labelFullName => 'الاسم الكامل';
 
   @override
-  String get hintEnterYourName => 'أدخل اسمك';
+  String get hintEnterYourName => 'اكتب اسمك';
 
   @override
-  String get labelConfirmPassword => 'تأكيد كلمة المرور';
+  String get labelConfirmPassword => 'أكّد الباسورد';
 
   @override
-  String get createAccountButton => 'إنشاء حساب';
+  String get createAccountButton => 'اعمل حساب';
 
   @override
-  String get alreadyHaveAccount => 'لديك حساب بالفعل؟';
+  String get alreadyHaveAccount => 'عندك حساب؟';
 
   @override
-  String get loginLinkShort => 'تسجيل الدخول';
+  String get loginLinkShort => 'دخول';
 
   @override
-  String get signupErrorGeneric => 'حدث خطأ';
+  String get signupErrorGeneric => 'حصل خطأ';
 
   @override
-  String get signupSuccessful => 'تم إنشاء الحساب بنجاح';
+  String get signupSuccessful => 'اتعمل الحساب بنجاح';
 
   @override
-  String get forgotPasswordTitle => 'نسيت كلمة المرور؟';
+  String get forgotPasswordTitle => 'نسيت الباسورد؟';
 
   @override
-  String get forgotPasswordDescription => 'أدخل بريدك الإلكتروني وسنرسل لك رابط إعادة تعيين كلمة المرور.';
+  String get forgotPasswordDescription => 'اكتب إيميلك وهنبعتلك كود تعيّن بيه باسورد جديد.';
 
   @override
-  String get sendResetLink => 'إرسال كود';
+  String get sendResetLink => 'ابعت الكود';
 
   @override
-  String get backToLogin => 'العودة لتسجيل الدخول';
+  String get backToLogin => 'رجوع للدخول';
 
   @override
-  String get errorTryAgainGeneric => 'حدث خطأ. يرجى المحاولة مرة أخرى.';
+  String get errorTryAgainGeneric => 'حصل خطأ. جرّب تاني.';
 
   @override
-  String get setNewPasswordTitle => 'تعيين كلمة مرور جديدة 🔒';
+  String get setNewPasswordTitle => 'باسورد جديد 🔒';
 
   @override
-  String get setNewPasswordSubtitle => 'أدخل رمز التحقق وأنشئ كلمة المرور الجديدة.';
+  String get setNewPasswordSubtitle => 'اكتب كود التحقق واعمل باسورد جديد.';
 
   @override
-  String get labelOtpCode => 'رمز التحقق';
+  String get labelOtpCode => 'كود التحقق';
 
   @override
-  String get hintOtpCode => 'أدخل رمز التحقق';
+  String get hintOtpCode => 'اكتب كود التحقق';
 
   @override
-  String get labelNewPassword => 'كلمة المرور الجديدة';
+  String get labelNewPassword => 'الباسورد الجديد';
 
   @override
-  String get buttonSetNewPassword => 'تعيين كلمة المرور';
+  String get buttonSetNewPassword => 'احفظ الباسورد';
 
   @override
-  String get passwordUpdatedSuccessfully => 'تم تحديث كلمة المرور بنجاح ✅';
+  String get passwordUpdatedSuccessfully => 'اتغيّر الباسورد بنجاح ✅';
 
   @override
   String noRouteForName(Object name) {
-    return 'لا يوجد مسار معرّف لـ $name';
+    return 'مفيش صفحة لـ $name';
   }
 
   @override
-  String get noInternetConnection => 'لا يوجد اتصال بالإنترنت';
+  String get noInternetConnection => 'مفيش نت';
 
   @override
-  String get errorGeneric => 'حدث خطأ ما';
+  String get errorGeneric => 'حصل خطأ';
 
   @override
-  String get errorDeleteFailed => 'تعذر الحذف. يرجى المحاولة مرة أخرى.';
+  String get errorDeleteFailed => 'الحذف ما نجحش. جرّب تاني.';
 
   @override
-  String get errorDeleteAccountFailed => 'تعذر حذف حسابك. يرجى المحاولة مرة أخرى.';
+  String get errorDeleteAccountFailed => 'ما قدرناش نمسح حسابك. جرّب تاني.';
 
   @override
-  String get errorDeleteAccountRpcRequired => 'حذف الحساب غير مُعد على الخادم. نفّذ supabase/delete_account.sql في مشروع Supabase.';
+  String get errorDeleteAccountRpcRequired => 'مسح الحساب مش متظبط على السيرفر. شغّل supabase/delete_account.sql في مشروع Supabase.';
 
   @override
-  String get addIncome => 'إضافة دخل';
+  String get addIncome => 'ضيف دخل';
 
   @override
-  String get editIncome => 'تعديل الدخل';
+  String get editIncome => 'عدّل الدخل';
 
   @override
-  String get recentIncomes => 'الدخل الأخير';
+  String get recentIncomes => 'آخر دخل';
 
   @override
-  String get totalIncome => 'إجمالي الدخل';
+  String get totalIncome => 'مجموع الدخل';
 
   @override
-  String get addExpense => 'إضافة مصروف';
+  String get addExpense => 'ضيف مصروف';
 
   @override
-  String get editExpense => 'تعديل المصروف';
+  String get editExpense => 'عدّل المصروف';
 
   @override
-  String get recentExpenses => 'المصروفات الأخيرة';
+  String get recentExpenses => 'آخر مصاريف';
 
   @override
-  String get totalExpenses => 'إجمالي المصروفات';
+  String get expenseSortNewest => 'الأحدث';
 
   @override
-  String get noIncomesTitle => 'لا يوجد دخل بعد';
+  String get expenseSortHighestAmount => 'الأكبر مبلغ';
 
   @override
-  String get noIncomesSubtitle => 'اضغط الزر أدناه لتسجيل أول دخل';
+  String get expenseDeletedSnack => 'اتمسح المصروف';
 
   @override
-  String get noExpensesTitle => 'لا توجد مصروفات بعد';
+  String get expenseUndoAction => 'تراجع';
 
   @override
-  String get noExpensesSubtitle => 'اضغط الزر أدناه لتسجيل أول مصروف';
+  String get expenseRestoredSnack => 'اترجع المصروف';
+
+  @override
+  String get totalExpenses => 'مجموع المصاريف';
+
+  @override
+  String get noIncomesTitle => 'لسه مفيش دخل';
+
+  @override
+  String get noIncomesSubtitle => 'اضغط الزرار تحت وسجّل أول دخل';
+
+  @override
+  String get noExpensesTitle => 'لسه مفيش مصاريف';
+
+  @override
+  String get noExpensesSubtitle => 'اضغط الزرار تحت وسجّل أول مصروف';
 
   @override
   String get titleField => 'العنوان';
@@ -289,16 +839,40 @@ class AppLocalizationsAr extends AppLocalizations {
   String get incomeSourceField => 'المصدر';
 
   @override
-  String get hintIncomeSource => 'مثال: فيزا، إيجارات، راتب';
+  String get hintIncomeSource => 'مثال: فيزا، إيجارات، مرتب';
+
+  @override
+  String get addIncomeSheetTitleHint => 'زي: مرتب مارس، إيجار شقة';
+
+  @override
+  String get addIncomeSheetSourceHint => 'زي: فيزا، فودافون كاش، مرتب، تحويل بنك';
+
+  @override
+  String get addExpenseSheetTitleHint => 'زي: سوبر ماركت، أكل بره، أوبر';
+
+  @override
+  String get addExpenseSheetPaidFromHint => 'دفعت منين؟ كاش، فيزا، فودافون كاش…';
+
+  @override
+  String get addExpenseSheetOtherCategoryHint => 'زي: جيم، اشتراكات، هدايا';
+
+  @override
+  String get paymentPresetBankTransfer => 'تحويل بنك';
+
+  @override
+  String get paymentPresetVodafoneCash => 'فودافون كاش';
+
+  @override
+  String get paymentPresetInstaPay => 'إنستاباي';
 
   @override
   String get incomeBySource => 'حسب المصدر';
 
   @override
-  String get balanceRemainingBySource => 'المتبقي حسب المصدر';
+  String get balanceRemainingBySource => 'الباقي حسب المصدر';
 
   @override
-  String get paymentMethodAddChip => '+ إضافة طريقة';
+  String get paymentMethodAddChip => '+ طريقة دفع';
 
   @override
   String get paymentMethodAddCancel => 'إلغاء';
@@ -310,90 +884,90 @@ class AppLocalizationsAr extends AppLocalizations {
   String get paymentMethodNewHint => 'مثال: فودافون كاش، إنستاباي، فوري';
 
   @override
-  String get paymentMethodSave => 'حفظ الطريقة';
+  String get paymentMethodSave => 'احفظ الطريقة';
 
   @override
-  String get paymentMethodNameEmpty => 'أدخل اسم طريقة الدفع.';
+  String get paymentMethodNameEmpty => 'اكتب اسم طريقة الدفع.';
 
   @override
   String paymentMethodAdded(String name) {
-    return 'تمت إضافة \"$name\" إلى طرقك.';
+    return 'اتضافت \"$name\" لطرق الدفع بتاعتك.';
   }
 
   @override
-  String get expensePaidFromField => 'الدفع من';
+  String get expensePaidFromField => 'دفعت من';
 
   @override
-  String get expensePaidFromNone => 'بدون';
+  String get expensePaidFromNone => 'من غير';
 
   @override
-  String get incomeUnassignedSpending => 'مصروف غير مربوط بمصدر';
+  String get incomeUnassignedSpending => 'مصروف مش مربوط بمصدر';
 
   @override
   String get incomeFilterAllSources => 'كل المصادر';
 
   @override
-  String get incomeFilterNoSourceEntries => 'لا يوجد دخل لهذا المصدر في الفترة المحددة';
+  String get incomeFilterNoSourceEntries => 'مفيش دخل من المصدر ده في الفترة اللي اخترتها';
 
   @override
-  String get incomeSourceManageEdit => 'إعادة تسمية المصدر';
+  String get incomeSourceManageEdit => 'غيّر اسم المصدر';
 
   @override
-  String get incomeSourceManageRemove => 'إزالة المصدر';
+  String get incomeSourceManageRemove => 'شيل المصدر';
 
   @override
-  String get incomeSourceRenameTitle => 'إعادة تسمية المصدر';
+  String get incomeSourceRenameTitle => 'غيّر اسم المصدر';
 
   @override
   String incomeSourceRenameHint(String name) {
-    return 'سيتم تحديث كل الدخول ذات المصدر \"$name\".';
+    return 'هيتعدّل كل الدخل اللي مصدره \"$name\".';
   }
 
   @override
-  String get incomeSourceNameTaken => 'اسم المصدر مستخدم بالفعل';
+  String get incomeSourceNameTaken => 'اسم المصدر ده مستخدم قبل كده';
 
   @override
-  String get incomeSourceUpdatedSuccess => 'تم تحديث المصادر';
+  String get incomeSourceUpdatedSuccess => 'اتعدّلت المصادر';
 
   @override
-  String get incomeSourceRemoveTitle => 'إزالة المصدر';
+  String get incomeSourceRemoveTitle => 'شيل المصدر';
 
   @override
   String incomeSourceRemoveMessage(int count, String name) {
-    return 'ماذا تريد أن تفعل بـ $count دخل بمصدر \"$name\"؟';
+    return 'عايز تعمل إيه بـ $count دخل مصدرهم \"$name\"؟';
   }
 
   @override
-  String get incomeSourceMoveToOther => 'نقل الكل إلى أخرى';
+  String get incomeSourceMoveToOther => 'انقل الكل لـ «تاني»';
 
   @override
-  String get incomeSourceDeleteAll => 'حذف كل الدخل بهذا المصدر';
+  String get incomeSourceDeleteAll => 'امسح كل الدخل بالمصدر ده';
 
   @override
-  String get incomeSourceDeleteConfirmTitle => 'حذف الدخل؟';
+  String get incomeSourceDeleteConfirmTitle => 'تمسح الدخل؟';
 
   @override
   String incomeSourceDeleteConfirmMessage(int count) {
-    return 'سيُحذف $count دخل نهائياً. لا يمكن التراجع.';
+    return 'هيتمسح $count دخل خالص. مفيش رجوع.';
   }
 
   @override
-  String get incomeSourceDeleteConfirmAction => 'حذف';
+  String get incomeSourceDeleteConfirmAction => 'امسح';
 
   @override
   String get incomeSourceRents => 'إيجارات';
 
   @override
-  String get incomeSourceVisaCard => 'بطاقة فيزا';
+  String get incomeSourceVisaCard => 'فيزا';
 
   @override
-  String get incomeSourceCash => 'نقد';
+  String get incomeSourceCash => 'كاش';
 
   @override
   String get amountField => 'المبلغ';
 
   @override
-  String get expenseAmountShortcuts => 'مبالغ سريعة';
+  String get expenseAmountShortcuts => 'مبالغ جاهزة';
 
   @override
   String get expenseShortcutTransport => 'مواصلات';
@@ -402,46 +976,46 @@ class AppLocalizationsAr extends AppLocalizations {
   String get expenseShortcutCoffee => 'قهوة';
 
   @override
-  String get expenseShortcutSnack => 'وجبة خفيفة';
+  String get expenseShortcutSnack => 'سناك';
 
   @override
   String get expenseFabMenuTitle => 'مصروف جديد';
 
   @override
-  String get expenseFabBlankOption => 'نموذج فارغ';
+  String get expenseFabBlankOption => 'فورم فاضي';
 
   @override
-  String get expenseFabFromLastPaste => 'من آخر رسالة محلّلة';
+  String get expenseFabFromLastPaste => 'من آخر رسالة اتحلّلت';
 
   @override
-  String get expenseFabFromLastPasteSubtitle => 'يستخدم آخر رسالة بنك أو محفظة حللتها في الاستيراد الذكي';
+  String get expenseFabFromLastPasteSubtitle => 'بيستخدم آخر رسالة بنك أو محفظة حلّلتها في الاستيراد الذكي';
 
   @override
-  String get expenseLastPasteNotExpense => 'آخر رسالة محلّلة تبدو كدخل. أضفها من تبويب الدخل.';
+  String get expenseLastPasteNotExpense => 'آخر رسالة اتحلّلت شكلها دخل. ضيفها من تبويب الدخل.';
 
   @override
-  String get expenseShortcutsSectionTitle => 'مصروفات بلمسة';
+  String get expenseShortcutsSectionTitle => 'مصاريف بلمسة';
 
   @override
-  String get expenseShortcutsEmptyCta => 'إعداد اختصارات سريعة';
+  String get expenseShortcutsEmptyCta => 'ظبّط اختصارات سريعة';
 
   @override
-  String get expenseShortcutsManageTitle => 'اختصارات المصروف';
+  String get expenseShortcutsManageTitle => 'اختصارات المصاريف';
 
   @override
-  String get expenseShortcutsManageSubtitle => 'احفظ تسمية الزر، عنوان المصروف، التصنيف، الدفع من، والمبلغ. المس الشريط في تبويب المصروفات لتسجيله فوراً.';
+  String get expenseShortcutsManageSubtitle => 'احفظ اسم الزرار، عنوان المصروف، التصنيف، دفعت من، والمبلغ. المس الشريط في تبويب المصاريف عشان تسجّله على طول.';
 
   @override
-  String get expenseShortcutsEmptyBody => 'لا توجد اختصارات بعد. أضف قهوة، مواصلات، أو أي شراء متكرر.';
+  String get expenseShortcutsEmptyBody => 'لسه مفيش اختصارات. ضيف قهوة، مواصلات، أو أي حاجة بتتكرر.';
 
   @override
   String get expenseShortcutAddTitle => 'اختصار جديد';
 
   @override
-  String get expenseShortcutEditTitle => 'تعديل الاختصار';
+  String get expenseShortcutEditTitle => 'عدّل الاختصار';
 
   @override
-  String get expenseShortcutChipLabelField => 'تسمية الزر';
+  String get expenseShortcutChipLabelField => 'اسم الزرار';
 
   @override
   String get expenseShortcutChipLabelHint => 'مثال: قهوة';
@@ -450,200 +1024,200 @@ class AppLocalizationsAr extends AppLocalizations {
   String get expenseShortcutExpenseTitleField => 'عنوان المصروف';
 
   @override
-  String get expenseShortcutFormHint => 'يسجل هذا المصروف لتاريخ اليوم بلمسة واحدة دون فتح النموذج.';
+  String get expenseShortcutFormHint => 'بيسجّل المصروف ده النهاردة بلمسة واحدة من غير ما يفتح الفورم.';
 
   @override
-  String get expenseShortcutSave => 'حفظ الاختصار';
+  String get expenseShortcutSave => 'احفظ الاختصار';
 
   @override
-  String get expenseShortcutDelete => 'حذف';
+  String get expenseShortcutDelete => 'امسح';
 
   @override
-  String get expenseShortcutDeleteConfirmTitle => 'حذف الاختصار؟';
+  String get expenseShortcutDeleteConfirmTitle => 'تمسح الاختصار؟';
 
   @override
   String expenseShortcutDeleteConfirmMessage(String name) {
-    return 'إزالة \"$name\"؟';
+    return 'تشيل \"$name\"؟';
   }
 
   @override
   String expenseShortcutLogged(String name) {
-    return 'تم التسجيل: $name';
+    return 'اتسجّل: $name';
   }
 
   @override
-  String get expenseShortcutErrorLabel => 'أدخل تسمية للزر';
+  String get expenseShortcutErrorLabel => 'اكتب اسم للزرار';
 
   @override
   String get expenseByCategory => 'حسب التصنيف';
 
   @override
-  String get expenseCategoryEdit => 'تعديل التصنيف';
+  String get expenseCategoryEdit => 'عدّل التصنيف';
 
   @override
-  String get expenseCategoryRemove => 'إزالة التصنيف';
+  String get expenseCategoryRemove => 'شيل التصنيف';
 
   @override
-  String get expenseCategoryRenameTitle => 'إعادة تسمية التصنيف';
+  String get expenseCategoryRenameTitle => 'غيّر اسم التصنيف';
 
   @override
   String expenseCategoryRenameHint(String name) {
-    return 'سيتم تحديث كل المصروفات في \"$name\".';
+    return 'هيتعدّل كل المصاريف في \"$name\".';
   }
 
   @override
-  String get expenseCategoryNameTaken => 'اسم التصنيف مستخدم بالفعل';
+  String get expenseCategoryNameTaken => 'اسم التصنيف ده مستخدم قبل كده';
 
   @override
-  String get expenseCategoryUpdatedSuccess => 'تم تحديث التصنيف';
+  String get expenseCategoryUpdatedSuccess => 'اتعدّل التصنيف';
 
   @override
-  String get expenseCategoryRemoveTitle => 'إزالة التصنيف';
+  String get expenseCategoryRemoveTitle => 'شيل التصنيف';
 
   @override
   String expenseCategoryRemoveMessage(int count, String name) {
-    return 'ماذا تريد أن تفعل بـ $count مصروف في \"$name\"؟';
+    return 'عايز تعمل إيه بـ $count مصروف في \"$name\"؟';
   }
 
   @override
-  String get expenseCategoryMoveToOther => 'نقل الكل إلى أخرى';
+  String get expenseCategoryMoveToOther => 'انقل الكل لـ «تاني»';
 
   @override
-  String get expenseCategoryDeleteAll => 'حذف كل مصروفات هذا التصنيف';
+  String get expenseCategoryDeleteAll => 'امسح كل مصاريف التصنيف ده';
 
   @override
-  String get expenseCategoryDeleteConfirmTitle => 'حذف المصروفات؟';
+  String get expenseCategoryDeleteConfirmTitle => 'تمسح المصاريف؟';
 
   @override
   String expenseCategoryDeleteConfirmMessage(int count) {
-    return 'سيُحذف $count مصروف نهائياً. لا يمكن التراجع.';
+    return 'هيتمسح $count مصروف خالص. مفيش رجوع.';
   }
 
   @override
-  String get expenseCategoryDeleteConfirmAction => 'حذف';
+  String get expenseCategoryDeleteConfirmAction => 'امسح';
 
   @override
   String get expenseFilterAllCategories => 'كل التصنيفات';
 
   @override
-  String get expenseFilterNoCategoryEntries => 'لا توجد مصروفات لهذا التصنيف في الفترة المحددة';
+  String get expenseFilterNoCategoryEntries => 'مفيش مصاريف للتصنيف ده في الفترة اللي اخترتها';
 
   @override
-  String get budgetMonthlyTitle => 'الميزانية الشهرية';
+  String get budgetMonthlyTitle => 'ميزانية الشهر';
 
   @override
-  String get budgetSetAction => 'تعيين ميزانية';
+  String get budgetSetAction => 'حدّد ميزانية';
 
   @override
   String get budgetSetTitle => 'ميزانية شهرية';
 
   @override
-  String get budgetEditTitle => 'تعديل الميزانية الشهرية';
+  String get budgetEditTitle => 'عدّل ميزانية الشهر';
 
   @override
-  String get budgetSetHint => 'اختر تصنيفاً وحدد المبلغ المخطط إنفاقه هذا الشهر.';
+  String get budgetSetHint => 'اختار تصنيف وحدّد المبلغ اللي ناوي تصرفه الشهر ده.';
 
   @override
   String get budgetCustomCategory => 'اسم التصنيف';
 
   @override
-  String get budgetMonthlyLimit => 'الحد الشهري';
+  String get budgetMonthlyLimit => 'حد الشهر';
 
   @override
-  String get budgetSave => 'حفظ الميزانية';
+  String get budgetSave => 'احفظ الميزانية';
 
   @override
-  String get budgetEmptyHint => 'حدّد سقفاً لكل تصنيف لمتابعة ما أنفقته من الميزانية.';
+  String get budgetEmptyHint => 'حدّد سقف لكل تصنيف عشان تعرف صرفت كام من الميزانية.';
 
   @override
-  String get budgetSetFirst => 'إنشاء أول ميزانية';
+  String get budgetSetFirst => 'اعمل أول ميزانية';
 
   @override
   String get budgetTotalSpent => 'إجمالي المصروف';
 
   @override
   String budgetRemaining(String amount) {
-    return 'متبقي $amount';
+    return 'باقي $amount';
   }
 
   @override
   String budgetOverBy(String amount) {
-    return 'تجاوز بمقدار $amount';
+    return 'زودت بـ $amount';
   }
 
   @override
-  String get budgetDeleteTitle => 'حذف الميزانية؟';
+  String get budgetDeleteTitle => 'تمسح الميزانية؟';
 
   @override
   String budgetDeleteMessage(String category) {
-    return 'حذف ميزانية $category؟';
+    return 'تمسح ميزانية $category؟';
   }
 
   @override
-  String get budgetDeleteConfirm => 'حذف';
+  String get budgetDeleteConfirm => 'امسح';
 
   @override
   String budgetAlertNear(int count) {
-    return '$count تصنيف قارب الحد';
+    return '$count تصنيف قرب يخلص';
   }
 
   @override
   String budgetAlertOver(int count) {
-    return '$count تصنيف تجاوز الميزانية';
+    return '$count تصنيف عدّى الميزانية';
   }
 
   @override
   String budgetAlertOverAndNear(int over, int near) {
-    return '$over تجاوزوا الميزانية، $near قاربوا الحد';
+    return '$over عدّوا الميزانية، $near قربوا يخلصوا';
   }
 
   @override
   String get categoryField => 'التصنيف';
 
   @override
-  String get otherCategoryField => 'تصنيف آخر';
+  String get otherCategoryField => 'تصنيف تاني';
 
   @override
-  String get otherCategoryHint => 'أدخل اسم التصنيف';
+  String get otherCategoryHint => 'اكتب اسم التصنيف';
 
   @override
-  String get saveExpense => 'حفظ المصروف';
+  String get saveExpense => 'احفظ المصروف';
 
   @override
-  String get updateExpense => 'تحديث المصروف';
+  String get updateExpense => 'حدّث المصروف';
 
   @override
-  String get expenseAddedSuccess => 'تمت إضافة المصروف بنجاح';
+  String get expenseAddedSuccess => 'اتضاف المصروف';
 
   @override
-  String get expenseUpdatedSuccess => 'تم تحديث المصروف بنجاح';
+  String get expenseUpdatedSuccess => 'اتعدّل المصروف';
 
   @override
-  String get saveIncome => 'حفظ الدخل';
+  String get saveIncome => 'احفظ الدخل';
 
   @override
-  String get updateIncome => 'تحديث الدخل';
+  String get updateIncome => 'حدّث الدخل';
 
   @override
-  String get incomeAddedSuccess => 'تمت إضافة الدخل بنجاح';
+  String get incomeAddedSuccess => 'اتضاف الدخل';
 
   @override
-  String get incomeUpdatedSuccess => 'تم تحديث الدخل بنجاح';
+  String get incomeUpdatedSuccess => 'اتعدّل الدخل';
 
   @override
-  String get errorEnterTitle => 'يرجى إدخال عنوان';
+  String get errorEnterTitle => 'اكتب عنوان';
 
   @override
-  String get errorEnterValidAmount => 'يرجى إدخال مبلغ صالح';
+  String get errorEnterValidAmount => 'اكتب مبلغ صح';
 
   @override
-  String get errorEnterCategoryName => 'يرجى إدخال اسم التصنيف';
+  String get errorEnterCategoryName => 'اكتب اسم التصنيف';
 
   @override
-  String get errorSavedExceedsTarget => 'المبلغ المحفوظ لا يمكن أن يتجاوز الهدف';
+  String get errorSavedExceedsTarget => 'المبلغ المحفوظ ما ينفعش يعدّي الهدف';
 
   @override
-  String get expenseCatFood => 'طعام';
+  String get expenseCatFood => 'أكل';
 
   @override
   String get expenseCatRent => 'إيجار';
@@ -658,25 +1232,25 @@ class AppLocalizationsAr extends AppLocalizations {
   String get expenseCatBills => 'فواتير';
 
   @override
-  String get expenseCatOther => 'أخرى';
+  String get expenseCatOther => 'تاني';
 
   @override
-  String get incomeCatWork => 'عمل';
+  String get incomeCatWork => 'شغل';
 
   @override
-  String get incomeCatFreelance => 'عمل حر';
+  String get incomeCatFreelance => 'فريلانس';
 
   @override
-  String get incomeCatBusiness => 'أعمال';
+  String get incomeCatBusiness => 'بيزنس';
 
   @override
   String get incomeCatInvestment => 'استثمار';
 
   @override
-  String get incomeCatOther => 'أخرى';
+  String get incomeCatOther => 'تاني';
 
   @override
-  String get planCatSavings => 'ادخار';
+  String get planCatSavings => 'توفير';
 
   @override
   String get planCatTravel => 'سفر';
@@ -688,49 +1262,49 @@ class AppLocalizationsAr extends AppLocalizations {
   String get planCatEducation => 'تعليم';
 
   @override
-  String get planCatOther => 'أخرى';
+  String get planCatOther => 'تاني';
 
   @override
   String get planNewFab => 'هدف جديد';
 
   @override
-  String get planEditGoal => 'تعديل الهدف';
+  String get planEditGoal => 'عدّل الهدف';
 
   @override
-  String get planAddPlan => 'إضافة خطة';
+  String get planAddPlan => 'ضيف خطة';
 
   @override
-  String get goalTitleLabel => 'عنوان الهدف';
+  String get goalTitleLabel => 'اسم الهدف';
 
   @override
-  String get goalTitleHint => 'مثال: صندوق الطوارئ';
+  String get goalTitleHint => 'مثال: فلوس طوارئ';
 
   @override
-  String get targetAmountLabel => 'المبلغ المستهدف';
+  String get targetAmountLabel => 'المبلغ اللي عايزه';
 
   @override
-  String get amountSavedLabel => 'المبلغ المدخر';
+  String get amountSavedLabel => 'اللي وفّرته';
 
   @override
-  String get setDeadlineOptional => 'تحديد موعد نهائي (اختياري)';
+  String get setDeadlineOptional => 'حدّد موعد (اختياري)';
 
   @override
-  String get savePlan => 'حفظ الخطة';
+  String get savePlan => 'احفظ الخطة';
 
   @override
-  String get updateGoal => 'تحديث الهدف';
+  String get updateGoal => 'حدّث الهدف';
 
   @override
-  String get errorEnterGoalTitle => 'يرجى إدخال عنوان الهدف';
+  String get errorEnterGoalTitle => 'اكتب اسم الهدف';
 
   @override
-  String get errorEnterTargetAmount => 'يرجى إدخال مبلغ مستهدف صالح';
+  String get errorEnterTargetAmount => 'اكتب مبلغ هدف صح';
 
   @override
-  String get errorEnterAmountSaved => 'يرجى إدخال المبلغ المدخر';
+  String get errorEnterAmountSaved => 'اكتب المبلغ اللي وفّرته';
 
   @override
-  String get updateSavedTitle => 'تحديث المدخرات';
+  String get updateSavedTitle => 'حدّث اللي وفّرته';
 
   @override
   String targetWithAmount(Object amount) {
@@ -738,115 +1312,115 @@ class AppLocalizationsAr extends AppLocalizations {
   }
 
   @override
-  String get saveAmountButton => 'حفظ المبلغ';
+  String get saveAmountButton => 'احفظ المبلغ';
 
   @override
-  String get errorEnterValidSavedAmount => 'يرجى إدخال مبلغ مدخر صالح';
+  String get errorEnterValidSavedAmount => 'اكتب مبلغ موفّر صح';
 
   @override
   String get balanceNetBalance => 'صافي الرصيد';
 
   @override
   String balanceSavedThisMonth(int percent) {
-    return 'تم توفير $percent% هذا الشهر';
+    return 'وفّرت $percent% الشهر ده';
   }
 
   @override
   String balanceSavedPercent(int percent) {
-    return 'تم توفير $percent%';
+    return 'وفّرت $percent%';
   }
 
   @override
   String get balanceStatIncome => 'الدخل';
 
   @override
-  String get balanceStatExpense => 'المصروفات';
+  String get balanceStatExpense => 'المصاريف';
 
   @override
-  String get balanceRecentActivity => 'النشاط الأخير';
+  String get balanceRecentActivity => 'آخر حركة';
 
   @override
-  String get balanceAddToPlan => 'إضافة لهدف';
+  String get balanceAddToPlan => 'ضيف لهدف';
 
   @override
-  String get balanceAddToPlanTitle => 'إضافة لهدف ادخار';
+  String get balanceAddToPlanTitle => 'ضيف لهدف توفير';
 
   @override
   String balanceAddToPlanHint(Object amount) {
-    return 'المتاح من الرصيد: $amount';
+    return 'اللي متاح من الرصيد: $amount';
   }
 
   @override
-  String get balanceSelectPlan => 'اختر هدفاً';
+  String get balanceSelectPlan => 'اختار هدف';
 
   @override
-  String get balanceAmountToAllocate => 'المبلغ للإضافة';
+  String get balanceAmountToAllocate => 'المبلغ اللي هتضيفه';
 
   @override
   String balancePlanRemaining(Object amount) {
-    return 'متبقي $amount لإكمال الهدف';
+    return 'باقي $amount عشان توصل للهدف';
   }
 
   @override
-  String get balanceAddToPlanSuccess => 'تمت إضافة المبلغ لهدف الادخار';
+  String get balanceAddToPlanSuccess => 'اتضاف المبلغ لهدف التوفير';
 
   @override
-  String get balancePlanAllocationPaidFromHint => 'اختر المصدر الذي يُخصم منه هذا المبلغ (يظهر في الرصيد وليس كإنفاق غير مُعيَّن).';
+  String get balancePlanAllocationPaidFromHint => 'اختار المصدر اللي هيتخصم منه المبلغ ده (بيظهر في الرصيد مش كمصروف مش مربوط).';
 
   @override
-  String get planAllocationSelectPaidFrom => 'اختر «الدفع من» لتخصيص هذا الهدف';
+  String get planAllocationSelectPaidFrom => 'اختار «دفعت من» عشان تخصّص للهدف';
 
   @override
   String balancePlanAllocationExpenseTitle(String planTitle) {
-    return 'هدف ادخار: $planTitle';
+    return 'هدف توفير: $planTitle';
   }
 
   @override
-  String get balanceNoPlansForAllocation => 'أنشئ هدف ادخار من تبويب الخطط أولاً.';
+  String get balanceNoPlansForAllocation => 'اعمل هدف توفير من تبويب الخطط الأول.';
 
   @override
   String get balanceAmountExceedsSurplus => 'المبلغ أكبر من الرصيد المتاح';
 
   @override
   String itemsCount(int count) {
-    return '$count عناصر';
+    return '$count حاجة';
   }
 
   @override
   String listEntryCount(int count) {
-    return '$count سجلًا';
+    return '$count سجل';
   }
 
   @override
-  String get clearAllExpenses => 'مسح الكل';
+  String get clearAllExpenses => 'امسح الكل';
 
   @override
-  String get clearAllIncomes => 'مسح الكل';
+  String get clearAllIncomes => 'امسح الكل';
 
   @override
-  String get clearAllExpensesConfirmTitle => 'حذف كل المصروفات؟';
+  String get clearAllExpensesConfirmTitle => 'تمسح كل المصاريف؟';
 
   @override
-  String get clearAllIncomesConfirmTitle => 'حذف كل الإيرادات؟';
+  String get clearAllIncomesConfirmTitle => 'تمسح كل الدخل؟';
 
   @override
   String clearAllExpensesConfirmMessage(int count) {
-    return 'سيتم حذف جميع المصروفات ($count) نهائيًا. لا يمكن التراجع.';
+    return 'هيتمسح كل المصاريف ($count) خالص. مفيش رجوع.';
   }
 
   @override
   String clearAllIncomesConfirmMessage(int count) {
-    return 'سيتم حذف جميع الإيرادات ($count) نهائيًا. لا يمكن التراجع.';
+    return 'هيتمسح كل الدخل ($count) خالص. مفيش رجوع.';
   }
 
   @override
-  String get clearAllExpensesSuccess => 'تم حذف كل المصروفات';
+  String get clearAllExpensesSuccess => 'اتمسحت كل المصاريف';
 
   @override
-  String get clearAllIncomesSuccess => 'تم حذف كل الإيرادات';
+  String get clearAllIncomesSuccess => 'اتمسح كل الدخل';
 
   @override
-  String get balanceIncomeVsExpenses => 'الدخل مقابل المصروفات';
+  String get balanceIncomeVsExpenses => 'الدخل والمصاريف';
 
   @override
   String get balanceFilterAll => 'الكل';
@@ -855,10 +1429,10 @@ class AppLocalizationsAr extends AppLocalizations {
   String get balanceFilterIncome => 'الدخل';
 
   @override
-  String get balanceFilterExpense => 'المصروفات';
+  String get balanceFilterExpense => 'المصاريف';
 
   @override
-  String get balanceNoFilteredActivity => 'لا يوجد نشاط يطابق هذا الفلتر';
+  String get balanceNoFilteredActivity => 'مفيش حركة بالفلتر ده';
 
   @override
   String get activityIncome => 'دخل';
@@ -867,36 +1441,36 @@ class AppLocalizationsAr extends AppLocalizations {
   String get activityExpense => 'مصروف';
 
   @override
-  String get plansActive => 'نشط';
+  String get plansActive => 'شغّال';
 
   @override
-  String get plansDone => 'مكتمل';
+  String get plansDone => 'خلص';
 
   @override
-  String get plansRemaining => 'متبقي';
+  String get plansRemaining => 'باقي';
 
   @override
-  String get plansSavingsGoalsSection => 'أهداف الادخار';
+  String get plansSavingsGoalsSection => 'أهداف التوفير';
 
   @override
   String get plansGoalsOverview => 'نظرة على الأهداف';
 
   @override
   String plansSavedOfTarget(Object total) {
-    return 'من $total مدخر';
+    return 'من $total موفّر';
   }
 
   @override
-  String get plansDonePercentLabel => 'مكتمل';
+  String get plansDonePercentLabel => 'خلص';
 
   @override
   String plansGoalsCompletedSummary(int completed, int total) {
-    return '$completed من $total أهداف مكتملة';
+    return '$completed من $total أهداف خلصت';
   }
 
   @override
   String plansMoneyLeft(Object amount) {
-    return 'متبقي $amount';
+    return 'باقي $amount';
   }
 
   @override
@@ -906,60 +1480,60 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String dueDateLabel(Object date) {
-    return 'الاستحقاق $date';
+    return 'مستحق $date';
   }
 
   @override
-  String get planGoalCompleted => 'اكتمل الهدف';
+  String get planGoalCompleted => 'الهدف خلص';
 
   @override
-  String get planTapToEditGoal => 'اضغط لتعديل الهدف';
+  String get planTapToEditGoal => 'اضغط عشان تعدّل الهدف';
 
   @override
-  String get plansEmptyTitle => 'ابدأ هدفك الأول';
+  String get plansEmptyTitle => 'ابدأ أول هدف';
 
   @override
-  String get plansEmptySubtitle => 'حدد هدفًا، تتبع ما توفره، وشاهد تقدمك ينمو.';
+  String get plansEmptySubtitle => 'حدّد هدف، تابع اللي وفّرته، وشوف تقدّمك.';
 
   @override
-  String get plansCreateGoalButton => 'إنشاء هدف';
+  String get plansCreateGoalButton => 'اعمل هدف';
 
   @override
-  String get demoSalary => 'راتب';
+  String get demoSalary => 'مرتب';
 
   @override
   String get demoRent => 'إيجار';
 
   @override
-  String get demoFreelanceProject => 'مشروع عمل حر';
+  String get demoFreelanceProject => 'مشروع فريلانس';
 
   @override
   String get demoGroceries => 'مشتريات';
 
   @override
-  String get demoGas => 'وقود';
+  String get demoGas => 'بنزين';
 
   @override
-  String get demoElectricBill => 'فاتورة كهرباء';
+  String get demoElectricBill => 'فاتورة كهربا';
 
   @override
   String get demoUtilities => 'مرافق';
 
   @override
-  String get demoSideBusiness => 'عمل جانبي';
+  String get demoSideBusiness => 'شغل جانبي';
 
   @override
-  String get demoEmergencyFund => 'صندوق الطوارئ';
+  String get demoEmergencyFund => 'فلوس طوارئ';
 
   @override
-  String get demoSummerVacation => 'إجازة صيفية';
+  String get demoSummerVacation => 'أجازة صيف';
 
   @override
   String get demoNewLaptop => 'لابتوب جديد';
 
   @override
   String storedAsBase(Object amount) {
-    return 'يُحفظ كـ $amount (عملة الحساب)';
+    return 'بيتحفظ كـ $amount (عملة الحساب)';
   }
 
   @override
@@ -978,7 +1552,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get smartImportSmsTab => 'رسائل SMS';
 
   @override
-  String get smartImportQuickHint => 'لا توجد رسالة للصق؟ أدخل المبلغ، اختر مصروف أو دخل، والفئة والمصدر — أضف بضغطة واحدة.';
+  String get smartImportQuickHint => 'مفيش رسالة تلصقها؟ اكتب المبلغ، اختار مصروف أو دخل، والتصنيف والمصدر — ضيف بضغطة.';
 
   @override
   String get smartImportQuickTypeLabel => 'نوع المعاملة';
@@ -987,83 +1561,86 @@ class AppLocalizationsAr extends AppLocalizations {
   String get smartImportQuickAmountLabel => 'المبلغ';
 
   @override
-  String get smartImportQuickTitleHint => 'قهوة، إيجار، راتب… (اختياري)';
+  String get smartImportQuickTitleHint => 'قهوة، إيجار، مرتب… (اختياري)';
 
   @override
-  String get smartImportQuickAddNow => 'إضافة الآن';
+  String get smartImportQuickAddNow => 'ضيف دلوقتي';
 
   @override
-  String get smartImportQuickReview => 'مراجعة في النموذج الكامل';
+  String get smartImportQuickReview => 'راجع في الفورم الكامل';
 
   @override
-  String get smartImportQuickAdded => 'تمت إضافة المعاملة.';
+  String get smartImportQuickAdded => 'اتضافت المعاملة.';
 
   @override
-  String get smartImportPasteHint => 'الصق رسالة أو أكثر من البنك أو المحفظة. ضع سطراً فارغاً بين الرسائل، أو الصق عدة رسائل متتالية. نكتشف المبلغ ونوع كل رسالة (دخل أو مصروف).';
+  String get smartImportPasteHint => 'الصق رسالة أو أكتر من البنك أو المحفظة. سطر فاضي بين الرسائل، أو الصق كذا رسالة ورا بعض. بنعرف المبلغ ونوع كل رسالة (دخل ولا مصروف).';
 
   @override
-  String get smartImportPasteShareTip => 'نصيحة: من تطبيق الرسائل → مشاركة → استيراد إلى Pocketly دون نسخ ولصق.';
+  String get smartImportPasteShareTip => 'نصيحة: من الرسائل → مشاركة → استيراد لـ Pocketly من غير نسخ ولصق.';
 
   @override
-  String get smartImportSharedTextReady => 'تم تحميل الرسالة المشاركة. راجعها أدناه ثم أضفها.';
+  String get smartImportSharedTextReady => 'اتحمّلت الرسالة اللي اتشاركت. راجعها تحت وضيفها.';
+
+  @override
+  String get smartImportScrollToTop => 'فوق';
 
   @override
   String get smartImportPasteFieldLabel => 'نص الرسالة';
 
   @override
-  String get smartImportPasteFieldHint => 'الصق رسالة أو أكثر (سطر فارغ بين كل رسالة)';
+  String get smartImportPasteFieldHint => 'الصق رسالة أو أكتر (سطر فاضي بين كل رسالة)';
 
   @override
   String get smartImportPasteFromClipboard => 'لصق من الحافظة';
 
   @override
-  String get smartImportParseMessage => 'تحليل الرسالة';
+  String get smartImportParseMessage => 'حلّل الرسالة';
 
   @override
-  String get smartImportParseMessages => 'تحليل الرسائل';
+  String get smartImportParseMessages => 'حلّل الرسائل';
 
   @override
   String smartImportPasteFoundCount(int count) {
-    return 'تم العثور على $count رسائل';
+    return 'لقينا $count رسالة';
   }
 
   @override
   String smartImportPasteAddedOneRemaining(int count) {
-    return 'تمت الإضافة. $count رسائل جاهزة للاستيراد.';
+    return 'اتضافت. $count رسالة جاهزة للاستيراد.';
   }
 
   @override
-  String get smartImportPasteProcessing => 'جاري قراءة الرسالة…';
+  String get smartImportPasteProcessing => 'بنقرا الرسالة…';
 
   @override
-  String get smartImportPasteNoData => 'لم نعثر على مبلغ في النص. جرّب رسالة البنك كاملة.';
+  String get smartImportPasteNoData => 'ملقيناش مبلغ في النص. جرّب رسالة البنك كاملة.';
 
   @override
-  String get smartImportPasteEmpty => 'الصق رسالة أولاً.';
+  String get smartImportPasteEmpty => 'الصق رسالة الأول.';
 
   @override
-  String get smartImportPasteClipboardEmpty => 'الحافظة فارغة. انسخ رسالة بنك أو محفظة أولاً.';
+  String get smartImportPasteClipboardEmpty => 'الحافظة فاضية. انسخ رسالة بنك أو محفظة الأول.';
 
   @override
-  String get smartImportPasteClear => 'مسح';
+  String get smartImportPasteClear => 'امسح';
 
   @override
-  String get smartImportPasteAddedSuccess => 'تمت الإضافة. يمكنك لصق رسالة أخرى الآن.';
+  String get smartImportPasteAddedSuccess => 'اتضافت. تقدر تلصق رسالة تانية دلوقتي.';
 
   @override
-  String get smartImportPasteParseAnother => 'تحليل رسالة أخرى';
+  String get smartImportPasteParseAnother => 'حلّل رسالة تانية';
 
   @override
-  String get smartImportPasteMarkExpense => 'تسجيل كمصروف';
+  String get smartImportPasteMarkExpense => 'سجّل كمصروف';
 
   @override
-  String get smartImportPasteMarkIncome => 'تسجيل كدخل';
+  String get smartImportPasteMarkIncome => 'سجّل كدخل';
 
   @override
   String get smartImportDefaultBillTitle => 'فاتورة';
 
   @override
-  String get smartImportExtractedData => 'البيانات المستخرجة';
+  String get smartImportExtractedData => 'البيانات اللي طلعت';
 
   @override
   String get smartImportDateField => 'التاريخ';
@@ -1072,102 +1649,107 @@ class AppLocalizationsAr extends AppLocalizations {
   String get smartImportTypeField => 'النوع';
 
   @override
-  String get smartImportAddToApp => 'إضافة للتطبيق';
+  String get smartImportAddToApp => 'ضيف للتطبيق';
 
   @override
-  String get smartImportSmsNotSupported => 'قراءة SMS متاحة على أندرويد فقط.';
+  String get smartImportSmsNotSupported => 'قراءة SMS على أندرويد بس.';
 
   @override
-  String get smartImportSmsEmpty => 'لم يتم العثور على رسائل مالية. امنح إذن SMS إن طُلب.';
+  String get smartImportSmsEmpty => 'ملقيناش رسائل فلوس. ادّي إذن SMS لو طلب منك.';
 
   @override
-  String get smartImportSmsFailed => 'تعذرت قراءة رسائل SMS.';
+  String get smartImportSmsFailed => 'ما قدرناش نقرا رسائل SMS.';
 
   @override
-  String get smartImportReloadSms => 'إعادة التحميل';
+  String get smartImportReloadSms => 'حمّل تاني';
 
   @override
-  String get smartImportSmsAlreadyAdded => 'مضاف مسبقاً';
+  String get smartImportSmsAlreadyAdded => 'اتضافت قبل كده';
 
   @override
-  String get smartImportSmsAddAgain => 'إضافة مرة أخرى';
+  String get smartImportSmsAddAgain => 'ضيف تاني';
 
   @override
-  String get smartImportSmsClearAllAdded => 'مسح كل المضاف';
+  String get smartImportSmsClearAllAdded => 'امسح اللي اتضاف';
 
   @override
-  String get smartImportSmsClearAllAddedConfirmTitle => 'مسح سجل الاستيراد؟';
+  String get smartImportSmsClearAllAddedConfirmTitle => 'تمسح سجل الاستيراد؟';
 
   @override
-  String get smartImportSmsClearAllAddedConfirmMessage => 'ستظهر كل الرسائل كغير مضافة ويمكنك استيرادها مجدداً. لن تُحذف مصروفاتك أو دخلك الحالي من التطبيق.';
+  String get smartImportSmsClearAllAddedConfirmMessage => 'كل الرسائل هتظهر تاني كأنها ما اتضافتش وتقدر تستوردها من جديد. المصاريف والدخل اللي في التطبيق مش هيتمسحوا.';
 
   @override
-  String get smartImportSmsClearAllAddedDone => 'تم مسح سجل الاستيراد';
+  String get smartImportSmsClearAllAddedDone => 'اتمسح سجل الاستيراد';
 
   @override
   String smartImportSmsSkippedDuplicate(int count) {
-    return '$count رسالة موجودة بالفعل في التطبيق.';
+    return '$count رسالة موجودة في التطبيق أصلاً.';
   }
 
   @override
-  String get smartImportSmsLoadMore => 'تحميل المزيد من الرسائل';
+  String get smartImportSmsLoadMore => 'حمّل رسائل أكتر';
 
   @override
-  String get smartImportSmsLoading => 'جاري قراءة رسائل SMS…';
+  String get smartImportSmsLoading => 'بنقرا رسائل SMS…';
 
   @override
-  String get smartImportSmsLoadingMore => 'جاري التحميل…';
+  String get smartImportSmsLoadingMore => 'بيتحمّل…';
 
   @override
-  String get smartImportUnknownSender => 'مرسل غير معروف';
+  String smartImportSmsListCap(int count) {
+    return 'آخر $count رسالة فلوس. اسحب للتحديث.';
+  }
 
   @override
-  String get smartImportSmsTitleExpense => 'مصروف بنكي';
+  String get smartImportUnknownSender => 'مرسل مش معروف';
 
   @override
-  String get smartImportSmsTitleIncome => 'دخل بنكي';
+  String get smartImportSmsTitleExpense => 'مصروف بنك';
+
+  @override
+  String get smartImportSmsTitleIncome => 'دخل بنك';
 
   @override
   String get smartImportTapToImport => 'اضغط للاستيراد';
 
   @override
   String smartImportAddAllExpenses(int count) {
-    return 'إضافة كل المصروفات ($count)';
+    return 'ضيف كل المصاريف ($count)';
   }
 
   @override
   String smartImportAddAllIncomes(int count) {
-    return 'إضافة كل الدخل ($count)';
+    return 'ضيف كل الدخل ($count)';
   }
 
   @override
   String smartImportAddSelected(int count) {
-    return 'إضافة المحدد ($count)';
+    return 'ضيف المحدد ($count)';
   }
 
   @override
-  String get smartImportSelectAll => 'تحديد الكل';
+  String get smartImportSelectAll => 'حدّد الكل';
 
   @override
-  String get smartImportClearSelection => 'إلغاء التحديد';
+  String get smartImportClearSelection => 'الغِ التحديد';
 
   @override
   String get smartImportBulkCategorySheetTitle => 'التصنيف للاستيراد';
 
   @override
-  String get smartImportBulkCategorySheetHint => 'اختر التصنيف والمصدر هنا. نص الرسالة يُستخدم للعنوان فقط، وليس لمصدر الدخل أو «الدفع من».';
+  String get smartImportBulkCategorySheetHint => 'اختار التصنيف والمصدر هنا. نص الرسالة للعنوان بس، مش لمصدر الدخل ولا «دفعت من».';
 
   @override
-  String get smartImportBulkExpensePaidFromHint => 'اختر مصدر الدفع للمصروفات المستوردة (لا يُقرأ من SMS).';
+  String get smartImportBulkExpensePaidFromHint => 'اختار مصدر الدفع للمصاريف المستوردة (مش بيقرا من SMS).';
 
   @override
-  String get smartImportBulkIncomeSourceHint => 'اختر مصدر الدخل للدخل المستورد (لا يُقرأ من SMS).';
+  String get smartImportBulkIncomeSourceHint => 'اختار مصدر الدخل للدخل المستورد (مش بيقرا من SMS).';
 
   @override
-  String get smartImportBulkSelectPaidFrom => 'اختر «الدفع من»';
+  String get smartImportBulkSelectPaidFrom => 'اختار «دفعت من»';
 
   @override
-  String get smartImportBulkSelectIncomeSource => 'اختر مصدر الدخل';
+  String get smartImportBulkSelectIncomeSource => 'اختار مصدر الدخل';
 
   @override
   String get smartImportBulkExpenseCategory => 'تصنيف المصروف';
@@ -1176,140 +1758,140 @@ class AppLocalizationsAr extends AppLocalizations {
   String get smartImportBulkIncomeSource => 'مصدر الدخل';
 
   @override
-  String get smartImportBulkApplyAndImport => 'استيراد';
+  String get smartImportBulkApplyAndImport => 'استورد';
 
   @override
-  String get smartImportBulkImporting => 'جاري استيراد الرسائل…';
+  String get smartImportBulkImporting => 'بنستورد الرسائل…';
 
   @override
-  String get smartImportBulkNothingToAdd => 'لا توجد رسائل بمبلغ صالح للاستيراد.';
+  String get smartImportBulkNothingToAdd => 'مفيش رسائل بمبلغ نقدر نستوردها.';
 
   @override
   String smartImportBulkResult(int incomes, int expenses) {
-    return 'تمت إضافة $incomes دخل و$expenses مصروف.';
+    return 'اتضاف $incomes دخل و$expenses مصروف.';
   }
 
   @override
   String smartImportBulkPartialFail(int failed) {
-    return 'تعذر استيراد $failed رسالة.';
+    return 'ما قدرناش نستورد $failed رسالة.';
   }
 
   @override
   String get settingsAutoSmsImport => 'استيراد تلقائي من SMS';
 
   @override
-  String get settingsAutoSmsImportSubtitle => 'عند فتح التطبيق، تُكتشف رسائل البنك الجديدة وتُضاف كدخل أو مصروف حسب التصنيف والمصدر الذي تختاره.';
+  String get settingsAutoSmsImportSubtitle => 'لما تفتح التطبيق، بنكتشف رسائل البنك الجديدة ونضيفها دخل أو مصروف حسب التصنيف والمصدر اللي تختاره.';
 
   @override
-  String get settingsAutoSmsImportDefaults => 'تصنيفات الاستيراد التلقائي';
+  String get settingsAutoSmsImportDefaults => 'إعدادات الاستيراد التلقائي';
 
   @override
   String get settingsAutoSmsImportDefaultsTitle => 'افتراضيات الاستيراد التلقائي';
 
   @override
-  String get settingsAutoSmsImportDefaultsHint => 'تُستخدم في كل استيراد تلقائي. نص الرسالة يُستخدم للعنوان فقط.';
+  String get settingsAutoSmsImportDefaultsHint => 'بتتستخدم في كل استيراد تلقائي. نص الرسالة للعنوان بس.';
 
   @override
-  String get settingsAutoSmsImportPermissionDenied => 'يلزم إذن SMS للاستيراد التلقائي.';
+  String get settingsAutoSmsImportPermissionDenied => 'محتاج إذن SMS للاستيراد التلقائي.';
 
   @override
-  String get settingsAutoSmsImportEnabled => 'الاستيراد التلقائي مفعّل. ستُضاف الرسائل المالية الجديدة عند فتح التطبيق.';
+  String get settingsAutoSmsImportEnabled => 'الاستيراد التلقائي شغّال. الرسائل الجديدة هتتضاف لما تفتح التطبيق.';
 
   @override
   String autoSmsImportAddedSnack(int incomes, int expenses) {
-    return 'تم استيراد $incomes دخل و$expenses مصروف تلقائياً.';
+    return 'اتستورد $incomes دخل و$expenses مصروف تلقائي.';
   }
 
   @override
   String get settingsAppLock => 'قفل التطبيق';
 
   @override
-  String get settingsAppLockBiometric => 'Face ID / بصمة الإصبع';
+  String get settingsAppLockBiometric => 'Face ID / بصمة';
 
   @override
-  String get settingsAppLockChangePin => 'تغيير رمز PIN';
+  String get settingsAppLockChangePin => 'غيّر رمز PIN';
 
   @override
-  String get appLockTitle => 'فتح Pocketly';
+  String get appLockTitle => 'افتح Pocketly';
 
   @override
-  String get appLockSubtitle => 'أدخل رمز PIN للمتابعة';
+  String get appLockSubtitle => 'اكتب رمز PIN عشان تكمل';
 
   @override
-  String get appLockWrongPin => 'رمز PIN غير صحيح. حاول مرة أخرى.';
+  String get appLockWrongPin => 'رمز PIN غلط. جرّب تاني.';
 
   @override
-  String get appLockBiometricReason => 'افتح حسابك المالي';
+  String get appLockBiometricReason => 'افتح حسابك';
 
   @override
-  String get appLockEnterPinTitle => 'أدخل رمز PIN';
+  String get appLockEnterPinTitle => 'اكتب رمز PIN';
 
   @override
-  String get appLockEnterPinSubtitle => 'أكّد للمتابعة';
+  String get appLockEnterPinSubtitle => 'أكّد عشان تكمل';
 
   @override
-  String get appLockCreatePinTitle => 'إنشاء رمز PIN';
+  String get appLockCreatePinTitle => 'اعمل رمز PIN';
 
   @override
-  String get appLockCreatePinSubtitle => 'استخدم 4 أرقام يسهل تذكرها';
+  String get appLockCreatePinSubtitle => '4 أرقام تفتكرها بسهولة';
 
   @override
-  String get appLockConfirmPinTitle => 'تأكيد رمز PIN';
+  String get appLockConfirmPinTitle => 'أكّد رمز PIN';
 
   @override
-  String get appLockConfirmPinSubtitle => 'أدخل نفس الرمز مرة أخرى';
+  String get appLockConfirmPinSubtitle => 'اكتب نفس الرمز تاني';
 
   @override
-  String get appLockPinMismatch => 'رمزا PIN غير متطابقين';
+  String get appLockPinMismatch => 'رمزين PIN مش متطابقين';
 
   @override
-  String get appLockEnabledSuccess => 'تم تفعيل قفل التطبيق';
+  String get appLockEnabledSuccess => 'قفل التطبيق اتفعّل';
 
   @override
-  String get appLockDisabledSuccess => 'تم إيقاف قفل التطبيق';
+  String get appLockDisabledSuccess => 'قفل التطبيق اتقفل';
 
   @override
-  String get appLockEnableFailed => 'تعذر تفعيل قفل التطبيق';
+  String get appLockEnableFailed => 'ما قدرناش نفعّل قفل التطبيق';
 
   @override
-  String get appLockBiometricPromptTitle => 'استخدام البصمة؟';
+  String get appLockBiometricPromptTitle => 'تستخدم البصمة؟';
 
   @override
-  String get appLockBiometricPromptMessage => 'افتح التطبيق بسرعة عبر Face ID أو بصمة الإصبع على هذا الجهاز.';
+  String get appLockBiometricPromptMessage => 'افتح التطبيق بسرعة بـ Face ID أو بصمة على الجهاز ده.';
 
   @override
-  String get appLockBiometricFailed => 'تعذر تفعيل البصمة';
+  String get appLockBiometricFailed => 'ما قدرناش نفعّل البصمة';
 
   @override
-  String get appLockChangePinSuccess => 'تم تحديث رمز PIN';
+  String get appLockChangePinSuccess => 'اتغيّر رمز PIN';
 
   @override
-  String get appLockChangePinFailed => 'تعذر تحديث رمز PIN';
+  String get appLockChangePinFailed => 'ما قدرناش نغيّر رمز PIN';
 
   @override
-  String get notNow => 'ليس الآن';
+  String get notNow => 'مش دلوقتي';
 
   @override
-  String get enable => 'تفعيل';
+  String get enable => 'فعّل';
 
   @override
-  String get monthlyReportTitle => 'التقرير الشهري';
+  String get monthlyReportTitle => 'تقرير الشهر';
 
   @override
   String get monthlyReportShort => 'تقرير';
 
   @override
-  String get monthlyReportVsLastMonth => 'مقارنة بالشهر السابق';
+  String get monthlyReportVsLastMonth => 'مقارنة بالشهر اللي فات';
 
   @override
-  String get monthlyReportBudgetTitle => 'الميزانية مقابل الفعلي';
+  String get monthlyReportBudgetTitle => 'الميزانية واللي صرفته';
 
   @override
-  String get monthlyReportNoBudgets => 'لا توجد ميزانيات لهذا الشهر. أضف حدودًا من تبويب المصروفات لتتبع الإنفاق هنا.';
+  String get monthlyReportNoBudgets => 'مفيش ميزانيات الشهر ده. ضيف حدود من تبويب المصاريف عشان تتابع صرفك هنا.';
 
   @override
   String monthlyReportEntrySummary(int incomeCount, int expenseCount) {
-    return '$incomeCount مصادر دخل · $expenseCount تصنيفات مصروف';
+    return '$incomeCount مصدر دخل · $expenseCount تصنيف مصاريف';
   }
 
   @override
@@ -1322,7 +1904,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get globalSearchAll => 'الكل';
 
   @override
-  String get globalSearchNoResults => 'لا توجد نتائج مطابقة';
+  String get globalSearchNoResults => 'مفيش نتائج';
 
   @override
   String get globalSearchAllTime => 'كل الفترات';
