@@ -8,6 +8,9 @@ class Expense extends Equatable {
   final DateTime date;
   /// Income source / wallet this spend is deducted from; optional for legacy rows.
   final String? incomeSource;
+  final String? receiptUrl;
+  final String? entryCurrency;
+  final double? entryAmount;
 
   const Expense({
     required this.id,
@@ -16,9 +19,21 @@ class Expense extends Equatable {
     required this.amount,
     required this.date,
     this.incomeSource,
+    this.receiptUrl,
+    this.entryCurrency,
+    this.entryAmount,
   });
 
   @override
-  List<Object?> get props =>
-      [id, title, category, amount, date, incomeSource];
+  List<Object?> get props => [
+        id,
+        title,
+        category,
+        amount,
+        date,
+        incomeSource,
+        receiptUrl,
+        entryCurrency,
+        entryAmount,
+      ];
 }

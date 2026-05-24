@@ -26,6 +26,9 @@ class AddExpenseEvent extends ExpensesTabEvent {
   final double amount;
   final DateTime date;
   final String? incomeSource;
+  final String? receiptUrl;
+  final String? entryCurrency;
+  final double? entryAmount;
 
   const AddExpenseEvent({
     required this.title,
@@ -33,10 +36,22 @@ class AddExpenseEvent extends ExpensesTabEvent {
     required this.amount,
     required this.date,
     this.incomeSource,
+    this.receiptUrl,
+    this.entryCurrency,
+    this.entryAmount,
   });
 
   @override
-  List<Object> get props => [title, category, amount, date, incomeSource ?? ''];
+  List<Object> get props => [
+        title,
+        category,
+        amount,
+        date,
+        incomeSource ?? '',
+        receiptUrl ?? '',
+        entryCurrency ?? '',
+        entryAmount ?? 0,
+      ];
 }
 
 class UpdateExpenseEvent extends ExpensesTabEvent {
@@ -46,6 +61,10 @@ class UpdateExpenseEvent extends ExpensesTabEvent {
   final double amount;
   final DateTime date;
   final String? incomeSource;
+  final String? receiptUrl;
+  final bool clearReceipt;
+  final String? entryCurrency;
+  final double? entryAmount;
 
   const UpdateExpenseEvent({
     required this.id,
@@ -54,10 +73,25 @@ class UpdateExpenseEvent extends ExpensesTabEvent {
     required this.amount,
     required this.date,
     this.incomeSource,
+    this.receiptUrl,
+    this.clearReceipt = false,
+    this.entryCurrency,
+    this.entryAmount,
   });
 
   @override
-  List<Object> get props => [id, title, category, amount, date, incomeSource ?? ''];
+  List<Object> get props => [
+        id,
+        title,
+        category,
+        amount,
+        date,
+        incomeSource ?? '',
+        receiptUrl ?? '',
+        clearReceipt,
+        entryCurrency ?? '',
+        entryAmount ?? 0,
+      ];
 }
 
 class DeleteExpenseEvent extends ExpensesTabEvent {

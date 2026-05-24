@@ -1,5 +1,6 @@
 import 'package:dartz/dartz.dart';
 import 'package:imrpo/core/helpers/error_helper.dart';
+import 'package:imrpo/core/models/transaction_entry_meta.dart';
 import 'package:imrpo/features/incomes_tab/domain/repositories/income_repository.dart';
 
 class UpdateIncomeUsecase {
@@ -12,14 +13,16 @@ class UpdateIncomeUsecase {
     String title,
     double amount,
     DateTime date,
-    String category,
-  ) async {
-    return await incomeRepository.updateIncome(
+    String category, {
+    TransactionEntryMeta? entryMeta,
+  }) async {
+    return incomeRepository.updateIncome(
       incomeId,
       title,
       amount,
       date,
       category,
+      entryMeta: entryMeta,
     );
   }
 }

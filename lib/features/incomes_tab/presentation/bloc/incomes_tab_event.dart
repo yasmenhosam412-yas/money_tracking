@@ -25,16 +25,27 @@ class AddIncomeEvent extends IncomesTabEvent {
   final String category;
   final double amount;
   final DateTime date;
+  final String? entryCurrency;
+  final double? entryAmount;
 
   const AddIncomeEvent({
     required this.title,
     required this.category,
     required this.amount,
     required this.date,
+    this.entryCurrency,
+    this.entryAmount,
   });
 
   @override
-  List<Object> get props => [title, category, amount, date];
+  List<Object> get props => [
+        title,
+        category,
+        amount,
+        date,
+        entryCurrency ?? '',
+        entryAmount ?? 0,
+      ];
 }
 
 class UpdateIncomeEvent extends IncomesTabEvent {
@@ -43,6 +54,8 @@ class UpdateIncomeEvent extends IncomesTabEvent {
   final String category;
   final double amount;
   final DateTime date;
+  final String? entryCurrency;
+  final double? entryAmount;
 
   const UpdateIncomeEvent({
     required this.id,
@@ -50,10 +63,20 @@ class UpdateIncomeEvent extends IncomesTabEvent {
     required this.category,
     required this.amount,
     required this.date,
+    this.entryCurrency,
+    this.entryAmount,
   });
 
   @override
-  List<Object> get props => [id, title, category, amount, date];
+  List<Object> get props => [
+        id,
+        title,
+        category,
+        amount,
+        date,
+        entryCurrency ?? '',
+        entryAmount ?? 0,
+      ];
 }
 
 class DeleteIncomeEvent extends IncomesTabEvent {

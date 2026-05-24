@@ -11,10 +11,11 @@ import 'package:imrpo/core/services/currency_preferences.dart';
 import 'package:imrpo/core/services/expense_shortcuts_store.dart';
 import 'package:imrpo/core/services/payment_methods_store.dart';
 import 'package:imrpo/core/widgets/app_lock_gate.dart';
-import 'package:imrpo/core/helpers/supabase_auth_helper.dart';
-import 'package:imrpo/core/services/association_context.dart';
-import 'package:imrpo/core/services/bill_reminder_bootstrap.dart';
+import 'package:imrpo/core/bootstrap/app_startup.dart';
 import 'package:imrpo/core/services/bill_reminder_preferences.dart';
+import 'package:imrpo/core/services/daily_digest_preferences.dart';
+import 'package:imrpo/core/services/notification_inbox_store.dart';
+import 'package:imrpo/core/utils/locale_date_format.dart';
 import 'package:imrpo/core/widgets/bill_reminder_gate.dart';
 import 'package:imrpo/features/bill_reminders/presentation/bloc/bill_reminders_bloc.dart';
 import 'package:imrpo/core/services/locale_preferences.dart';
@@ -51,18 +52,17 @@ Future<void> main() async {
   setupServiceLocator();
   await getIt<CurrencyPreferences>().load();
   await getIt<LocalePreferences>().load();
+  await LocaleDateFormat.ensureAppLocales();
   await getIt<ExpenseShortcutsStore>().load();
   await getIt<PaymentMethodsStore>().load();
   await getIt<SmsImportedRegistry>().load();
   await getIt<AutoSmsImportPreferences>().load();
   await getIt<BillReminderPreferences>().load();
+  await getIt<DailyDigestPreferences>().load();
+  await getIt<NotificationInboxStore>().load();
   await getIt<OnboardingPreferences>().load();
   await getIt<AppLockService>().load();
   await ShareTextImportBridge.instance.startListening();
-  if (SupabaseAuthHelper.isSignedIn) {
-    await getIt<AssociationContext>().load();
-  }
-  await bootstrapBillReminders();
   runApp(
     MultiBlocProvider(
       providers: [
@@ -80,10 +80,23 @@ Future<void> main() async {
   );
 }
 
-class MainApp extends StatelessWidget {
+class MainApp extends StatefulWidget {
   const MainApp({super.key});
 
-  static String _initialRoute() {
+  @override
+  State<MainApp> createState() => _MainAppState();
+}
+
+class _MainAppState extends State<MainApp> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      runDeferredAppStartup();
+    });
+  }
+
+  String _initialRoute() {
     if (!getIt<OnboardingPreferences>().completed) {
       return AppRoutes.onboarding;
     }
@@ -92,7 +105,7 @@ class MainApp extends StatelessWidget {
         : AppRoutes.login;
   }
 
-  static Widget _initialHome() {
+  Widget _initialHome() {
     if (!getIt<OnboardingPreferences>().completed) {
       return const OnboardingScreen();
     }

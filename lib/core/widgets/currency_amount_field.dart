@@ -3,6 +3,7 @@ import 'package:imrpo/core/l10n/l10n_entity_strings.dart';
 import 'package:imrpo/core/models/currency.dart';
 import 'package:imrpo/core/services/currency_converter.dart';
 import 'package:imrpo/core/utils/app_colors.dart';
+import 'package:imrpo/core/utils/transaction_entry_format.dart';
 import 'package:imrpo/l10n/app_localizations.dart';
 class CurrencyAmountField extends StatefulWidget {
   final String label;
@@ -33,6 +34,12 @@ class _CurrencyAmountFieldState extends State<CurrencyAmountField> {
     _selected = CurrencyConverter.byCode(
       widget.initialCurrencyCode ?? CurrencyConverter.defaultDisplayCode,
     );
+    if (!CurrencyConverter.entryCurrencies
+        .any((c) => c.code == _selected.code)) {
+      _selected = CurrencyConverter.byCode(
+        CurrencyConverter.defaultDisplayCode,
+      );
+    }
     widget.controller.addListener(_onAmountChanged);
   }
 
@@ -57,7 +64,9 @@ class _CurrencyAmountFieldState extends State<CurrencyAmountField> {
 
   @override
   Widget build(BuildContext context) {
-    final singleCurrency = CurrencyConverter.currencies.length == 1;
+    final l10n = AppLocalizations.of(context)!;
+    final singleCurrency = CurrencyConverter.entryCurrencies.length == 1;
+    final baseHint = formatStoredAsBaseHint(l10n, amountInBase);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -120,6 +129,17 @@ class _CurrencyAmountFieldState extends State<CurrencyAmountField> {
             ),
           ],
         ),
+        if (baseHint.isNotEmpty) ...[
+          const SizedBox(height: 8),
+          Text(
+            baseHint,
+            style: TextStyle(
+              fontSize: 12.5,
+              fontWeight: FontWeight.w500,
+              color: AppColors.textPrimary.withValues(alpha: 0.55),
+            ),
+          ),
+        ],
       ],
     );
   }
@@ -187,7 +207,7 @@ class _CurrencySelector extends StatelessWidget {
           value: selected.code,
           borderRadius: BorderRadius.circular(14),
           icon: Icon(Icons.expand_more_rounded, color: accentColor),
-          items: CurrencyConverter.currencies.map((currency) {
+          items: CurrencyConverter.entryCurrencies.map((currency) {
             return DropdownMenuItem(
               value: currency.code,
               child: Text(

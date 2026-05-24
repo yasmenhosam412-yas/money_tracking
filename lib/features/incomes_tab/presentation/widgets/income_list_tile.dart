@@ -8,6 +8,8 @@ import 'package:imrpo/core/utils/money_format.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 import 'package:imrpo/features/incomes_tab/domain/entities/income.dart';
 import 'package:imrpo/core/l10n/l10n_entity_strings.dart';
+import 'package:imrpo/core/models/transaction_entry_meta.dart';
+import 'package:imrpo/core/utils/transaction_entry_format.dart';
 import 'package:imrpo/l10n/app_localizations.dart';
 
 class IncomeListTile extends StatelessWidget {
@@ -36,6 +38,13 @@ class IncomeListTile extends StatelessWidget {
       color: AppColors.textColor.withValues(alpha: 0.55),
     );
     final iconMetaColor = AppColors.textColor.withValues(alpha: 0.45);
+    final foreignSubtitle = formatForeignEntrySubtitle(
+      l10n,
+      TransactionEntryMeta(
+        entryCurrency: income.entryCurrency,
+        entryAmount: income.entryAmount,
+      ),
+    );
     return Material(
       color: Colors.transparent,
       child: InkWell(
@@ -90,6 +99,10 @@ class IncomeListTile extends StatelessWidget {
                           color: AppColors.textColor.withValues(alpha: 0.72),
                         ),
                       ),
+                    ],
+                    if (foreignSubtitle != null) ...[
+                      const SizedBox(height: 6),
+                      Text(foreignSubtitle, style: metaStyle),
                     ],
                     const SizedBox(height: 8),
                     Row(

@@ -8,6 +8,7 @@ import 'package:imrpo/features/expenses_tab/domain/usecases/delete_expense_useca
 import 'package:imrpo/features/expenses_tab/domain/usecases/get_all_expenses_usecase.dart';
 import 'package:imrpo/features/expenses_tab/domain/usecases/delete_expenses_by_category_usecase.dart';
 import 'package:imrpo/features/expenses_tab/domain/usecases/rename_expense_category_usecase.dart';
+import 'package:imrpo/core/models/transaction_entry_meta.dart';
 import 'package:imrpo/features/expenses_tab/domain/usecases/update_expense_usecase.dart';
 part 'expenses_tab_event.dart';
 part 'expenses_tab_state.dart';
@@ -80,12 +81,15 @@ class ExpensesTabBloc extends Bloc<ExpensesTabEvent, ExpensesTabState> {
     Emitter<ExpensesTabState> emit,
   ) async {
     emit(state.copyWith(status: ExpensesTabStatus.loadingAdd));
+    final entryMeta = _entryMeta(event.entryCurrency, event.entryAmount);
     final result = await addExpenseUsecase(
       event.title,
       event.category,
       event.amount,
       event.date,
       incomeSource: event.incomeSource,
+      receiptUrl: event.receiptUrl,
+      entryMeta: entryMeta,
     );
     if (emit.isDone) return;
     if (result.isLeft()) {
@@ -108,6 +112,7 @@ class ExpensesTabBloc extends Bloc<ExpensesTabEvent, ExpensesTabState> {
     Emitter<ExpensesTabState> emit,
   ) async {
     emit(state.copyWith(status: ExpensesTabStatus.loadingUpdate));
+    final entryMeta = _entryMeta(event.entryCurrency, event.entryAmount);
     final result = await updateExpenseUsecase(
       event.id,
       event.title,
@@ -115,6 +120,9 @@ class ExpensesTabBloc extends Bloc<ExpensesTabEvent, ExpensesTabState> {
       event.amount,
       event.date,
       incomeSource: event.incomeSource,
+      receiptUrl: event.receiptUrl,
+      clearReceipt: event.clearReceipt,
+      entryMeta: entryMeta,
     );
     if (emit.isDone) return;
     if (result.isLeft()) {
@@ -304,5 +312,10 @@ class ExpensesTabBloc extends Bloc<ExpensesTabEvent, ExpensesTabState> {
         );
       },
     );
+  }
+
+  TransactionEntryMeta? _entryMeta(String? currency, double? amount) {
+    if (currency == null || amount == null) return null;
+    return TransactionEntryMeta(entryCurrency: currency, entryAmount: amount);
   }
 }

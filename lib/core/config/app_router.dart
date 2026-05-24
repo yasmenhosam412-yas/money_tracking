@@ -11,6 +11,9 @@ import 'package:imrpo/features/search/presentation/pages/global_search_screen.da
 import 'package:imrpo/features/bill_reminders/presentation/pages/bill_reminders_screen.dart';
 import 'package:imrpo/features/onboarding/presentation/pages/onboarding_screen.dart';
 import 'package:imrpo/features/smart_import/presentation/pages/smart_import_screen.dart';
+import 'package:imrpo/features/csv_import/presentation/pages/csv_import_screen.dart';
+import 'package:imrpo/features/notifications/presentation/pages/notifications_screen.dart';
+import 'package:imrpo/features/zakat/presentation/pages/zakat_screen.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:imrpo/core/services/service_locator.dart';
 import 'package:imrpo/features/bill_reminders/presentation/bloc/bill_reminders_bloc.dart';
@@ -21,9 +24,12 @@ class AppRoutes {
   static const String home = '/home';
   static const String search = '/search';
   static const String smartImport = '/smart-import';
+  static const String csvImport = '/csv-import';
   static const String calculator = '/calculator';
   static const String monthlyReport = '/monthly-report';
   static const String billReminders = '/bill-reminders';
+  static const String notifications = '/notifications';
+  static const String zakat = '/zakat';
   static const String onboarding = '/onboarding';
   static const String login = '/login';
   static const String signup = '/signup';
@@ -43,6 +49,11 @@ class AppRouter {
           settings: const RouteSettings(name: AppRoutes.smartImport),
           builder: (_) => const SmartImportScreen(),
         );
+      case AppRoutes.csvImport:
+        return MaterialPageRoute(
+          settings: const RouteSettings(name: AppRoutes.csvImport),
+          builder: (_) => const CsvImportScreen(),
+        );
       case AppRoutes.calculator:
         return MaterialPageRoute(builder: (_) => const CalculatorScreen());
       case AppRoutes.monthlyReport:
@@ -54,6 +65,10 @@ class AppRouter {
             child: const BillRemindersScreen(),
           ),
         );
+      case AppRoutes.notifications:
+        return MaterialPageRoute(builder: (_) => const NotificationsScreen());
+      case AppRoutes.zakat:
+        return MaterialPageRoute(builder: (_) => const ZakatScreen());
       case AppRoutes.onboarding:
         return MaterialPageRoute(builder: (_) => const OnboardingScreen());
       case AppRoutes.login:

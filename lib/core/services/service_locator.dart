@@ -2,6 +2,11 @@ import 'package:get_it/get_it.dart';
 import 'package:imrpo/core/services/app_lock_service.dart';
 import 'package:imrpo/core/services/association_context.dart';
 import 'package:imrpo/core/services/bill_reminder_preferences.dart';
+import 'package:imrpo/core/services/daily_digest_preferences.dart';
+import 'package:imrpo/core/services/notification_inbox_store.dart';
+import 'package:imrpo/core/services/notification_inbox_sync_service.dart';
+import 'package:imrpo/core/services/offline_transaction_store.dart';
+import 'package:imrpo/core/services/offline_transaction_sync_service.dart';
 import 'package:imrpo/core/services/auto_sms_import_preferences.dart';
 import 'package:imrpo/features/bill_reminders/data/bill_reminder_store.dart';
 import 'package:imrpo/features/bill_reminders/data/repositories/bill_reminder_repository_impl.dart';
@@ -9,6 +14,7 @@ import 'package:imrpo/features/bill_reminders/domain/repositories/bill_reminder_
 import 'package:imrpo/features/bill_reminders/presentation/bloc/bill_reminders_bloc.dart';
 import 'package:imrpo/core/services/auto_sms_import_service.dart';
 import 'package:imrpo/core/services/currency_preferences.dart';
+import 'package:imrpo/core/services/receipt_storage_service.dart';
 import 'package:imrpo/core/services/home_date_filter.dart';
 import 'package:imrpo/core/services/expense_shortcuts_store.dart';
 import 'package:imrpo/core/services/smart_import_draft_store.dart';
@@ -91,6 +97,9 @@ final getIt = GetIt.instance;
 void setupServiceLocator() {
   /// Supabase Client
   getIt.registerLazySingleton<SupabaseClient>(() => Supabase.instance.client);
+  getIt.registerLazySingleton<ReceiptStorageService>(
+    () => ReceiptStorageService(client: getIt<SupabaseClient>()),
+  );
 
   getIt.registerLazySingleton<AppLockService>(() => AppLockService());
 
@@ -110,6 +119,14 @@ void setupServiceLocator() {
 
   getIt.registerLazySingleton<AssociationContext>(
     () => AssociationContext(client: getIt<SupabaseClient>()),
+  );
+
+  getIt.registerLazySingleton<OfflineTransactionStore>(
+    () => OfflineTransactionStore(),
+  );
+
+  getIt.registerLazySingleton<OfflineTransactionSyncService>(
+    () => OfflineTransactionSyncService(),
   );
 
   getIt.registerLazySingleton<SmartImportDraftStore>(
@@ -138,6 +155,18 @@ void setupServiceLocator() {
 
   getIt.registerLazySingleton<BillReminderPreferences>(
     () => BillReminderPreferences(),
+  );
+
+  getIt.registerLazySingleton<DailyDigestPreferences>(
+    () => DailyDigestPreferences(),
+  );
+
+  getIt.registerLazySingleton<NotificationInboxStore>(
+    () => NotificationInboxStore(),
+  );
+
+  getIt.registerLazySingleton<NotificationInboxSyncService>(
+    () => NotificationInboxSyncService(),
   );
 
   getIt.registerLazySingleton<BillReminderStore>(() => BillReminderStore());

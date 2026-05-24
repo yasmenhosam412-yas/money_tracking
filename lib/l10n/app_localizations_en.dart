@@ -154,6 +154,91 @@ class AppLocalizationsEn extends AppLocalizations {
   String get billRemindersEnabled => 'Bill reminders';
 
   @override
+  String get dailyDigestEnabled => 'Daily summary';
+
+  @override
+  String get dailyDigestSubtitle => 'Evening recap of yesterday\'s spending and your month so far';
+
+  @override
+  String get dailyDigestTimeLabel => 'Summary time';
+
+  @override
+  String get dailyDigestNotificationTitle => 'Your money yesterday';
+
+  @override
+  String get dailyDigestNotificationEmpty => 'No transactions logged yesterday. Open imrpo to track today\'s spending.';
+
+  @override
+  String dailyDigestYesterdayExpenses(int count, String amount) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count expenses ($amount)',
+      one: '1 expense ($amount)',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get dailyDigestYesterdayNoExpenses => 'No expenses yesterday';
+
+  @override
+  String dailyDigestYesterdayIncomes(int count, String amount) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count incomes ($amount)',
+      one: '1 income ($amount)',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get dailyDigestYesterdayNoIncomes => 'No income yesterday';
+
+  @override
+  String dailyDigestMonthNet(String amount) {
+    return 'Month net: $amount';
+  }
+
+  @override
+  String get notificationsTitle => 'Notifications';
+
+  @override
+  String get notificationsSubtitle => 'Manage bill reminders, daily summaries, and see what\'s scheduled next.';
+
+  @override
+  String get notificationsMessageLabel => 'Notification message';
+
+  @override
+  String get notificationsInbox => 'Recent alerts';
+
+  @override
+  String get notificationsUpcoming => 'Upcoming';
+
+  @override
+  String get notificationsUpcomingEmpty => 'No notifications scheduled. Turn on bill reminders or daily summary above.';
+
+  @override
+  String get notificationsPermissionBanner => 'Notifications are off in system settings. Enable them to get bill reminders and your daily summary.';
+
+  @override
+  String get notificationsOpenSettings => 'Open settings';
+
+  @override
+  String get notificationsManageBills => 'Manage bills';
+
+  @override
+  String notificationsScheduledBillSubtitle(String when, String due) {
+    return '$when · $due';
+  }
+
+  @override
+  String notificationsScheduledDigestSubtitle(String when) {
+    return 'Next summary · $when';
+  }
+
+  @override
   String get billRemindersPermissionDenied => 'Allow notifications in system settings to get bill reminders.';
 
   @override
@@ -762,6 +847,17 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get noInternetConnection => 'No internet connection';
+
+  @override
+  String offlineWithPendingTransactions(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Offline — $count entries will sync when you\'re back online',
+      one: 'Offline — 1 entry will sync when you\'re back online',
+    );
+    return '$_temp0';
+  }
 
   @override
   String get errorGeneric => 'Something went wrong';
@@ -1911,4 +2007,207 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get globalSearchCurrentPeriod => 'This period';
+
+  @override
+  String get currencyUsDollar => 'US Dollar';
+
+  @override
+  String get currencyEuro => 'Euro';
+
+  @override
+  String get expenseReceiptLabel => 'Receipt photo';
+
+  @override
+  String get expenseReceiptAttach => 'Attach receipt';
+
+  @override
+  String get expenseReceiptReplace => 'Replace photo';
+
+  @override
+  String get expenseReceiptRemove => 'Remove';
+
+  @override
+  String get expenseReceiptUploadFailed => 'Could not upload receipt. Try again.';
+
+  @override
+  String get expenseReceiptInvalidType => 'Choose a photo (JPG, PNG, or WebP). Videos are not supported.';
+
+  @override
+  String get csvImportTitle => 'Import from CSV';
+
+  @override
+  String get csvImportPickHint => 'Import expenses and incomes from a spreadsheet export. Map columns on the next step.';
+
+  @override
+  String get csvImportPickFile => 'Choose CSV file';
+
+  @override
+  String csvImportFileSelected(String name) {
+    return 'Selected: $name';
+  }
+
+  @override
+  String get csvImportEmpty => 'The file has no rows to import.';
+
+  @override
+  String get csvImportParseFailed => 'Could not read this CSV file.';
+
+  @override
+  String get csvImportFirstRowHeader => 'First row is column headers';
+
+  @override
+  String get csvImportCurrencyHint => 'Amounts in file are in:';
+
+  @override
+  String get csvImportMapColumns => 'Map columns';
+
+  @override
+  String get csvImportFieldSkip => 'Skip';
+
+  @override
+  String get csvImportFieldType => 'Income or expense';
+
+  @override
+  String get csvImportBack => 'Back';
+
+  @override
+  String get csvImportPreview => 'Preview';
+
+  @override
+  String csvImportPreviewSummary(int total, int expenses, int incomes) {
+    return '$total rows ready ($expenses expenses, $incomes incomes)';
+  }
+
+  @override
+  String get csvImportTypeExpense => 'Expense';
+
+  @override
+  String get csvImportTypeIncome => 'Income';
+
+  @override
+  String csvImportMoreRows(int count) {
+    return '+ $count more rows';
+  }
+
+  @override
+  String get csvImportRun => 'Import all';
+
+  @override
+  String get csvImportProgress => 'Importing…';
+
+  @override
+  String csvImportSuccess(int count) {
+    return 'Imported $count transactions';
+  }
+
+  @override
+  String csvImportPartial(int ok, int failed) {
+    return 'Imported $ok, $failed failed';
+  }
+
+  @override
+  String get zakatTitle => 'Zakat calculator';
+
+  @override
+  String get zakatDisclaimer => 'Estimate only (2.5% on net zakatable wealth). Enter gold and silver by weight in grams; value = grams × price per gram. Consult a scholar for your situation.';
+
+  @override
+  String get zakatFillFromLedger => 'Fill from this ledger';
+
+  @override
+  String get zakatFillFromLedgerDone => 'Cash and savings plans added from your ledger';
+
+  @override
+  String get zakatPricesSection => 'Market prices (per gram)';
+
+  @override
+  String get zakatPricesHint => 'Used to value your gold and silver and to calculate nisab.';
+
+  @override
+  String get zakatPricePerGramSuffix => 'EGP/g';
+
+  @override
+  String get zakatAssetsSection => 'Zakatable assets';
+
+  @override
+  String get zakatDeductionsSection => 'Deductions';
+
+  @override
+  String get zakatNisabSection => 'Nisab (minimum)';
+
+  @override
+  String get zakatCash => 'Cash & bank balance';
+
+  @override
+  String get zakatGold => 'Gold weight (24k, grams)';
+
+  @override
+  String get zakatSilver => 'Silver weight (grams)';
+
+  @override
+  String get zakatInvestments => 'Investments & savings';
+
+  @override
+  String get zakatBusinessGoods => 'Trade / business goods';
+
+  @override
+  String get zakatReceivables => 'Money owed to you';
+
+  @override
+  String get zakatDebts => 'Debts & liabilities';
+
+  @override
+  String get zakatGoldPricePerGram => 'Gold price (24k)';
+
+  @override
+  String get zakatSilverPricePerGram => 'Silver price';
+
+  @override
+  String get zakatAmountHint => '0';
+
+  @override
+  String get zakatGoldPriceHint => 'e.g. 4500';
+
+  @override
+  String get zakatSilverPriceHint => 'e.g. 55';
+
+  @override
+  String get zakatGoldWeightHint => 'e.g. 50';
+
+  @override
+  String get zakatSilverWeightHint => 'e.g. 200';
+
+  @override
+  String zakatComputedValue(String amount) {
+    return '≈ $amount';
+  }
+
+  @override
+  String zakatNisabHint(int goldGrams, int silverGrams) {
+    return 'Nisab reference: ${goldGrams}g gold or ${silverGrams}g silver (this app uses ${goldGrams}g gold × gold price).';
+  }
+
+  @override
+  String get zakatResultTitle => 'Your estimate';
+
+  @override
+  String get zakatTotalAssets => 'Total assets';
+
+  @override
+  String get zakatNetWealth => 'Net wealth';
+
+  @override
+  String get zakatNisabThreshold => 'Nisab threshold';
+
+  @override
+  String get zakatMeetsNisab => 'You meet nisab — estimated zakat:';
+
+  @override
+  String get zakatBelowNisab => 'Below nisab — no zakat due:';
+
+  @override
+  String get zakatDueLabel => 'Estimated zakat (2.5%)';
+
+  @override
+  String get zakatRateNote => 'Hawl (one lunar year) on wealth is assumed. Adjust inputs for your case.';
 }

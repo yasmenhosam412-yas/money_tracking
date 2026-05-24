@@ -11,7 +11,6 @@ import 'package:imrpo/features/auth/presentation/widgets/auth_screen_layout.dart
 import 'package:imrpo/features/auth/presentation/widgets/custom_text_field.dart';
 import 'package:imrpo/core/services/app_lock_service.dart';
 import 'package:imrpo/core/services/service_locator.dart';
-import 'package:imrpo/core/session/user_session.dart';
 import 'package:imrpo/features/home/presentation/pages/home_screen.dart';
 import 'package:imrpo/l10n/app_localizations.dart';
 
@@ -58,7 +57,7 @@ class _LoginScreenState extends State<LoginScreen> {
         ),
       ),
       child: BlocConsumer<AuthBloc, AuthState>(
-        listener: (context, state) async {
+        listener: (context, state) {
           if (state.status == AuthStatus.errorLogin) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
@@ -72,9 +71,7 @@ class _LoginScreenState extends State<LoginScreen> {
             );
           } else if (state.status == AuthStatus.successLogin) {
             getIt<AppLockService>().onAuthenticated();
-            await UserSession.ensureAssociationsLoaded();
             if (!context.mounted) return;
-            UserSession.loadAll(context);
             Navigator.pushAndRemoveUntil(
               context,
               MaterialPageRoute(builder: (_) => const HomeScreen()),
@@ -127,7 +124,9 @@ class _LoginScreenState extends State<LoginScreen> {
               const SizedBox(height: 8),
               AuthPrimaryButton(
                 label: l10n.loginButton,
-                isLoading: state.status == AuthStatus.loadingLogin,
+                isLoading:
+                    state.status == AuthStatus.loadingLogin ||
+                    state.status == AuthStatus.successLogin,
                 onPressed: _onLogin,
               ),
             ],

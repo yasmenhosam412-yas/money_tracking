@@ -13,6 +13,10 @@ import 'package:imrpo/features/expenses_tab/presentation/bloc/expenses_tab_bloc.
 import 'package:imrpo/features/incomes_tab/presentation/bloc/incomes_tab_bloc.dart';
 import 'package:imrpo/features/home/presentation/bloc/home_bloc.dart';
 import 'package:imrpo/core/services/bill_reminder_notification_service.dart';
+import 'package:imrpo/core/services/daily_digest_notification_service.dart';
+import 'package:imrpo/core/services/notification_inbox_store.dart';
+import 'package:imrpo/core/services/offline_transaction_store.dart';
+import 'package:imrpo/core/services/offline_transaction_sync_service.dart';
 import 'package:imrpo/features/bill_reminders/data/bill_reminder_store.dart';
 import 'package:imrpo/features/bill_reminders/presentation/bloc/bill_reminders_bloc.dart';
 import 'package:imrpo/features/plans_tab/presentation/bloc/plans_tab_bloc.dart';
@@ -27,6 +31,9 @@ class UserSession {
 
   static void clearAll(BuildContext context) {
     BillReminderNotificationService.instance.cancelAll();
+    DailyDigestNotificationService.instance.cancel();
+    getIt<NotificationInboxStore>().clear();
+    getIt<OfflineTransactionStore>().clearForUser();
     final userId = SupabaseAuthHelper.userId;
     if (userId != null) {
       getIt<BillReminderStore>().clear(userId);
@@ -70,6 +77,10 @@ class UserSession {
 
   static void loadAll(BuildContext context) {
     final associations = getIt<AssociationContext>();
+    if (associations.isOffline) {
+      _loadOfflineLedgers(context);
+      return;
+    }
     if (associations.isAvailable && !associations.isReadyForData) {
       return;
     }
@@ -92,6 +103,28 @@ class UserSession {
           ),
         );
     context.read<PlansTabBloc>().add(const LoadPlansEvent());
+  }
+
+  static void _loadOfflineLedgers(BuildContext context) {
+    context.read<IncomesTabBloc>().add(const LoadIncomesEvent(force: true));
+    context.read<ExpensesTabBloc>().add(const LoadExpensesEvent(force: true));
+    final dateFilter = getIt<HomeDateFilter>();
+    context.read<BalanceTabBloc>().add(
+          LoadBalanceEvent(
+            reference: dateFilter.date,
+            filterByDay: dateFilter.isDayMode,
+            includeAllDates: dateFilter.isAllMode,
+          ),
+        );
+  }
+
+  /// Flushes queued transactions then reloads tabs when back online.
+  static Future<void> syncOfflineTransactionsAndReload(
+    BuildContext context,
+  ) async {
+    await getIt<OfflineTransactionSyncService>().flushIfOnline();
+    if (!context.mounted) return;
+    loadAll(context);
   }
 
   /// Reloads transaction tabs after background SMS auto-import.

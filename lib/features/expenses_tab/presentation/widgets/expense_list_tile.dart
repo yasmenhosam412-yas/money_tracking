@@ -8,6 +8,8 @@ import 'package:imrpo/core/utils/app_colors.dart';
 import 'package:imrpo/core/utils/money_format.dart';
 import 'package:imrpo/features/budgets/domain/services/budget_calculator.dart';
 import 'package:imrpo/core/l10n/l10n_entity_strings.dart';
+import 'package:imrpo/core/models/transaction_entry_meta.dart';
+import 'package:imrpo/core/utils/transaction_entry_format.dart';
 import 'package:imrpo/core/widgets/payment_method_badge.dart';
 import 'package:imrpo/l10n/app_localizations.dart';
 class ExpenseListTile extends StatelessWidget {
@@ -38,6 +40,15 @@ class ExpenseListTile extends StatelessWidget {
             BudgetCalculator.categoryKey(paidFromRaw),
           )
         : null;
+    final foreignSubtitle = formatForeignEntrySubtitle(
+      l10n,
+      TransactionEntryMeta(
+        entryCurrency: expense.entryCurrency,
+        entryAmount: expense.entryAmount,
+      ),
+    );
+    final hasReceipt =
+        expense.receiptUrl != null && expense.receiptUrl!.trim().isNotEmpty;
     final metaStyle = TextStyle(
       fontSize: 12.5,
       height: 1.25,
@@ -66,8 +77,10 @@ class ExpenseListTile extends StatelessWidget {
                   color: _expenseColor.withValues(alpha: 0.12),
                   borderRadius: BorderRadius.circular(14),
                 ),
-                child: const Icon(
-                  Icons.arrow_upward_rounded,
+                child: Icon(
+                  hasReceipt
+                      ? Icons.receipt_long_rounded
+                      : Icons.arrow_upward_rounded,
                   color: _expenseColor,
                   size: 22,
                 ),
@@ -121,6 +134,10 @@ class ExpenseListTile extends StatelessWidget {
                         ),
                       ],
                     ),
+                    if (foreignSubtitle != null) ...[
+                      const SizedBox(height: 6),
+                      Text(foreignSubtitle, style: metaStyle),
+                    ],
                     if (paidFrom != null) ...[
                       const SizedBox(height: 6),
                       Row(

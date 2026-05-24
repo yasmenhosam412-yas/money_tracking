@@ -57,6 +57,55 @@
   "billRemindersRemind3Days": "قبلها بـ 3 أيام",
   "billRemindersRemind7Days": "قبلها بـ 7 أيام",
   "billRemindersEnabled": "تذكيرات الفواتير",
+  "dailyDigestEnabled": "ملخص يومي",
+  "dailyDigestSubtitle": "ملخص مسائي لمصروفات أمس وصافي الشهر لحد دلوقتي",
+  "dailyDigestTimeLabel": "وقت الملخص",
+  "dailyDigestNotificationTitle": "فلوسك امبارح",
+  "dailyDigestNotificationEmpty": "مفيش معاملات اتسجلت امبارح. افتح imrpo وسجّل مصروفات النهاردة.",
+  "dailyDigestYesterdayExpenses": "{count, plural, one{مصروف واحد ({amount})} other{{count} مصروفات ({amount})}}",
+  "@dailyDigestYesterdayExpenses": {
+    "placeholders": {
+      "count": { "type": "int" },
+      "amount": { "type": "String" }
+    }
+  },
+  "dailyDigestYesterdayNoExpenses": "مفيش مصروفات امبارح",
+  "dailyDigestYesterdayIncomes": "{count, plural, one{دخل واحد ({amount})} other{{count} دخل ({amount})}}",
+  "@dailyDigestYesterdayIncomes": {
+    "placeholders": {
+      "count": { "type": "int" },
+      "amount": { "type": "String" }
+    }
+  },
+  "dailyDigestYesterdayNoIncomes": "مفيش دخل امبارح",
+  "dailyDigestMonthNet": "صافي الشهر: {amount}",
+  "@dailyDigestMonthNet": {
+    "placeholders": {
+      "amount": { "type": "String" }
+    }
+  },
+  "notificationsTitle": "الإشعارات",
+  "notificationsSubtitle": "تحكم في تذكيرات الفواتير والملخص اليومي وشوف إيه الجاي.",
+  "notificationsMessageLabel": "نص الإشعار",
+  "notificationsInbox": "تنبيهات حديثة",
+  "notificationsUpcoming": "القادم",
+  "notificationsUpcomingEmpty": "مفيش إشعارات مجدولة. فعّل تذكيرات الفواتير أو الملخص اليومي من فوق.",
+  "notificationsPermissionBanner": "الإشعارات مقفولة من إعدادات الموبايل. فعّلها عشان تذكيرات الفواتير والملخص اليومي.",
+  "notificationsOpenSettings": "فتح الإعدادات",
+  "notificationsManageBills": "إدارة الفواتير",
+  "notificationsScheduledBillSubtitle": "{when} · {due}",
+  "@notificationsScheduledBillSubtitle": {
+    "placeholders": {
+      "when": { "type": "String" },
+      "due": { "type": "String" }
+    }
+  },
+  "notificationsScheduledDigestSubtitle": "الملخص الجاي · {when}",
+  "@notificationsScheduledDigestSubtitle": {
+    "placeholders": {
+      "when": { "type": "String" }
+    }
+  },
   "billRemindersPermissionDenied": "فعّل الإشعارات من إعدادات الموبايل عشان التذكيرات تشتغل.",
   "billRemindersSaved": "اتحفظ التذكير",
   "billRemindersDeleted": "اتمسح التذكير",
@@ -337,6 +386,14 @@
     }
   },
   "noInternetConnection": "مفيش نت",
+  "offlineWithPendingTransactions": "{count, plural, =1{بدون نت — قيد واحد هيتزامن لما النت يرجع} other{بدون نت — {count} قيود هتتزامن لما النت يرجع}}",
+  "@offlineWithPendingTransactions": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "errorGeneric": "حصل خطأ",
   "errorDeleteFailed": "الحذف ما نجحش. جرّب تاني.",
   "errorDeleteAccountFailed": "ما قدرناش نمسح حسابك. جرّب تاني.",
@@ -924,5 +981,99 @@
   "globalSearchAll": "الكل",
   "globalSearchNoResults": "مفيش نتائج",
   "globalSearchAllTime": "كل الفترات",
-  "globalSearchCurrentPeriod": "الفترة الحالية"
+  "globalSearchCurrentPeriod": "الفترة الحالية",
+  "currencyUsDollar": "دولار أمريكي",
+  "currencyEuro": "يورو",
+  "expenseReceiptLabel": "صورة الإيصال",
+  "expenseReceiptAttach": "إرفاق إيصال",
+  "expenseReceiptReplace": "استبدال الصورة",
+  "expenseReceiptRemove": "إزالة",
+  "expenseReceiptUploadFailed": "تعذّر رفع الإيصال. حاول مرة أخرى.",
+  "expenseReceiptInvalidType": "اختر صورة (JPG أو PNG أو WebP). الفيديو غير مدعوم.",
+  "csvImportTitle": "استيراد من CSV",
+  "csvImportPickHint": "استورد المصاريف والدخل من ملف جدول. في الخطوة التالية حدّد الأعمدة.",
+  "csvImportPickFile": "اختر ملف CSV",
+  "csvImportFileSelected": "المحدد: {name}",
+  "@csvImportFileSelected": {
+    "placeholders": { "name": { "type": "String" } }
+  },
+  "csvImportEmpty": "الملف لا يحتوي على صفوف للاستيراد.",
+  "csvImportParseFailed": "تعذّر قراءة ملف CSV.",
+  "csvImportFirstRowHeader": "الصف الأول عناوين أعمدة",
+  "csvImportCurrencyHint": "المبالغ في الملف بـ:",
+  "csvImportMapColumns": "ربط الأعمدة",
+  "csvImportFieldSkip": "تخطي",
+  "csvImportFieldType": "دخل أو مصروف",
+  "csvImportBack": "رجوع",
+  "csvImportPreview": "معاينة",
+  "csvImportPreviewSummary": "{total} صف جاهز ({expenses} مصاريف، {incomes} دخل)",
+  "@csvImportPreviewSummary": {
+    "placeholders": {
+      "total": { "type": "int" },
+      "expenses": { "type": "int" },
+      "incomes": { "type": "int" }
+    }
+  },
+  "csvImportTypeExpense": "مصروف",
+  "csvImportTypeIncome": "دخل",
+  "csvImportMoreRows": "+ {count} صفوف أخرى",
+  "@csvImportMoreRows": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "csvImportRun": "استيراد الكل",
+  "csvImportProgress": "جاري الاستيراد…",
+  "csvImportSuccess": "تم استيراد {count} معاملة",
+  "@csvImportSuccess": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "csvImportPartial": "تم {ok}، فشل {failed}",
+  "@csvImportPartial": {
+    "placeholders": {
+      "ok": { "type": "int" },
+      "failed": { "type": "int" }
+    }
+  },
+  "zakatTitle": "حاسبة الزكاة",
+  "zakatDisclaimer": "تقدير فقط (٢٫٥٪ على صافي المال الزكوي). أدخل الذهب والفضة بالوزن بالجرام؛ القيمة = الجرام × السعر. استشر عالماً لحالتك.",
+  "zakatFillFromLedger": "تعبئة من دفتر الحساب",
+  "zakatFillFromLedgerDone": "تمت إضافة النقد وخطط الادخار من دفترك",
+  "zakatPricesSection": "أسعار السوق (للجرام)",
+  "zakatPricesHint": "تُستخدم لتقييم الذهب والفضة وحساب النصاب.",
+  "zakatPricePerGramSuffix": "ج.م/جم",
+  "zakatAssetsSection": "الأصول الزكوية",
+  "zakatDeductionsSection": "الخصوم",
+  "zakatNisabSection": "النصاب (الحد الأدنى)",
+  "zakatCash": "نقد وبنوك",
+  "zakatGold": "وزن الذهب (عيار ٢٤، جرام)",
+  "zakatSilver": "وزن الفضة (جرام)",
+  "zakatInvestments": "استثمارات وادخار",
+  "zakatBusinessGoods": "بضاعة / تجارة",
+  "zakatReceivables": "ديون لك عند الغير",
+  "zakatDebts": "ديون والتزامات",
+  "zakatGoldPricePerGram": "سعر الذهب (عيار ٢٤)",
+  "zakatSilverPricePerGram": "سعر الفضة",
+  "zakatAmountHint": "٠",
+  "zakatGoldPriceHint": "مثال: 4500",
+  "zakatSilverPriceHint": "مثال: 55",
+  "zakatGoldWeightHint": "مثال: 50",
+  "zakatSilverWeightHint": "مثال: 200",
+  "zakatComputedValue": "≈ {amount}",
+  "@zakatComputedValue": {
+    "placeholders": { "amount": { "type": "String" } }
+  },
+  "zakatNisabHint": "مرجع النصاب: {goldGrams} جرام ذهب أو {silverGrams} جرام فضة (التطبيق يستخدم {goldGrams} ج × سعر الذهب).",
+  "@zakatNisabHint": {
+    "placeholders": {
+      "goldGrams": { "type": "int" },
+      "silverGrams": { "type": "int" }
+    }
+  },
+  "zakatResultTitle": "التقدير",
+  "zakatTotalAssets": "إجمالي الأصول",
+  "zakatNetWealth": "صافي المال",
+  "zakatNisabThreshold": "حد النصاب",
+  "zakatMeetsNisab": "بلغت النصاب — الزكاة التقديرية:",
+  "zakatBelowNisab": "أقل من النصاب — لا زكاة:",
+  "zakatDueLabel": "الزكاة التقديرية (٢٫٥٪)",
+  "zakatRateNote": "يُفترض حولان الحول على المال. عدّل الأرقام حسب حالتك."
 }

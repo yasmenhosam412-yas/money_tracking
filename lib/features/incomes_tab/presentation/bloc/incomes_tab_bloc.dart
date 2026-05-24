@@ -7,6 +7,7 @@ import 'package:imrpo/features/incomes_tab/domain/usecases/delete_income_usecase
 import 'package:imrpo/features/incomes_tab/domain/usecases/delete_incomes_by_source_usecase.dart';
 import 'package:imrpo/features/incomes_tab/domain/usecases/get_all_incomes_usecase.dart';
 import 'package:imrpo/features/incomes_tab/domain/usecases/rename_income_source_usecase.dart';
+import 'package:imrpo/core/models/transaction_entry_meta.dart';
 import 'package:imrpo/features/incomes_tab/domain/usecases/update_income_usecase.dart';
 
 part 'incomes_tab_event.dart';
@@ -92,6 +93,7 @@ class IncomesTabBloc extends Bloc<IncomesTabEvent, IncomesTabState> {
       event.amount,
       event.date,
       event.category,
+      entryMeta: _entryMeta(event.entryCurrency, event.entryAmount),
     );
     if (emit.isDone) return;
     if (result.isLeft()) {
@@ -121,6 +123,7 @@ class IncomesTabBloc extends Bloc<IncomesTabEvent, IncomesTabState> {
       event.amount,
       event.date,
       event.category,
+      entryMeta: _entryMeta(event.entryCurrency, event.entryAmount),
     );
     if (emit.isDone) return;
     if (result.isLeft()) {
@@ -310,5 +313,10 @@ class IncomesTabBloc extends Bloc<IncomesTabEvent, IncomesTabState> {
         );
       },
     );
+  }
+
+  TransactionEntryMeta? _entryMeta(String? currency, double? amount) {
+    if (currency == null || amount == null) return null;
+    return TransactionEntryMeta(entryCurrency: currency, entryAmount: amount);
   }
 }

@@ -49,7 +49,12 @@ class _AddIncomeSheetState extends State<AddIncomeSheet> {
     if (income != null) {
       _titleController.text = income.title;
       _sourceController.text = income.category;
-      _amountController.text = _formatDisplayAmount(income.amount);
+      if (income.entryCurrency != null && income.entryAmount != null) {
+        _currencyCode = income.entryCurrency!;
+        _amountController.text = _formatRawAmount(income.entryAmount!);
+      } else {
+        _amountController.text = _formatDisplayAmount(income.amount);
+      }
       _date = income.date;
     } else {
       if (widget.initialTitle != null) {
@@ -307,6 +312,10 @@ class _AddIncomeSheetState extends State<AddIncomeSheet> {
     }
 
     final baseAmount = CurrencyConverter.toBase(amount, _currencyCode);
+    final entryCurrency = CurrencyConverter.isDefaultEntryCurrency(_currencyCode)
+        ? null
+        : _currencyCode;
+    final entryAmount = entryCurrency != null ? amount : null;
 
     final bloc = context.read<IncomesTabBloc>();
     if (_isEditing) {
@@ -317,6 +326,8 @@ class _AddIncomeSheetState extends State<AddIncomeSheet> {
           category: source,
           amount: baseAmount,
           date: _date,
+          entryCurrency: entryCurrency,
+          entryAmount: entryAmount,
         ),
       );
     } else {
@@ -326,6 +337,8 @@ class _AddIncomeSheetState extends State<AddIncomeSheet> {
           category: source,
           amount: baseAmount,
           date: _date,
+          entryCurrency: entryCurrency,
+          entryAmount: entryAmount,
         ),
       );
     }

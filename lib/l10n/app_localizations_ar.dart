@@ -154,6 +154,91 @@ class AppLocalizationsAr extends AppLocalizations {
   String get billRemindersEnabled => 'تذكيرات الفواتير';
 
   @override
+  String get dailyDigestEnabled => 'ملخص يومي';
+
+  @override
+  String get dailyDigestSubtitle => 'ملخص مسائي لمصروفات أمس وصافي الشهر لحد دلوقتي';
+
+  @override
+  String get dailyDigestTimeLabel => 'وقت الملخص';
+
+  @override
+  String get dailyDigestNotificationTitle => 'فلوسك امبارح';
+
+  @override
+  String get dailyDigestNotificationEmpty => 'مفيش معاملات اتسجلت امبارح. افتح imrpo وسجّل مصروفات النهاردة.';
+
+  @override
+  String dailyDigestYesterdayExpenses(int count, String amount) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count مصروفات ($amount)',
+      one: 'مصروف واحد ($amount)',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get dailyDigestYesterdayNoExpenses => 'مفيش مصروفات امبارح';
+
+  @override
+  String dailyDigestYesterdayIncomes(int count, String amount) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count دخل ($amount)',
+      one: 'دخل واحد ($amount)',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get dailyDigestYesterdayNoIncomes => 'مفيش دخل امبارح';
+
+  @override
+  String dailyDigestMonthNet(String amount) {
+    return 'صافي الشهر: $amount';
+  }
+
+  @override
+  String get notificationsTitle => 'الإشعارات';
+
+  @override
+  String get notificationsSubtitle => 'تحكم في تذكيرات الفواتير والملخص اليومي وشوف إيه الجاي.';
+
+  @override
+  String get notificationsMessageLabel => 'نص الإشعار';
+
+  @override
+  String get notificationsInbox => 'تنبيهات حديثة';
+
+  @override
+  String get notificationsUpcoming => 'القادم';
+
+  @override
+  String get notificationsUpcomingEmpty => 'مفيش إشعارات مجدولة. فعّل تذكيرات الفواتير أو الملخص اليومي من فوق.';
+
+  @override
+  String get notificationsPermissionBanner => 'الإشعارات مقفولة من إعدادات الموبايل. فعّلها عشان تذكيرات الفواتير والملخص اليومي.';
+
+  @override
+  String get notificationsOpenSettings => 'فتح الإعدادات';
+
+  @override
+  String get notificationsManageBills => 'إدارة الفواتير';
+
+  @override
+  String notificationsScheduledBillSubtitle(String when, String due) {
+    return '$when · $due';
+  }
+
+  @override
+  String notificationsScheduledDigestSubtitle(String when) {
+    return 'الملخص الجاي · $when';
+  }
+
+  @override
   String get billRemindersPermissionDenied => 'فعّل الإشعارات من إعدادات الموبايل عشان التذكيرات تشتغل.';
 
   @override
@@ -762,6 +847,17 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get noInternetConnection => 'مفيش نت';
+
+  @override
+  String offlineWithPendingTransactions(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'بدون نت — $count قيود هتتزامن لما النت يرجع',
+      one: 'بدون نت — قيد واحد هيتزامن لما النت يرجع',
+    );
+    return '$_temp0';
+  }
 
   @override
   String get errorGeneric => 'حصل خطأ';
@@ -1911,4 +2007,207 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get globalSearchCurrentPeriod => 'الفترة الحالية';
+
+  @override
+  String get currencyUsDollar => 'دولار أمريكي';
+
+  @override
+  String get currencyEuro => 'يورو';
+
+  @override
+  String get expenseReceiptLabel => 'صورة الإيصال';
+
+  @override
+  String get expenseReceiptAttach => 'إرفاق إيصال';
+
+  @override
+  String get expenseReceiptReplace => 'استبدال الصورة';
+
+  @override
+  String get expenseReceiptRemove => 'إزالة';
+
+  @override
+  String get expenseReceiptUploadFailed => 'تعذّر رفع الإيصال. حاول مرة أخرى.';
+
+  @override
+  String get expenseReceiptInvalidType => 'اختر صورة (JPG أو PNG أو WebP). الفيديو غير مدعوم.';
+
+  @override
+  String get csvImportTitle => 'استيراد من CSV';
+
+  @override
+  String get csvImportPickHint => 'استورد المصاريف والدخل من ملف جدول. في الخطوة التالية حدّد الأعمدة.';
+
+  @override
+  String get csvImportPickFile => 'اختر ملف CSV';
+
+  @override
+  String csvImportFileSelected(String name) {
+    return 'المحدد: $name';
+  }
+
+  @override
+  String get csvImportEmpty => 'الملف لا يحتوي على صفوف للاستيراد.';
+
+  @override
+  String get csvImportParseFailed => 'تعذّر قراءة ملف CSV.';
+
+  @override
+  String get csvImportFirstRowHeader => 'الصف الأول عناوين أعمدة';
+
+  @override
+  String get csvImportCurrencyHint => 'المبالغ في الملف بـ:';
+
+  @override
+  String get csvImportMapColumns => 'ربط الأعمدة';
+
+  @override
+  String get csvImportFieldSkip => 'تخطي';
+
+  @override
+  String get csvImportFieldType => 'دخل أو مصروف';
+
+  @override
+  String get csvImportBack => 'رجوع';
+
+  @override
+  String get csvImportPreview => 'معاينة';
+
+  @override
+  String csvImportPreviewSummary(int total, int expenses, int incomes) {
+    return '$total صف جاهز ($expenses مصاريف، $incomes دخل)';
+  }
+
+  @override
+  String get csvImportTypeExpense => 'مصروف';
+
+  @override
+  String get csvImportTypeIncome => 'دخل';
+
+  @override
+  String csvImportMoreRows(int count) {
+    return '+ $count صفوف أخرى';
+  }
+
+  @override
+  String get csvImportRun => 'استيراد الكل';
+
+  @override
+  String get csvImportProgress => 'جاري الاستيراد…';
+
+  @override
+  String csvImportSuccess(int count) {
+    return 'تم استيراد $count معاملة';
+  }
+
+  @override
+  String csvImportPartial(int ok, int failed) {
+    return 'تم $ok، فشل $failed';
+  }
+
+  @override
+  String get zakatTitle => 'حاسبة الزكاة';
+
+  @override
+  String get zakatDisclaimer => 'تقدير فقط (٢٫٥٪ على صافي المال الزكوي). أدخل الذهب والفضة بالوزن بالجرام؛ القيمة = الجرام × السعر. استشر عالماً لحالتك.';
+
+  @override
+  String get zakatFillFromLedger => 'تعبئة من دفتر الحساب';
+
+  @override
+  String get zakatFillFromLedgerDone => 'تمت إضافة النقد وخطط الادخار من دفترك';
+
+  @override
+  String get zakatPricesSection => 'أسعار السوق (للجرام)';
+
+  @override
+  String get zakatPricesHint => 'تُستخدم لتقييم الذهب والفضة وحساب النصاب.';
+
+  @override
+  String get zakatPricePerGramSuffix => 'ج.م/جم';
+
+  @override
+  String get zakatAssetsSection => 'الأصول الزكوية';
+
+  @override
+  String get zakatDeductionsSection => 'الخصوم';
+
+  @override
+  String get zakatNisabSection => 'النصاب (الحد الأدنى)';
+
+  @override
+  String get zakatCash => 'نقد وبنوك';
+
+  @override
+  String get zakatGold => 'وزن الذهب (عيار ٢٤، جرام)';
+
+  @override
+  String get zakatSilver => 'وزن الفضة (جرام)';
+
+  @override
+  String get zakatInvestments => 'استثمارات وادخار';
+
+  @override
+  String get zakatBusinessGoods => 'بضاعة / تجارة';
+
+  @override
+  String get zakatReceivables => 'ديون لك عند الغير';
+
+  @override
+  String get zakatDebts => 'ديون والتزامات';
+
+  @override
+  String get zakatGoldPricePerGram => 'سعر الذهب (عيار ٢٤)';
+
+  @override
+  String get zakatSilverPricePerGram => 'سعر الفضة';
+
+  @override
+  String get zakatAmountHint => '٠';
+
+  @override
+  String get zakatGoldPriceHint => 'مثال: 4500';
+
+  @override
+  String get zakatSilverPriceHint => 'مثال: 55';
+
+  @override
+  String get zakatGoldWeightHint => 'مثال: 50';
+
+  @override
+  String get zakatSilverWeightHint => 'مثال: 200';
+
+  @override
+  String zakatComputedValue(String amount) {
+    return '≈ $amount';
+  }
+
+  @override
+  String zakatNisabHint(int goldGrams, int silverGrams) {
+    return 'مرجع النصاب: $goldGrams جرام ذهب أو $silverGrams جرام فضة (التطبيق يستخدم $goldGrams ج × سعر الذهب).';
+  }
+
+  @override
+  String get zakatResultTitle => 'التقدير';
+
+  @override
+  String get zakatTotalAssets => 'إجمالي الأصول';
+
+  @override
+  String get zakatNetWealth => 'صافي المال';
+
+  @override
+  String get zakatNisabThreshold => 'حد النصاب';
+
+  @override
+  String get zakatMeetsNisab => 'بلغت النصاب — الزكاة التقديرية:';
+
+  @override
+  String get zakatBelowNisab => 'أقل من النصاب — لا زكاة:';
+
+  @override
+  String get zakatDueLabel => 'الزكاة التقديرية (٢٫٥٪)';
+
+  @override
+  String get zakatRateNote => 'يُفترض حولان الحول على المال. عدّل الأرقام حسب حالتك.';
 }

@@ -9,6 +9,10 @@ import 'package:imrpo/features/bill_reminders/data/bill_reminder_store.dart';
 import 'package:imrpo/features/bill_reminders/data/repositories/bill_reminder_repository_impl.dart';
 import 'package:imrpo/core/services/bill_reminder_debug_log.dart';
 import 'package:imrpo/core/services/bill_reminder_notification_service.dart';
+import 'package:imrpo/core/services/daily_digest_notification_service.dart';
+import 'package:imrpo/core/services/daily_digest_preferences.dart';
+import 'package:imrpo/core/services/association_context.dart';
+import 'package:imrpo/core/services/notification_inbox_sync_service.dart';
 
 /// Re-syncs scheduled bill notifications when the app resumes.
 class BillReminderGate extends StatefulWidget {
@@ -28,6 +32,7 @@ class _BillReminderGateState extends State<BillReminderGate>
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
+    WidgetsBinding.instance.addPostFrameCallback((_) => _scheduleSync());
   }
 
   @override
@@ -49,6 +54,7 @@ class _BillReminderGateState extends State<BillReminderGate>
     _debounce = Timer(const Duration(milliseconds: 800), () {
       if (!mounted) return;
       _syncNotifications();
+      _syncInbox();
     });
   }
 
@@ -85,6 +91,40 @@ class _BillReminderGateState extends State<BillReminderGate>
       );
     } catch (e, st) {
       billReminderLogError('gate: sync failed', e, st);
+    }
+
+    await _syncDailyDigest();
+  }
+
+  Future<void> _syncDailyDigest() async {
+    final digestPrefs = getIt<DailyDigestPreferences>();
+    if (!digestPrefs.enabled) return;
+    if (!SupabaseAuthHelper.isSignedIn) return;
+    if (getIt<AssociationContext>().isOffline) return;
+
+    final lock = getIt<AppLockService>();
+    if (lock.isEnabled && lock.isLocked) return;
+
+    try {
+      await DailyDigestNotificationService.instance.reschedule(
+        mode: DailyDigestScheduleMode.repair,
+      );
+    } catch (e, st) {
+      billReminderLogError('gate: daily digest sync failed', e, st);
+    }
+  }
+
+  Future<void> _syncInbox() async {
+    if (!SupabaseAuthHelper.isSignedIn) return;
+    if (getIt<AssociationContext>().isOffline) return;
+
+    final lock = getIt<AppLockService>();
+    if (lock.isEnabled && lock.isLocked) return;
+
+    try {
+      await getIt<NotificationInboxSyncService>().syncDelivered();
+    } catch (e, st) {
+      billReminderLogError('gate: inbox sync failed', e, st);
     }
   }
 

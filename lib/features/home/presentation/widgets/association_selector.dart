@@ -33,6 +33,16 @@ class AssociationSelector extends StatelessWidget {
         if (!SupabaseAuthHelper.isSignedIn) {
           return const SizedBox.shrink();
         }
+        if (ctx.isLoaded && ctx.isOffline) {
+          return _HeaderActionChip(
+            lightStyle: lightStyle,
+            icon: Icons.cloud_off_outlined,
+            label: l10n.noInternetConnection,
+            trailingIcon: Icons.refresh_rounded,
+            isHighlighted: true,
+            onTap: () => ctx.load(forceNetwork: true),
+          );
+        }
         if (ctx.isLoaded && !ctx.isAvailable) {
           return const SizedBox.shrink();
         }

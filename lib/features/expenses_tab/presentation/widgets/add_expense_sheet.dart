@@ -1,10 +1,15 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:imrpo/features/expenses_tab/data/models/expense_model.dart';
 import 'package:intl/intl.dart';
 import 'package:imrpo/core/services/currency_converter.dart';
 import 'package:imrpo/core/services/currency_preferences.dart';
+import 'package:imrpo/core/services/receipt_storage_service.dart';
+import 'package:imrpo/core/utils/receipt_image_validator.dart';
 import 'package:imrpo/core/services/service_locator.dart';
+import 'package:imrpo/features/expenses_tab/presentation/widgets/receipt_attachment_section.dart';
 import 'package:imrpo/core/utils/app_colors.dart';
 import 'package:imrpo/core/widgets/currency_amount_field.dart';
 import 'package:imrpo/core/widgets/payment_method_chips_section.dart';
@@ -43,6 +48,9 @@ class _AddExpenseSheetState extends State<AddExpenseSheet> {
   late String _currencyCode;
   DateTime _date = DateTime.now();
   String? _paidFromSource;
+  File? _receiptFile;
+  String? _existingReceiptUrl;
+  bool _receiptRemoved = false;
 
   bool get _isEditing => widget.expense != null;
 
@@ -86,7 +94,13 @@ class _AddExpenseSheetState extends State<AddExpenseSheet> {
     final expense = widget.expense;
     if (expense != null) {
       _titleController.text = expense.title;
-      _amountController.text = _formatDisplayAmount(expense.amount);
+      if (expense.entryCurrency != null && expense.entryAmount != null) {
+        _currencyCode = expense.entryCurrency!;
+        _amountController.text = _formatRawAmount(expense.entryAmount!);
+      } else {
+        _amountController.text = _formatDisplayAmount(expense.amount);
+      }
+      _existingReceiptUrl = expense.receiptUrl;
       _date = expense.date;
       if (_categories.contains(expense.category)) {
         _category = expense.category;
@@ -259,6 +273,21 @@ class _AddExpenseSheetState extends State<AddExpenseSheet> {
                       accentColor: _expenseColor,
                     ),
                     const SizedBox(height: 16),
+                    ReceiptAttachmentSection(
+                      localFile: _receiptFile,
+                      remoteUrl: _existingReceiptUrl,
+                      removed: _receiptRemoved,
+                      accentColor: _expenseColor,
+                      onLocalFileChanged: (file) => setState(() {
+                        _receiptFile = file;
+                        _receiptRemoved = false;
+                      }),
+                      onRemove: () => setState(() {
+                        _receiptFile = null;
+                        _receiptRemoved = true;
+                      }),
+                    ),
+                    const SizedBox(height: 16),
                     InkWell(
                       onTap: _pickDate,
                       borderRadius: BorderRadius.circular(16),
@@ -311,7 +340,7 @@ class _AddExpenseSheetState extends State<AddExpenseSheet> {
                             borderRadius: BorderRadius.circular(16),
                           ),
                         ),
-                        onPressed: isSubmitting ? null : _submit,
+                        onPressed: isSubmitting ? null : () => _submit(),
                         child: isSubmitting
                             ? const SizedBox(
                                 width: 24,
@@ -372,7 +401,7 @@ class _AddExpenseSheetState extends State<AddExpenseSheet> {
     }
   }
 
-  void _submit() {
+  Future<void> _submit() async {
     final title = _titleController.text.trim();
     final amount = double.tryParse(_amountController.text.trim());
     final l10n = AppLocalizations.of(context)!;
@@ -393,31 +422,67 @@ class _AddExpenseSheetState extends State<AddExpenseSheet> {
     }
 
     final baseAmount = CurrencyConverter.toBase(amount, _currencyCode);
+    final entryCurrency = CurrencyConverter.isDefaultEntryCurrency(_currencyCode)
+        ? null
+        : _currencyCode;
+    final entryAmount = entryCurrency != null ? amount : null;
     final bloc = context.read<ExpensesTabBloc>();
 
     setState(() => _awaitingSubmitResult = true);
 
-    if (_isEditing) {
-      bloc.add(
-        UpdateExpenseEvent(
-          id: widget.expense!.id,
-          title: title,
-          category: category,
-          amount: baseAmount,
-          date: _date,
-          incomeSource: _paidFromSource,
-        ),
-      );
-    } else {
-      bloc.add(
-        AddExpenseEvent(
-          title: title,
-          category: category,
-          amount: baseAmount,
-          date: _date,
-          incomeSource: _paidFromSource,
-        ),
-      );
+    try {
+      var receiptUrl = _receiptRemoved ? null : _existingReceiptUrl;
+      final storage = getIt<ReceiptStorageService>();
+
+      if (_receiptRemoved && _existingReceiptUrl != null) {
+        await storage.deleteByPublicUrl(_existingReceiptUrl);
+      }
+      if (_receiptFile != null) {
+        if (!ReceiptImageValidator.isSupportedPath(_receiptFile!.path)) {
+          if (!mounted) return;
+          setState(() => _awaitingSubmitResult = false);
+          _showError(l10n.expenseReceiptInvalidType);
+          return;
+        }
+        if (_existingReceiptUrl != null) {
+          await storage.deleteByPublicUrl(_existingReceiptUrl);
+        }
+        receiptUrl = await storage.uploadReceipt(_receiptFile!);
+      }
+
+      if (_isEditing) {
+        bloc.add(
+          UpdateExpenseEvent(
+            id: widget.expense!.id,
+            title: title,
+            category: category,
+            amount: baseAmount,
+            date: _date,
+            incomeSource: _paidFromSource,
+            receiptUrl: receiptUrl,
+            clearReceipt: _receiptRemoved,
+            entryCurrency: entryCurrency,
+            entryAmount: entryAmount,
+          ),
+        );
+      } else {
+        bloc.add(
+          AddExpenseEvent(
+            title: title,
+            category: category,
+            amount: baseAmount,
+            date: _date,
+            incomeSource: _paidFromSource,
+            receiptUrl: receiptUrl,
+            entryCurrency: entryCurrency,
+            entryAmount: entryAmount,
+          ),
+        );
+      }
+    } catch (_) {
+      if (!mounted) return;
+      setState(() => _awaitingSubmitResult = false);
+      _showError(l10n.expenseReceiptUploadFailed);
     }
   }
 

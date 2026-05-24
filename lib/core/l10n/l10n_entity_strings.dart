@@ -5,10 +5,16 @@ import 'package:imrpo/l10n/app_localizations.dart';
 
 /// Localized label for the amount field currency chip (EGP only).
 String localizeCurrencyLabel(AppLocalizations l10n, String code) {
-  if (code == CurrencyConverter.defaultDisplayCode) {
-    return l10n.currencyEgyptianPound;
+  switch (code) {
+    case 'EGP':
+      return l10n.currencyEgyptianPound;
+    case 'USD':
+      return l10n.currencyUsDollar;
+    case 'EUR':
+      return l10n.currencyEuro;
+    default:
+      return code;
   }
-  return code;
 }
 
 /// Localized symbol shown before formatted amounts (e.g. E£ / ج.م).

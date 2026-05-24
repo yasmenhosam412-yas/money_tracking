@@ -1,6 +1,7 @@
 import 'package:imrpo/core/helpers/association_datasource_mixin.dart';
 import 'package:imrpo/core/helpers/supabase_auth_helper.dart';
 import 'package:imrpo/core/helpers/supabase_delete_helper.dart';
+import 'package:imrpo/core/models/transaction_entry_meta.dart';
 import 'package:imrpo/features/expenses_tab/data/datasources/expenses_datasource.dart';
 import 'package:imrpo/features/expenses_tab/data/models/expense_model.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -10,6 +11,7 @@ class ExpensesDatasourceImpl extends ExpensesDatasource
   final SupabaseClient supabaseClient;
 
   ExpensesDatasourceImpl({required this.supabaseClient});
+
   @override
   Future<void> addExpense(
     String title,
@@ -17,6 +19,9 @@ class ExpensesDatasourceImpl extends ExpensesDatasource
     String category,
     DateTime date, {
     String? incomeSource,
+    String? receiptUrl,
+    TransactionEntryMeta? entryMeta,
+    String? associationIdOverride,
   }) async {
     final trimmed = incomeSource?.trim();
     final row = scopedFinancialRow({
@@ -28,6 +33,17 @@ class ExpensesDatasourceImpl extends ExpensesDatasource
     });
     if (trimmed != null && trimmed.isNotEmpty) {
       row["income_source"] = trimmed;
+    }
+    final receipt = receiptUrl?.trim();
+    if (receipt != null && receipt.isNotEmpty) {
+      row['receipt_url'] = receipt;
+    }
+    if (entryMeta != null) {
+      row.addAll(entryMeta.toRowFields());
+    }
+    final override = associationIdOverride?.trim();
+    if (override != null && override.isNotEmpty) {
+      row['association_id'] = override;
     }
     await supabaseClient.from("expenses").insert(row);
   }
@@ -76,6 +92,9 @@ class ExpensesDatasourceImpl extends ExpensesDatasource
     String category,
     DateTime date, {
     String? incomeSource,
+    String? receiptUrl,
+    bool clearReceipt = false,
+    TransactionEntryMeta? entryMeta,
   }) async {
     final trimmed = incomeSource?.trim();
     final update = <String, dynamic>{
@@ -88,6 +107,17 @@ class ExpensesDatasourceImpl extends ExpensesDatasource
       update['income_source'] = null;
     } else {
       update['income_source'] = trimmed;
+    }
+    if (clearReceipt) {
+      update['receipt_url'] = null;
+    } else {
+      final receipt = receiptUrl?.trim();
+      if (receipt != null && receipt.isNotEmpty) {
+        update['receipt_url'] = receipt;
+      }
+    }
+    if (entryMeta != null) {
+      update.addAll(entryMeta.toRowFields());
     }
     var updateQuery = supabaseClient
         .from("expenses")

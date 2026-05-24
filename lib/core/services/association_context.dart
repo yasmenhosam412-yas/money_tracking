@@ -1,4 +1,7 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
+import 'package:imrpo/core/utils/network_errors.dart';
 import 'package:imrpo/core/helpers/supabase_auth_helper.dart';
 import 'package:imrpo/core/helpers/supabase_delete_helper.dart';
 import 'package:imrpo/features/associations/domain/entities/association_item.dart';
@@ -8,6 +11,8 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 /// Loads associations for the signed-in user and tracks the active ledger.
 class AssociationContext extends ChangeNotifier {
   static const _prefsKeyPrefix = 'active_association_';
+  static const _offlineFlagPrefix = 'association_offline_';
+  static const _networkTimeout = Duration(seconds: 8);
 
   final SupabaseClient _client;
 
@@ -42,6 +47,8 @@ class AssociationContext extends ChangeNotifier {
 
   String? get loadError => _loadError;
 
+  bool get isOffline => _loadError == 'network';
+
   String requireActiveId() {
     final id = _activeId;
     if (id == null || id.isEmpty) {
@@ -67,38 +74,85 @@ class AssociationContext extends ChangeNotifier {
     return item != null && item.isMemberViewOnly;
   }
 
-  Future<void> load() async {
+  /// Loads ledgers from Supabase. When [forceNetwork] is false and the last
+  /// session ended offline, skips RPC so startup does not hit the network.
+  Future<void> load({bool forceNetwork = false}) async {
     if (!SupabaseAuthHelper.isSignedIn) {
       clear(notify: false);
       return;
     }
 
+    if (!forceNetwork && await _readPersistedOfflineFlag()) {
+      await _setOfflineLedgerMode();
+      return;
+    }
+
     _loadError = null;
     try {
-      await _client.rpc('ensure_personal_association');
-      await _fetchMemberships();
+      await _ensurePersonalAndFetch();
+      if (_items.isEmpty) {
+        await _ensurePersonalAndFetch();
+      }
+      await _restoreActiveSelection();
+      _available = _activeId != null && _activeId!.isNotEmpty;
+      _loaded = true;
+      await _clearPersistedOfflineFlag();
+      notifyListeners();
     } on PostgrestException catch (e) {
       if (_isSchemaMissing(e)) {
-        _available = false;
-        _items = [];
-        _activeId = null;
-        _loaded = true;
-        notifyListeners();
+        _setUnavailableLedgerMode();
         return;
       }
       _loadError = e.message;
       rethrow;
+    } catch (e) {
+      if (isNetworkError(e)) {
+        await _persistOfflineFlag();
+        await _setOfflineLedgerMode();
+        return;
+      }
+      rethrow;
     }
+  }
 
-    if (_items.isEmpty) {
-      await _client.rpc('ensure_personal_association');
-      await _fetchMemberships();
-    }
+  Future<void> _ensurePersonalAndFetch() async {
+    await _client
+        .rpc('ensure_personal_association')
+        .timeout(_networkTimeout);
+    await _fetchMemberships().timeout(_networkTimeout);
+  }
 
-    await _restoreActiveSelection();
-    _available = _activeId != null && _activeId!.isNotEmpty;
+  void _setUnavailableLedgerMode() {
+    _available = false;
+    _items = [];
+    _activeId = null;
     _loaded = true;
     notifyListeners();
+  }
+
+  Future<void> _setOfflineLedgerMode() async {
+    _loadError = 'network';
+    _items = [];
+    _available = true;
+    await _restoreActiveIdFromPrefsOnly();
+    _loaded = true;
+    notifyListeners();
+  }
+
+  Future<void> _restoreActiveIdFromPrefsOnly() async {
+    if (!SupabaseAuthHelper.isSignedIn) {
+      _activeId = null;
+      return;
+    }
+    final userId = SupabaseAuthHelper.requireUserId();
+    final prefs = await SharedPreferences.getInstance();
+    _activeId = prefs.getString('$_prefsKeyPrefix$userId');
+  }
+
+  Future<String?> peekSavedActiveAssociationId() async {
+    if (_activeId != null && _activeId!.isNotEmpty) return _activeId;
+    await _restoreActiveIdFromPrefsOnly();
+    return _activeId;
   }
 
   Future<void> _fetchMemberships() async {
@@ -211,7 +265,29 @@ class AssociationContext extends ChangeNotifier {
     _loaded = false;
     _available = true;
     _loadError = null;
+    _clearPersistedOfflineFlag();
     if (notify) notifyListeners();
+  }
+
+  Future<bool> _readPersistedOfflineFlag() async {
+    final userId = SupabaseAuthHelper.userId;
+    if (userId == null) return false;
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getBool('$_offlineFlagPrefix$userId') ?? false;
+  }
+
+  Future<void> _persistOfflineFlag() async {
+    final userId = SupabaseAuthHelper.userId;
+    if (userId == null) return;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('$_offlineFlagPrefix$userId', true);
+  }
+
+  Future<void> _clearPersistedOfflineFlag() async {
+    final userId = SupabaseAuthHelper.userId;
+    if (userId == null) return;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove('$_offlineFlagPrefix$userId');
   }
 
   Future<void> _deleteAssociationOnServer(String associationId) async {

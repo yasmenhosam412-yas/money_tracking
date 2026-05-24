@@ -20,6 +20,9 @@ import 'package:imrpo/features/incomes_tab/presentation/pages/incomes_tab.dart';
 import 'package:imrpo/features/plans_tab/presentation/pages/plans_tab.dart';
 import 'package:imrpo/features/statistics_tab/presentation/pages/statistics_tab.dart';
 import 'package:imrpo/core/config/app_router.dart';
+import 'package:imrpo/core/services/notification_inbox_store.dart';
+import 'package:imrpo/core/widgets/notification_icon_badge.dart';
+import 'package:imrpo/core/widgets/offline_banner.dart';
 import 'package:imrpo/l10n/app_localizations.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -29,32 +32,55 @@ class HomeScreen extends StatefulWidget {
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
+class _HomeScreenState extends State<HomeScreen>
+    with TickerProviderStateMixin, WidgetsBindingObserver {
   late TabController _tabController;
   bool _tabsLoaded = false;
 
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _tabController = TabController(length: 5, vsync: this);
     WidgetsBinding.instance.addPostFrameCallback((_) => _bootstrapSession());
   }
 
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      _retryAfterOffline();
+    }
+  }
+
   Future<void> _bootstrapSession() async {
-    context.read<HomeBloc>().add(const LoadUserProfileEvent());
     if (SupabaseAuthHelper.isSignedIn) {
       final associations = getIt<AssociationContext>();
       if (!associations.isLoaded) {
         await associations.load();
       }
     }
+    if (!mounted) return;
+    if (!getIt<AssociationContext>().isOffline) {
+      context.read<HomeBloc>().add(const LoadUserProfileEvent());
+    }
     if (!mounted || _tabsLoaded) return;
     _tabsLoaded = true;
     UserSession.loadAll(context);
   }
 
+  Future<void> _retryAfterOffline() async {
+    if (!SupabaseAuthHelper.isSignedIn || !mounted) return;
+    final associations = getIt<AssociationContext>();
+    if (!associations.isOffline) return;
+    await associations.load(forceNetwork: true);
+    if (!mounted || associations.isOffline) return;
+    context.read<HomeBloc>().add(const LoadUserProfileEvent());
+    await UserSession.syncOfflineTransactionsAndReload(context);
+  }
+
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     _tabController.dispose();
     super.dispose();
   }
@@ -138,6 +164,9 @@ class _HomeTabBodyState extends State<_HomeTabBody> {
                   selectedTab: selectedTab,
                   tabController: widget.tabController,
                 ),
+              ),
+              const SliverToBoxAdapter(
+                child: OfflineBanner(),
               ),
               const SliverToBoxAdapter(
                 child: AssociationLedgerBanner(),
@@ -332,6 +361,21 @@ class _HomeHeader extends StatelessWidget {
                             ),
                           ),
                           const SizedBox(width: 4),
+                          ListenableBuilder(
+                            listenable: getIt<NotificationInboxStore>(),
+                            builder: (context, _) {
+                              return _HeaderIconButton(
+                                icon: Icons.notifications_outlined,
+                                tooltip: l10n.notificationsTitle,
+                                badgeCount:
+                                    getIt<NotificationInboxStore>().unreadCount,
+                                onTap: () => Navigator.of(context).pushNamed(
+                                  AppRoutes.notifications,
+                                ),
+                              );
+                            },
+                          ),
+                          const SizedBox(width: 4),
                           if (profile != null && !isInitialLoading)
                             _HeaderIconButton(
                               icon: Icons.settings_outlined,
@@ -465,11 +509,13 @@ class _HeaderIconButton extends StatelessWidget {
   final IconData icon;
   final String tooltip;
   final VoidCallback onTap;
+  final int badgeCount;
 
   const _HeaderIconButton({
     required this.icon,
     required this.tooltip,
     required this.onTap,
+    this.badgeCount = 0,
   });
 
   @override
@@ -481,15 +527,23 @@ class _HeaderIconButton extends StatelessWidget {
         child: InkWell(
           onTap: onTap,
           borderRadius: BorderRadius.circular(14),
-          child: Container(
-            height: 40,
-            width: 40,
-            decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.16),
-              borderRadius: BorderRadius.circular(14),
-              border: Border.all(color: Colors.white.withValues(alpha: 0.22)),
-            ),
-            child: Icon(icon, color: Colors.white, size: 20),
+          child: Stack(
+            clipBehavior: Clip.none,
+            children: [
+              Container(
+                height: 40,
+                width: 40,
+                decoration: BoxDecoration(
+                  color: Colors.white.withValues(alpha: 0.16),
+                  borderRadius: BorderRadius.circular(14),
+                  border: Border.all(
+                    color: Colors.white.withValues(alpha: 0.22),
+                  ),
+                ),
+                child: Icon(icon, color: Colors.white, size: 20),
+              ),
+              NotificationIconBadge(count: badgeCount),
+            ],
           ),
         ),
       ),

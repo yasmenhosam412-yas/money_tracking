@@ -57,6 +57,55 @@
   "billRemindersRemind3Days": "3 days before",
   "billRemindersRemind7Days": "7 days before",
   "billRemindersEnabled": "Bill reminders",
+  "dailyDigestEnabled": "Daily summary",
+  "dailyDigestSubtitle": "Evening recap of yesterday's spending and your month so far",
+  "dailyDigestTimeLabel": "Summary time",
+  "dailyDigestNotificationTitle": "Your money yesterday",
+  "dailyDigestNotificationEmpty": "No transactions logged yesterday. Open imrpo to track today's spending.",
+  "dailyDigestYesterdayExpenses": "{count, plural, one{1 expense ({amount})} other{{count} expenses ({amount})}}",
+  "@dailyDigestYesterdayExpenses": {
+    "placeholders": {
+      "count": { "type": "int" },
+      "amount": { "type": "String" }
+    }
+  },
+  "dailyDigestYesterdayNoExpenses": "No expenses yesterday",
+  "dailyDigestYesterdayIncomes": "{count, plural, one{1 income ({amount})} other{{count} incomes ({amount})}}",
+  "@dailyDigestYesterdayIncomes": {
+    "placeholders": {
+      "count": { "type": "int" },
+      "amount": { "type": "String" }
+    }
+  },
+  "dailyDigestYesterdayNoIncomes": "No income yesterday",
+  "dailyDigestMonthNet": "Month net: {amount}",
+  "@dailyDigestMonthNet": {
+    "placeholders": {
+      "amount": { "type": "String" }
+    }
+  },
+  "notificationsTitle": "Notifications",
+  "notificationsSubtitle": "Manage bill reminders, daily summaries, and see what's scheduled next.",
+  "notificationsMessageLabel": "Notification message",
+  "notificationsInbox": "Recent alerts",
+  "notificationsUpcoming": "Upcoming",
+  "notificationsUpcomingEmpty": "No notifications scheduled. Turn on bill reminders or daily summary above.",
+  "notificationsPermissionBanner": "Notifications are off in system settings. Enable them to get bill reminders and your daily summary.",
+  "notificationsOpenSettings": "Open settings",
+  "notificationsManageBills": "Manage bills",
+  "notificationsScheduledBillSubtitle": "{when} · {due}",
+  "@notificationsScheduledBillSubtitle": {
+    "placeholders": {
+      "when": { "type": "String" },
+      "due": { "type": "String" }
+    }
+  },
+  "notificationsScheduledDigestSubtitle": "Next summary · {when}",
+  "@notificationsScheduledDigestSubtitle": {
+    "placeholders": {
+      "when": { "type": "String" }
+    }
+  },
   "billRemindersPermissionDenied": "Allow notifications in system settings to get bill reminders.",
   "billRemindersSaved": "Reminder saved",
   "billRemindersDeleted": "Reminder deleted",
@@ -337,6 +386,14 @@
     }
   },
   "noInternetConnection": "No internet connection",
+  "offlineWithPendingTransactions": "{count, plural, =1{Offline — 1 entry will sync when you're back online} other{Offline — {count} entries will sync when you're back online}}",
+  "@offlineWithPendingTransactions": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "errorGeneric": "Something went wrong",
   "errorDeleteFailed": "Could not delete. Please try again.",
   "errorDeleteAccountFailed": "Could not delete your account. Please try again.",
@@ -924,5 +981,99 @@
   "globalSearchAll": "All",
   "globalSearchNoResults": "No matching entries",
   "globalSearchAllTime": "All time",
-  "globalSearchCurrentPeriod": "This period"
+  "globalSearchCurrentPeriod": "This period",
+  "currencyUsDollar": "US Dollar",
+  "currencyEuro": "Euro",
+  "expenseReceiptLabel": "Receipt photo",
+  "expenseReceiptAttach": "Attach receipt",
+  "expenseReceiptReplace": "Replace photo",
+  "expenseReceiptRemove": "Remove",
+  "expenseReceiptUploadFailed": "Could not upload receipt. Try again.",
+  "expenseReceiptInvalidType": "Choose a photo (JPG, PNG, or WebP). Videos are not supported.",
+  "csvImportTitle": "Import from CSV",
+  "csvImportPickHint": "Import expenses and incomes from a spreadsheet export. Map columns on the next step.",
+  "csvImportPickFile": "Choose CSV file",
+  "csvImportFileSelected": "Selected: {name}",
+  "@csvImportFileSelected": {
+    "placeholders": { "name": { "type": "String" } }
+  },
+  "csvImportEmpty": "The file has no rows to import.",
+  "csvImportParseFailed": "Could not read this CSV file.",
+  "csvImportFirstRowHeader": "First row is column headers",
+  "csvImportCurrencyHint": "Amounts in file are in:",
+  "csvImportMapColumns": "Map columns",
+  "csvImportFieldSkip": "Skip",
+  "csvImportFieldType": "Income or expense",
+  "csvImportBack": "Back",
+  "csvImportPreview": "Preview",
+  "csvImportPreviewSummary": "{total} rows ready ({expenses} expenses, {incomes} incomes)",
+  "@csvImportPreviewSummary": {
+    "placeholders": {
+      "total": { "type": "int" },
+      "expenses": { "type": "int" },
+      "incomes": { "type": "int" }
+    }
+  },
+  "csvImportTypeExpense": "Expense",
+  "csvImportTypeIncome": "Income",
+  "csvImportMoreRows": "+ {count} more rows",
+  "@csvImportMoreRows": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "csvImportRun": "Import all",
+  "csvImportProgress": "Importing…",
+  "csvImportSuccess": "Imported {count} transactions",
+  "@csvImportSuccess": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "csvImportPartial": "Imported {ok}, {failed} failed",
+  "@csvImportPartial": {
+    "placeholders": {
+      "ok": { "type": "int" },
+      "failed": { "type": "int" }
+    }
+  },
+  "zakatTitle": "Zakat calculator",
+  "zakatDisclaimer": "Estimate only (2.5% on net zakatable wealth). Enter gold and silver by weight in grams; value = grams × price per gram. Consult a scholar for your situation.",
+  "zakatFillFromLedger": "Fill from this ledger",
+  "zakatFillFromLedgerDone": "Cash and savings plans added from your ledger",
+  "zakatPricesSection": "Market prices (per gram)",
+  "zakatPricesHint": "Used to value your gold and silver and to calculate nisab.",
+  "zakatPricePerGramSuffix": "EGP/g",
+  "zakatAssetsSection": "Zakatable assets",
+  "zakatDeductionsSection": "Deductions",
+  "zakatNisabSection": "Nisab (minimum)",
+  "zakatCash": "Cash & bank balance",
+  "zakatGold": "Gold weight (24k, grams)",
+  "zakatSilver": "Silver weight (grams)",
+  "zakatInvestments": "Investments & savings",
+  "zakatBusinessGoods": "Trade / business goods",
+  "zakatReceivables": "Money owed to you",
+  "zakatDebts": "Debts & liabilities",
+  "zakatGoldPricePerGram": "Gold price (24k)",
+  "zakatSilverPricePerGram": "Silver price",
+  "zakatAmountHint": "0",
+  "zakatGoldPriceHint": "e.g. 4500",
+  "zakatSilverPriceHint": "e.g. 55",
+  "zakatGoldWeightHint": "e.g. 50",
+  "zakatSilverWeightHint": "e.g. 200",
+  "zakatComputedValue": "≈ {amount}",
+  "@zakatComputedValue": {
+    "placeholders": { "amount": { "type": "String" } }
+  },
+  "zakatNisabHint": "Nisab reference: {goldGrams}g gold or {silverGrams}g silver (this app uses {goldGrams}g gold × gold price).",
+  "@zakatNisabHint": {
+    "placeholders": {
+      "goldGrams": { "type": "int" },
+      "silverGrams": { "type": "int" }
+    }
+  },
+  "zakatResultTitle": "Your estimate",
+  "zakatTotalAssets": "Total assets",
+  "zakatNetWealth": "Net wealth",
+  "zakatNisabThreshold": "Nisab threshold",
+  "zakatMeetsNisab": "You meet nisab — estimated zakat:",
+  "zakatBelowNisab": "Below nisab — no zakat due:",
+  "zakatDueLabel": "Estimated zakat (2.5%)",
+  "zakatRateNote": "Hawl (one lunar year) on wealth is assumed. Adjust inputs for your case."
 }

@@ -24,7 +24,25 @@ class CurrencyConverter {
       symbol: 'E£',
       rateToUsd: 0.021,
     ),
+    Currency(
+      code: 'USD',
+      name: 'US Dollar',
+      symbol: r'$',
+      rateToUsd: 1.0,
+    ),
+    Currency(
+      code: 'EUR',
+      name: 'Euro',
+      symbol: '€',
+      rateToUsd: 1.08,
+    ),
   ];
+
+  /// Currencies selectable when logging a transaction (travel mode).
+  static List<Currency> get entryCurrencies => currencies;
+
+  static bool isDefaultEntryCurrency(String code) =>
+      code == defaultDisplayCode;
 
   static Currency get base => _storageCurrency;
 

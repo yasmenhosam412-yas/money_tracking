@@ -377,6 +377,132 @@ abstract class AppLocalizations {
   /// **'Bill reminders'**
   String get billRemindersEnabled;
 
+  /// No description provided for @dailyDigestEnabled.
+  ///
+  /// In en, this message translates to:
+  /// **'Daily summary'**
+  String get dailyDigestEnabled;
+
+  /// No description provided for @dailyDigestSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Evening recap of yesterday\'s spending and your month so far'**
+  String get dailyDigestSubtitle;
+
+  /// No description provided for @dailyDigestTimeLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Summary time'**
+  String get dailyDigestTimeLabel;
+
+  /// No description provided for @dailyDigestNotificationTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your money yesterday'**
+  String get dailyDigestNotificationTitle;
+
+  /// No description provided for @dailyDigestNotificationEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No transactions logged yesterday. Open imrpo to track today\'s spending.'**
+  String get dailyDigestNotificationEmpty;
+
+  /// No description provided for @dailyDigestYesterdayExpenses.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, one{1 expense ({amount})} other{{count} expenses ({amount})}}'**
+  String dailyDigestYesterdayExpenses(int count, String amount);
+
+  /// No description provided for @dailyDigestYesterdayNoExpenses.
+  ///
+  /// In en, this message translates to:
+  /// **'No expenses yesterday'**
+  String get dailyDigestYesterdayNoExpenses;
+
+  /// No description provided for @dailyDigestYesterdayIncomes.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, one{1 income ({amount})} other{{count} incomes ({amount})}}'**
+  String dailyDigestYesterdayIncomes(int count, String amount);
+
+  /// No description provided for @dailyDigestYesterdayNoIncomes.
+  ///
+  /// In en, this message translates to:
+  /// **'No income yesterday'**
+  String get dailyDigestYesterdayNoIncomes;
+
+  /// No description provided for @dailyDigestMonthNet.
+  ///
+  /// In en, this message translates to:
+  /// **'Month net: {amount}'**
+  String dailyDigestMonthNet(String amount);
+
+  /// No description provided for @notificationsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Notifications'**
+  String get notificationsTitle;
+
+  /// No description provided for @notificationsSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Manage bill reminders, daily summaries, and see what\'s scheduled next.'**
+  String get notificationsSubtitle;
+
+  /// No description provided for @notificationsMessageLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Notification message'**
+  String get notificationsMessageLabel;
+
+  /// No description provided for @notificationsInbox.
+  ///
+  /// In en, this message translates to:
+  /// **'Recent alerts'**
+  String get notificationsInbox;
+
+  /// No description provided for @notificationsUpcoming.
+  ///
+  /// In en, this message translates to:
+  /// **'Upcoming'**
+  String get notificationsUpcoming;
+
+  /// No description provided for @notificationsUpcomingEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No notifications scheduled. Turn on bill reminders or daily summary above.'**
+  String get notificationsUpcomingEmpty;
+
+  /// No description provided for @notificationsPermissionBanner.
+  ///
+  /// In en, this message translates to:
+  /// **'Notifications are off in system settings. Enable them to get bill reminders and your daily summary.'**
+  String get notificationsPermissionBanner;
+
+  /// No description provided for @notificationsOpenSettings.
+  ///
+  /// In en, this message translates to:
+  /// **'Open settings'**
+  String get notificationsOpenSettings;
+
+  /// No description provided for @notificationsManageBills.
+  ///
+  /// In en, this message translates to:
+  /// **'Manage bills'**
+  String get notificationsManageBills;
+
+  /// No description provided for @notificationsScheduledBillSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'{when} · {due}'**
+  String notificationsScheduledBillSubtitle(String when, String due);
+
+  /// No description provided for @notificationsScheduledDigestSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Next summary · {when}'**
+  String notificationsScheduledDigestSubtitle(String when);
+
   /// No description provided for @billRemindersPermissionDenied.
   ///
   /// In en, this message translates to:
@@ -1516,6 +1642,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'No internet connection'**
   String get noInternetConnection;
+
+  /// No description provided for @offlineWithPendingTransactions.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Offline — 1 entry will sync when you\'re back online} other{Offline — {count} entries will sync when you\'re back online}}'**
+  String offlineWithPendingTransactions(int count);
 
   /// No description provided for @errorGeneric.
   ///
@@ -3646,6 +3778,384 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'This period'**
   String get globalSearchCurrentPeriod;
+
+  /// No description provided for @currencyUsDollar.
+  ///
+  /// In en, this message translates to:
+  /// **'US Dollar'**
+  String get currencyUsDollar;
+
+  /// No description provided for @currencyEuro.
+  ///
+  /// In en, this message translates to:
+  /// **'Euro'**
+  String get currencyEuro;
+
+  /// No description provided for @expenseReceiptLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Receipt photo'**
+  String get expenseReceiptLabel;
+
+  /// No description provided for @expenseReceiptAttach.
+  ///
+  /// In en, this message translates to:
+  /// **'Attach receipt'**
+  String get expenseReceiptAttach;
+
+  /// No description provided for @expenseReceiptReplace.
+  ///
+  /// In en, this message translates to:
+  /// **'Replace photo'**
+  String get expenseReceiptReplace;
+
+  /// No description provided for @expenseReceiptRemove.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove'**
+  String get expenseReceiptRemove;
+
+  /// No description provided for @expenseReceiptUploadFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not upload receipt. Try again.'**
+  String get expenseReceiptUploadFailed;
+
+  /// No description provided for @expenseReceiptInvalidType.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a photo (JPG, PNG, or WebP). Videos are not supported.'**
+  String get expenseReceiptInvalidType;
+
+  /// No description provided for @csvImportTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Import from CSV'**
+  String get csvImportTitle;
+
+  /// No description provided for @csvImportPickHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Import expenses and incomes from a spreadsheet export. Map columns on the next step.'**
+  String get csvImportPickHint;
+
+  /// No description provided for @csvImportPickFile.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose CSV file'**
+  String get csvImportPickFile;
+
+  /// No description provided for @csvImportFileSelected.
+  ///
+  /// In en, this message translates to:
+  /// **'Selected: {name}'**
+  String csvImportFileSelected(String name);
+
+  /// No description provided for @csvImportEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'The file has no rows to import.'**
+  String get csvImportEmpty;
+
+  /// No description provided for @csvImportParseFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not read this CSV file.'**
+  String get csvImportParseFailed;
+
+  /// No description provided for @csvImportFirstRowHeader.
+  ///
+  /// In en, this message translates to:
+  /// **'First row is column headers'**
+  String get csvImportFirstRowHeader;
+
+  /// No description provided for @csvImportCurrencyHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Amounts in file are in:'**
+  String get csvImportCurrencyHint;
+
+  /// No description provided for @csvImportMapColumns.
+  ///
+  /// In en, this message translates to:
+  /// **'Map columns'**
+  String get csvImportMapColumns;
+
+  /// No description provided for @csvImportFieldSkip.
+  ///
+  /// In en, this message translates to:
+  /// **'Skip'**
+  String get csvImportFieldSkip;
+
+  /// No description provided for @csvImportFieldType.
+  ///
+  /// In en, this message translates to:
+  /// **'Income or expense'**
+  String get csvImportFieldType;
+
+  /// No description provided for @csvImportBack.
+  ///
+  /// In en, this message translates to:
+  /// **'Back'**
+  String get csvImportBack;
+
+  /// No description provided for @csvImportPreview.
+  ///
+  /// In en, this message translates to:
+  /// **'Preview'**
+  String get csvImportPreview;
+
+  /// No description provided for @csvImportPreviewSummary.
+  ///
+  /// In en, this message translates to:
+  /// **'{total} rows ready ({expenses} expenses, {incomes} incomes)'**
+  String csvImportPreviewSummary(int total, int expenses, int incomes);
+
+  /// No description provided for @csvImportTypeExpense.
+  ///
+  /// In en, this message translates to:
+  /// **'Expense'**
+  String get csvImportTypeExpense;
+
+  /// No description provided for @csvImportTypeIncome.
+  ///
+  /// In en, this message translates to:
+  /// **'Income'**
+  String get csvImportTypeIncome;
+
+  /// No description provided for @csvImportMoreRows.
+  ///
+  /// In en, this message translates to:
+  /// **'+ {count} more rows'**
+  String csvImportMoreRows(int count);
+
+  /// No description provided for @csvImportRun.
+  ///
+  /// In en, this message translates to:
+  /// **'Import all'**
+  String get csvImportRun;
+
+  /// No description provided for @csvImportProgress.
+  ///
+  /// In en, this message translates to:
+  /// **'Importing…'**
+  String get csvImportProgress;
+
+  /// No description provided for @csvImportSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Imported {count} transactions'**
+  String csvImportSuccess(int count);
+
+  /// No description provided for @csvImportPartial.
+  ///
+  /// In en, this message translates to:
+  /// **'Imported {ok}, {failed} failed'**
+  String csvImportPartial(int ok, int failed);
+
+  /// No description provided for @zakatTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Zakat calculator'**
+  String get zakatTitle;
+
+  /// No description provided for @zakatDisclaimer.
+  ///
+  /// In en, this message translates to:
+  /// **'Estimate only (2.5% on net zakatable wealth). Enter gold and silver by weight in grams; value = grams × price per gram. Consult a scholar for your situation.'**
+  String get zakatDisclaimer;
+
+  /// No description provided for @zakatFillFromLedger.
+  ///
+  /// In en, this message translates to:
+  /// **'Fill from this ledger'**
+  String get zakatFillFromLedger;
+
+  /// No description provided for @zakatFillFromLedgerDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Cash and savings plans added from your ledger'**
+  String get zakatFillFromLedgerDone;
+
+  /// No description provided for @zakatPricesSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Market prices (per gram)'**
+  String get zakatPricesSection;
+
+  /// No description provided for @zakatPricesHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Used to value your gold and silver and to calculate nisab.'**
+  String get zakatPricesHint;
+
+  /// No description provided for @zakatPricePerGramSuffix.
+  ///
+  /// In en, this message translates to:
+  /// **'EGP/g'**
+  String get zakatPricePerGramSuffix;
+
+  /// No description provided for @zakatAssetsSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Zakatable assets'**
+  String get zakatAssetsSection;
+
+  /// No description provided for @zakatDeductionsSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Deductions'**
+  String get zakatDeductionsSection;
+
+  /// No description provided for @zakatNisabSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Nisab (minimum)'**
+  String get zakatNisabSection;
+
+  /// No description provided for @zakatCash.
+  ///
+  /// In en, this message translates to:
+  /// **'Cash & bank balance'**
+  String get zakatCash;
+
+  /// No description provided for @zakatGold.
+  ///
+  /// In en, this message translates to:
+  /// **'Gold weight (24k, grams)'**
+  String get zakatGold;
+
+  /// No description provided for @zakatSilver.
+  ///
+  /// In en, this message translates to:
+  /// **'Silver weight (grams)'**
+  String get zakatSilver;
+
+  /// No description provided for @zakatInvestments.
+  ///
+  /// In en, this message translates to:
+  /// **'Investments & savings'**
+  String get zakatInvestments;
+
+  /// No description provided for @zakatBusinessGoods.
+  ///
+  /// In en, this message translates to:
+  /// **'Trade / business goods'**
+  String get zakatBusinessGoods;
+
+  /// No description provided for @zakatReceivables.
+  ///
+  /// In en, this message translates to:
+  /// **'Money owed to you'**
+  String get zakatReceivables;
+
+  /// No description provided for @zakatDebts.
+  ///
+  /// In en, this message translates to:
+  /// **'Debts & liabilities'**
+  String get zakatDebts;
+
+  /// No description provided for @zakatGoldPricePerGram.
+  ///
+  /// In en, this message translates to:
+  /// **'Gold price (24k)'**
+  String get zakatGoldPricePerGram;
+
+  /// No description provided for @zakatSilverPricePerGram.
+  ///
+  /// In en, this message translates to:
+  /// **'Silver price'**
+  String get zakatSilverPricePerGram;
+
+  /// No description provided for @zakatAmountHint.
+  ///
+  /// In en, this message translates to:
+  /// **'0'**
+  String get zakatAmountHint;
+
+  /// No description provided for @zakatGoldPriceHint.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. 4500'**
+  String get zakatGoldPriceHint;
+
+  /// No description provided for @zakatSilverPriceHint.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. 55'**
+  String get zakatSilverPriceHint;
+
+  /// No description provided for @zakatGoldWeightHint.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. 50'**
+  String get zakatGoldWeightHint;
+
+  /// No description provided for @zakatSilverWeightHint.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. 200'**
+  String get zakatSilverWeightHint;
+
+  /// No description provided for @zakatComputedValue.
+  ///
+  /// In en, this message translates to:
+  /// **'≈ {amount}'**
+  String zakatComputedValue(String amount);
+
+  /// No description provided for @zakatNisabHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Nisab reference: {goldGrams}g gold or {silverGrams}g silver (this app uses {goldGrams}g gold × gold price).'**
+  String zakatNisabHint(int goldGrams, int silverGrams);
+
+  /// No description provided for @zakatResultTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your estimate'**
+  String get zakatResultTitle;
+
+  /// No description provided for @zakatTotalAssets.
+  ///
+  /// In en, this message translates to:
+  /// **'Total assets'**
+  String get zakatTotalAssets;
+
+  /// No description provided for @zakatNetWealth.
+  ///
+  /// In en, this message translates to:
+  /// **'Net wealth'**
+  String get zakatNetWealth;
+
+  /// No description provided for @zakatNisabThreshold.
+  ///
+  /// In en, this message translates to:
+  /// **'Nisab threshold'**
+  String get zakatNisabThreshold;
+
+  /// No description provided for @zakatMeetsNisab.
+  ///
+  /// In en, this message translates to:
+  /// **'You meet nisab — estimated zakat:'**
+  String get zakatMeetsNisab;
+
+  /// No description provided for @zakatBelowNisab.
+  ///
+  /// In en, this message translates to:
+  /// **'Below nisab — no zakat due:'**
+  String get zakatBelowNisab;
+
+  /// No description provided for @zakatDueLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Estimated zakat (2.5%)'**
+  String get zakatDueLabel;
+
+  /// No description provided for @zakatRateNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Hawl (one lunar year) on wealth is assumed. Adjust inputs for your case.'**
+  String get zakatRateNote;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {
